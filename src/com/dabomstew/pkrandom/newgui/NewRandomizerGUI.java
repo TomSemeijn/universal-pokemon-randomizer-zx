@@ -35,6 +35,7 @@ import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
+import org.python.util.PythonInterpreter;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -297,6 +298,9 @@ public class NewRandomizerGUI {
     private JComboBox tpComboBox;
     private JCheckBox tpBetterMovesetsCheckBox;
     private JCheckBox paEnsureTwoAbilitiesCheckbox;
+    private JPanel scriptingPanel;
+    private JTextArea sScriptInput;
+    private JButton sTestButton;
 
     private static JFrame frame;
 
@@ -405,6 +409,7 @@ public class NewRandomizerGUI {
         frame.setTitle(String.format(bundle.getString("GUI.windowTitle"),Version.VERSION_STRING));
 
         openROMButton.addActionListener(e -> loadROM());
+        sTestButton.addActionListener(e -> testPython());
         pbsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -716,6 +721,18 @@ public class NewRandomizerGUI {
         settingsMenu.add(keepOrUnloadGameAfterRandomizingMenuItem);
     }
 
+    private void testPython()
+    {
+        String scriptText = sScriptInput.getText();
+        try{
+            PythonInterpreter interp = new PythonInterpreter();
+            interp.exec(scriptText);
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.toString());
+        }
+    }
     private void loadROM() {
         romOpenChooser.setSelectedFile(null);
         int returnVal = romOpenChooser.showOpenDialog(mainPanel);
