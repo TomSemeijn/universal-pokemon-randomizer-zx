@@ -1587,6 +1587,8 @@ public class NewRandomizerGUI {
         puRandomRadioButton.setSelected(settings.getPickupItemsMod() == Settings.PickupItemsMod.RANDOM);
         puBanBadItemsCheckBox.setSelected(settings.isBanBadRandomPickupItems());
 
+        sScriptInput.setText(settings.getScriptSource());
+
         int mtsSelected = settings.getCurrentMiscTweaks();
         int mtCount = MiscTweak.allTweaks.size();
 
@@ -1798,6 +1800,8 @@ public class NewRandomizerGUI {
         settings.setCurrentMiscTweaks(currentMiscTweaks);
 
         settings.setCustomNames(customNames);
+
+        settings.setScriptSource(sScriptInput.getText());
 
         return settings;
     }

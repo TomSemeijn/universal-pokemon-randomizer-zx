@@ -44,6 +44,7 @@ import com.dabomstew.pkrandom.romhandlers.Gen2RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen3RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen5RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
+import org.python.util.PythonInterpreter;
 
 public class Settings {
 
@@ -309,6 +310,8 @@ public class Settings {
     private boolean balanceShopPrices;
     private boolean guaranteeEvolutionItems;
     private boolean guaranteeXItems;
+
+    private String scriptSource;
 
     public enum PickupItemsMod {
         UNCHANGED, RANDOM
@@ -588,6 +591,15 @@ public class Settings {
             out.write(romName.length);
             out.write(romName);
         } catch (IOException e) {
+            out.write(0);
+        }
+
+        try{
+            byte[] scriptSource = this.scriptSource.getBytes("US-ASCII");
+            out.write(scriptSource.length);
+            out.write(scriptSource);
+        } catch (IOException e)
+        {
             out.write(0);
         }
 
@@ -877,6 +889,10 @@ public class Settings {
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
         settings.setRomName(romName);
 
+        int scriptSourceLength = data[LENGTH_OF_SETTINGS_DATA + 1 + romNameLength] & 0xFF;
+        String scriptSource = new String(data, LENGTH_OF_SETTINGS_DATA + 1 + romNameLength + 1, scriptSourceLength, "US-ASCII");
+        settings.setScriptSource(scriptSource);
+
         return settings;
     }
 
@@ -1011,6 +1027,10 @@ public class Settings {
     }
 
     // getters and setters
+
+    public void setScriptSource(String source) { scriptSource = source; }
+
+    public String getScriptSource() { return scriptSource; }
 
     public CustomNamesSet getCustomNames() {
         return customNames;
