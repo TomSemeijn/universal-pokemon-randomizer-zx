@@ -2570,6 +2570,9 @@ public class NewRandomizerGUI {
 
         liveTweaksPanel.setVisible(false);
         miscTweaksPanel.setVisible(true);
+
+        sScriptInput.setVisible(true);
+        sScriptInput.setEnabled(false);
     }
 
     private void romLoaded() {
@@ -2884,6 +2887,8 @@ public class NewRandomizerGUI {
             puUnchangedRadioButton.setEnabled(true);
             puUnchangedRadioButton.setSelected(true);
             puRandomRadioButton.setEnabled(true);
+
+            sScriptInput.setEnabled(true);
 
             int mtsAvailable = romHandler.miscTweaksAvailable();
             int mtCount = MiscTweak.allTweaks.size();

@@ -3656,6 +3656,7 @@
                   <component id="f7b5b" class="javax.swing.JTextArea" binding="sScriptInput">
                     <constraints/>
                     <properties>
+                      <enabled value="false"/>
                       <font size="36"/>
                     </properties>
                   </component>
