@@ -101,7 +101,7 @@ public class Settings {
     private boolean ensureTwoAbilities;
 
     public enum StartersMod {
-        UNCHANGED, CUSTOM, COMPLETELY_RANDOM, RANDOM_WITH_TWO_EVOLUTIONS
+        UNCHANGED, CUSTOM, COMPLETELY_RANDOM, RANDOM_WITH_TWO_EVOLUTIONS, SCRIPTED
     }
 
     private StartersMod startersMod = StartersMod.UNCHANGED;
@@ -388,7 +388,7 @@ public class Settings {
 
         // 4: starter pokemon stuff
         out.write(makeByteSelected(startersMod == StartersMod.CUSTOM, startersMod == StartersMod.COMPLETELY_RANDOM,
-                startersMod == StartersMod.UNCHANGED, startersMod == StartersMod.RANDOM_WITH_TWO_EVOLUTIONS,
+                startersMod == StartersMod.UNCHANGED, startersMod == StartersMod.RANDOM_WITH_TWO_EVOLUTIONS, startersMod == StartersMod.SCRIPTED,
                 randomizeStartersHeldItems, banBadRandomStarterHeldItems, allowStarterAltFormes));
 
         // 5 - 10: dropdowns
@@ -664,7 +664,8 @@ public class Settings {
         settings.setStartersMod(restoreEnum(StartersMod.class, data[4], 2, // UNCHANGED
                 0, // CUSTOM
                 1, // COMPLETELY_RANDOM
-                3 // RANDOM_WITH_TWO_EVOLUTIONS
+                3, // RANDOM_WITH_TWO_EVOLUTIONS
+                4 // SCRIPTED
         ));
         settings.setRandomizeStartersHeldItems(restoreState(data[4], 4));
         settings.setBanBadRandomStarterHeldItems(restoreState(data[4], 5));

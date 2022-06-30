@@ -33,6 +33,8 @@ import com.dabomstew.pkrandom.pokemon.*;
 import com.dabomstew.pkrandom.romhandlers.Gen1RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
 
+import javax.swing.*;
+
 // Can randomize a file based on settings. Output varies by seed.
 public class Randomizer {
 
@@ -94,6 +96,9 @@ public class Randomizer {
         boolean tmsHmsCompatChanged = false;
         boolean tutorCompatChanged = false;
         boolean shopsChanged = false;
+
+        ScriptInstance script;
+        script = new ScriptInstance(settings.getScriptSource());
 
         // Limit Pokemon
         // 1. Set Pokemon pool according to limits (or lack thereof)
@@ -266,6 +271,10 @@ public class Randomizer {
                 break;
             case RANDOM_WITH_TWO_EVOLUTIONS:
                 romHandler.randomizeBasicTwoEvosStarters(settings);
+                startersChanged = true;
+                break;
+            case SCRIPTED:
+                romHandler.randomizeScriptedStarters(script);
                 startersChanged = true;
                 break;
             default:
@@ -1052,6 +1061,9 @@ public class Randomizer {
                 break;
             case RANDOM_WITH_TWO_EVOLUTIONS:
                 log.println("--Random 2-Evolution Starters--");
+                break;
+            case SCRIPTED:
+                log.println("--Scripted Starters--");
                 break;
             default:
                 break;

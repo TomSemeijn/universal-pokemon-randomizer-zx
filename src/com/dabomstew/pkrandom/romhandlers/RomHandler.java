@@ -33,6 +33,7 @@ import java.util.Random;
 import java.util.Set;
 
 import com.dabomstew.pkrandom.MiscTweak;
+import com.dabomstew.pkrandom.ScriptInstance;
 import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.pokemon.*;
 
@@ -125,6 +126,8 @@ public interface RomHandler {
     void randomizeStarters(Settings settings);
 
     void randomizeBasicTwoEvosStarters(Settings settings);
+
+    void randomizeScriptedStarters(ScriptInstance script);
 
     List<Pokemon> getPickedStarters();
 

@@ -94,6 +94,9 @@ public class NewRandomizerGUI {
     private JRadioButton spCustomRadioButton;
     private JRadioButton spRandomCompletelyRadioButton;
     private JRadioButton spRandomTwoEvosRadioButton;
+
+    private JRadioButton spScriptedRadioButton;
+
     private JComboBox<String> spComboBox1;
     private JComboBox<String> spComboBox2;
     private JComboBox<String> spComboBox3;
@@ -426,6 +429,8 @@ public class NewRandomizerGUI {
         spCustomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         spRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
         spRandomTwoEvosRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        spScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        spScriptedRadioButton.addActionListener(e -> addStarterScriptFunc());
         stpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpSwapLegendariesSwapStandardsRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1406,6 +1411,7 @@ public class NewRandomizerGUI {
         spRandomCompletelyRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.COMPLETELY_RANDOM);
         spUnchangedRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.UNCHANGED);
         spRandomTwoEvosRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.RANDOM_WITH_TWO_EVOLUTIONS);
+        spScriptedRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.SCRIPTED);
         spRandomizeStarterHeldItemsCheckBox.setSelected(settings.isRandomizeStartersHeldItems());
         spBanBadItemsCheckBox.setSelected(settings.isBanBadRandomStarterHeldItems());
         spAllowAltFormesCheckBox.setSelected(settings.isAllowStarterAltFormes());
@@ -1649,7 +1655,7 @@ public class NewRandomizerGUI {
         settings.setRemoveTimeBasedEvolutions(peRemoveTimeBasedEvolutionsCheckBox.isSelected());
 
         settings.setStartersMod(spUnchangedRadioButton.isSelected(), spCustomRadioButton.isSelected(), spRandomCompletelyRadioButton.isSelected(),
-                spRandomTwoEvosRadioButton.isSelected());
+                spRandomTwoEvosRadioButton.isSelected(), spScriptedRadioButton.isSelected());
         settings.setRandomizeStartersHeldItems(spRandomizeStarterHeldItemsCheckBox.isSelected() && spRandomizeStarterHeldItemsCheckBox.isVisible());
         settings.setBanBadRandomStarterHeldItems(spBanBadItemsCheckBox.isSelected() && spBanBadItemsCheckBox.isVisible());
         settings.setAllowStarterAltFormes(spAllowAltFormesCheckBox.isSelected() && spAllowAltFormesCheckBox.isVisible());
@@ -2066,6 +2072,9 @@ public class NewRandomizerGUI {
         spRandomTwoEvosRadioButton.setVisible(true);
         spRandomTwoEvosRadioButton.setEnabled(false);
         spRandomTwoEvosRadioButton.setSelected(false);
+        spScriptedRadioButton.setVisible(true);
+        spScriptedRadioButton.setEnabled(false);
+        spScriptedRadioButton.setSelected(false);
         spComboBox1.setVisible(true);
         spComboBox1.setEnabled(false);
         spComboBox1.setSelectedIndex(0);
@@ -2664,6 +2673,7 @@ public class NewRandomizerGUI {
             spCustomRadioButton.setEnabled(true);
             spRandomCompletelyRadioButton.setEnabled(true);
             spRandomTwoEvosRadioButton.setEnabled(true);
+            spScriptedRadioButton.setEnabled(true);
             spAllowAltFormesCheckBox.setVisible(romHandler.hasStarterAltFormes());
             if (romHandler.isYellow()) {
                 spComboBox3.setVisible(false);
@@ -3864,6 +3874,41 @@ public class NewRandomizerGUI {
 
     private boolean isTrainerSetting(int setting) {
         return trainerSettings.indexOf(tpComboBox.getSelectedItem()) == setting;
+    }
+
+    private void addStarterScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String funcDeclaration = "def selectStarter(pokepool, starterIndex):";
+        String[] funcComments = {
+                "#selects starter pokemon",
+                "#  pokepool - a List<Pokemon> object of all available pokemon",
+                "#  starterIndex - The index of the current starter [0 - 2]"
+        };
+        if(spScriptedRadioButton.isSelected())
+        {
+            if(!scriptText.contains(funcDeclaration))
+            {
+                String pokeImport = "from com.dabomstew.pkrandom.pokemon import Pokemon";
+                if(!scriptText.contains(pokeImport))
+                {
+                    scriptText = pokeImport + "\n" + scriptText;
+                }
+                String listImport = "from java.util import List";
+                if(!scriptText.contains(listImport))
+                {
+                    scriptText = listImport + "\n" + scriptText;
+                }
+                String exampleFunc = "";
+                for(String comm : funcComments)
+                {
+                    exampleFunc += comm + "\n";
+                }
+                exampleFunc += funcDeclaration + "\n\treturn pokepool.get(starterIndex) #example";
+                scriptText += "\n" + exampleFunc;
+                sScriptInput.setText(scriptText);
+            }
+        }
     }
 
     public static void main(String[] args) {

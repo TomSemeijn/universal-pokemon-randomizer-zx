@@ -3973,6 +3973,13 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
+    public void randomizeScriptedStarters(ScriptInstance script)
+    {
+        pickedStarters = script.getScriptedStarters(mainPokemonList);
+        setStarters(pickedStarters);
+    }
+    
+    @Override
     public List<Pokemon> getPickedStarters() {
         return pickedStarters;
     }
