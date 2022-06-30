@@ -3876,38 +3876,49 @@ public class NewRandomizerGUI {
         return trainerSettings.indexOf(tpComboBox.getSelectedItem()) == setting;
     }
 
+    private String addImport(String sourceStr, String importFrom, String imported)
+    {
+        String importStr = "from " + importFrom + " import " + imported;
+        if(!sourceStr.contains(importStr))
+        {
+            sourceStr = importStr + "\n" + sourceStr;
+        }
+        return sourceStr;
+    }
+
+    private String addExampleFunc(String sourceStr, String funcDeclaration, String[] topComments, String exampleBody)
+    {
+        if(!sourceStr.contains(funcDeclaration))
+        {
+            String exampleFunc = "";
+            for(String comm : topComments)
+            {
+                exampleFunc += comm + "\n";
+            }
+            exampleFunc += funcDeclaration + exampleBody;
+            sourceStr += "\n" + exampleFunc;
+        }
+        return sourceStr;
+    }
+
     private void addStarterScriptFunc()
     {
         String scriptText = sScriptInput.getText();
-        String funcDeclaration = "def selectStarter(pokepool, starterIndex):";
         String[] funcComments = {
                 "#selects starter pokemon",
                 "#  pokepool - a List<Pokemon> object of all available pokemon",
                 "#  starterIndex - The index of the current starter [0 - 2]"
         };
+        String funcBody = "\n\treturn pokepool.get(starterIndex) #example";
+        String funcDeclaration = "def selectStarter(pokepool, starterIndex):";
+
         if(spScriptedRadioButton.isSelected())
         {
-            if(!scriptText.contains(funcDeclaration))
-            {
-                String pokeImport = "from com.dabomstew.pkrandom.pokemon import Pokemon";
-                if(!scriptText.contains(pokeImport))
-                {
-                    scriptText = pokeImport + "\n" + scriptText;
-                }
-                String listImport = "from java.util import List";
-                if(!scriptText.contains(listImport))
-                {
-                    scriptText = listImport + "\n" + scriptText;
-                }
-                String exampleFunc = "";
-                for(String comm : funcComments)
-                {
-                    exampleFunc += comm + "\n";
-                }
-                exampleFunc += funcDeclaration + "\n\treturn pokepool.get(starterIndex) #example";
-                scriptText += "\n" + exampleFunc;
-                sScriptInput.setText(scriptText);
-            }
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
         }
     }
 
