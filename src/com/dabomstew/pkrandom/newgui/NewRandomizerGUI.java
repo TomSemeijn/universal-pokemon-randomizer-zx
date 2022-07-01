@@ -302,7 +302,7 @@ public class NewRandomizerGUI {
     private JCheckBox tpBetterMovesetsCheckBox;
     private JCheckBox paEnsureTwoAbilitiesCheckbox;
     private JPanel scriptingPanel;
-    private JTextArea sScriptInput;
+    private JTextPane sScriptInput;
     private JButton sTestButton;
     private JRadioButton stpScriptedRadioButton;
     private JRadioButton stpScriptedFullRadioButton;
@@ -1131,6 +1131,11 @@ public class NewRandomizerGUI {
             }
         }
 
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+        sScriptInput = new JTextPane(new JythonStyledDocument());
     }
 
 

@@ -3675,11 +3675,12 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="f7b5b" class="javax.swing.JTextArea" binding="sScriptInput">
+                  <component id="dd825" class="javax.swing.JTextPane" binding="sScriptInput" custom-create="true">
                     <constraints/>
                     <properties>
                       <enabled value="false"/>
-                      <font size="36"/>
+                      <font name="Consolas" size="36"/>
+                      <foreground color="-14342875"/>
                     </properties>
                   </component>
                 </children>
