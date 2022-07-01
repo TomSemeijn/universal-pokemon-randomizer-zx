@@ -304,6 +304,7 @@ public class NewRandomizerGUI {
     private JPanel scriptingPanel;
     private JTextArea sScriptInput;
     private JButton sTestButton;
+    private JRadioButton stpScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -434,6 +435,8 @@ public class NewRandomizerGUI {
         stpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpSwapLegendariesSwapStandardsRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        stpScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        stpScriptedRadioButton.addActionListener(e -> addStaticScriptFunc());
         stpRandomSimilarStrengthRadioButton.addActionListener(e -> enableOrDisableSubControls());
         stpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
         igtUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1522,6 +1525,8 @@ public class NewRandomizerGUI {
                 .setSelected(settings.getStaticPokemonMod() == Settings.StaticPokemonMod.COMPLETELY_RANDOM);
         stpRandomSimilarStrengthRadioButton
                 .setSelected(settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SIMILAR_STRENGTH);
+        stpScriptedRadioButton
+                .setSelected(settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SCRIPTED);
         stpLimitMainGameLegendariesCheckBox.setSelected(settings.isLimitMainGameLegendaries());
         stpRandomize600BSTCheckBox.setSelected(settings.isLimit600());
         stpAllowAltFormesCheckBox.setSelected(settings.isAllowStaticAltFormes());
@@ -1741,7 +1746,7 @@ public class NewRandomizerGUI {
         settings.setAllowWildAltFormes(wpAllowAltFormesCheckBox.isSelected() && wpAllowAltFormesCheckBox.isVisible());
 
         settings.setStaticPokemonMod(stpUnchangedRadioButton.isSelected(), stpSwapLegendariesSwapStandardsRadioButton.isSelected(),
-                stpRandomCompletelyRadioButton.isSelected(), stpRandomSimilarStrengthRadioButton.isSelected());
+                stpRandomCompletelyRadioButton.isSelected(), stpRandomSimilarStrengthRadioButton.isSelected(), stpScriptedRadioButton.isSelected());
         settings.setLimitMainGameLegendaries(stpLimitMainGameLegendariesCheckBox.isSelected() && stpLimitMainGameLegendariesCheckBox.isVisible());
         settings.setLimit600(stpRandomize600BSTCheckBox.isSelected());
         settings.setAllowStaticAltFormes(stpAllowAltFormesCheckBox.isSelected() && stpAllowAltFormesCheckBox.isVisible());
@@ -2108,6 +2113,9 @@ public class NewRandomizerGUI {
         stpRandomSimilarStrengthRadioButton.setVisible(true);
         stpRandomSimilarStrengthRadioButton.setEnabled(false);
         stpRandomSimilarStrengthRadioButton.setSelected(false);
+        stpScriptedRadioButton.setVisible(true);
+        stpScriptedRadioButton.setEnabled(false);
+        stpScriptedRadioButton.setSelected(false);
         stpPercentageLevelModifierCheckBox.setVisible(true);
         stpPercentageLevelModifierCheckBox.setEnabled(false);
         stpPercentageLevelModifierCheckBox.setSelected(false);
@@ -2695,6 +2703,7 @@ public class NewRandomizerGUI {
                 stpSwapLegendariesSwapStandardsRadioButton.setEnabled(true);
                 stpRandomCompletelyRadioButton.setEnabled(true);
                 stpRandomSimilarStrengthRadioButton.setEnabled(true);
+                stpScriptedRadioButton.setEnabled(true);
                 stpLimitMainGameLegendariesCheckBox.setVisible(romHandler.hasMainGameLegendaries());
                 stpLimitMainGameLegendariesCheckBox.setEnabled(false);
                 stpAllowAltFormesCheckBox.setVisible(romHandler.hasStaticAltFormes());
@@ -2709,6 +2718,7 @@ public class NewRandomizerGUI {
                 stpSwapLegendariesSwapStandardsRadioButton.setVisible(false);
                 stpRandomCompletelyRadioButton.setVisible(false);
                 stpRandomSimilarStrengthRadioButton.setVisible(false);
+                stpScriptedRadioButton.setVisible(false);
                 stpRandomize600BSTCheckBox.setVisible(false);
                 stpLimitMainGameLegendariesCheckBox.setVisible(false);
                 stpPercentageLevelModifierCheckBox.setVisible(false);
@@ -3179,6 +3189,12 @@ public class NewRandomizerGUI {
         } else {
             stpLimitMainGameLegendariesCheckBox.setEnabled(false);
             stpLimitMainGameLegendariesCheckBox.setSelected(false);
+        }
+
+        if(stpScriptedRadioButton.isSelected())
+        {
+            stpRandomize600BSTCheckBox.setEnabled(false);
+            stpRandomize600BSTCheckBox.setSelected(false);
         }
 
         if (stpPercentageLevelModifierCheckBox.isSelected()) {
@@ -3895,7 +3911,7 @@ public class NewRandomizerGUI {
     {
         if(!sourceStr.contains(funcDeclaration))
         {
-            String exampleFunc = "";
+            String exampleFunc = "\n";
             for(String comm : topComments)
             {
                 exampleFunc += comm + "\n";
@@ -3912,13 +3928,42 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#selects starter pokemon",
                 "#  pokepool - a List<Pokemon> object of all available pokemon",
-                "#  starterIndex - The index of the current starter [0 - 2]"
+                "#  starterIndex - The index of the current starter [0 - 2]",
+                "#",
+                "#  return: a Pokemon object that is present in pokepool"
         };
         String funcBody = "\n\treturn pokepool.get(starterIndex) #example";
         String funcDeclaration = "def selectStarter(pokepool, starterIndex):";
 
         if(spScriptedRadioButton.isSelected())
         {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    private void addStaticScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects static pokemon",
+                "#pokepool - a List<Pokemon> of all available pokemon",
+                "#           (some encounters might have a different restricted pool)",
+                "#oldEncounter - a StaticEncounter object to replace the pokemon of",
+                "#megaSwap - true if the current request is for swapping a mega-evolvable pokemon",
+                "#           (if true, the pokepool will only contain mega-evolvable pokemon that have not been selected before)",
+                "#",
+                "#return: a Pokemon object that contains a pokemon from pokepool"
+        };
+        String funcDeclaration = "def selectStaticPokemon(pokepool, oldEncounter, megaSwap):";
+        String funcBody = "\n\treturn pokepool.get(0) #example";
+
+        if(stpScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "StaticEncounter");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

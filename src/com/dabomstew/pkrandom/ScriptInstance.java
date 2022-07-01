@@ -1,10 +1,8 @@
 package com.dabomstew.pkrandom;
 
 import com.dabomstew.pkrandom.pokemon.Pokemon;
-import org.python.core.Py;
-import org.python.core.PyFunction;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
+import com.dabomstew.pkrandom.pokemon.StaticEncounter;
+import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
 import java.util.ArrayList;
@@ -29,5 +27,11 @@ public class ScriptInstance {
             starters.add(Py.tojava(pkm, Pokemon.class));
         }
         return starters;
+    }
+
+    public Pokemon getScriptedStatic(List<Pokemon> pokepool, StaticEncounter oldEncounter, boolean megaSwap)
+    {
+        PyFunction func = (PyFunction)interp.get("selectStaticPokemon");
+        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), Pokemon.class);
     }
 }

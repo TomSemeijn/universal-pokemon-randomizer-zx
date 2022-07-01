@@ -97,8 +97,7 @@ public class Randomizer {
         boolean tutorCompatChanged = false;
         boolean shopsChanged = false;
 
-        ScriptInstance script;
-        script = new ScriptInstance(settings.getScriptSource());
+        settings.initScript();
 
         // Limit Pokemon
         // 1. Set Pokemon pool according to limits (or lack thereof)
@@ -274,7 +273,7 @@ public class Randomizer {
                 startersChanged = true;
                 break;
             case SCRIPTED:
-                romHandler.randomizeScriptedStarters(script);
+                romHandler.randomizeScriptedStarters(settings.getScript());
                 startersChanged = true;
                 break;
             default:

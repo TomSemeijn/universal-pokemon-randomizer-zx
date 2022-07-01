@@ -50,7 +50,7 @@ public class Settings {
 
     public static final int VERSION = Version.VERSION;
 
-    public static final int LENGTH_OF_SETTINGS_DATA = 51;
+    public static final int LENGTH_OF_SETTINGS_DATA = 52;
 
     private CustomNamesSet customNames;
 
@@ -214,7 +214,7 @@ public class Settings {
     private boolean allowWildAltFormes;
 
     public enum StaticPokemonMod {
-        UNCHANGED, RANDOM_MATCHING, COMPLETELY_RANDOM, SIMILAR_STRENGTH
+        UNCHANGED, RANDOM_MATCHING, COMPLETELY_RANDOM, SIMILAR_STRENGTH, SCRIPTED
     }
 
     private StaticPokemonMod staticPokemonMod = StaticPokemonMod.UNCHANGED;
@@ -312,6 +312,8 @@ public class Settings {
     private boolean guaranteeXItems;
 
     private String scriptSource;
+
+    private ScriptInstance script;
 
     public enum PickupItemsMod {
         UNCHANGED, RANDOM
@@ -435,22 +437,28 @@ public class Settings {
                 staticPokemonMod == StaticPokemonMod.RANDOM_MATCHING,
                 staticPokemonMod == StaticPokemonMod.COMPLETELY_RANDOM,
                 staticPokemonMod == StaticPokemonMod.SIMILAR_STRENGTH,
-                limitMainGameLegendaries, limit600, allowStaticAltFormes, swapStaticMegaEvos));
+                staticPokemonMod == StaticPokemonMod.SCRIPTED
+                ));
 
-        // 18 tm randomization
+        // 18 static pokemon 2
+        out.write(makeByteSelected(
+                limitMainGameLegendaries, limit600, allowStaticAltFormes, swapStaticMegaEvos
+        ));
+
+        // 19 tm randomization
         out.write(makeByteSelected(tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.COMPLETELY_RANDOM,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.RANDOM_PREFER_TYPE,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.UNCHANGED, tmsMod == TMsMod.RANDOM,
                 tmsMod == TMsMod.UNCHANGED, tmLevelUpMoveSanity, keepFieldMoveTMs,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.FULL));
 
-        // 19 tms part 2
+        // 20 tms part 2
         out.write(makeByteSelected(fullHMCompat, tmsFollowEvolutions, tutorFollowEvolutions));
 
-        // 20 tms good damaging
+        // 21 tms good damaging
         out.write((tmsForceGoodDamaging ? 0x80 : 0) | tmsGoodDamagingPercent);
 
-        // 21 move tutor randomization
+        // 22 move tutor randomization
         out.write(makeByteSelected(moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.COMPLETELY_RANDOM,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.RANDOM_PREFER_TYPE,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.UNCHANGED,
@@ -458,30 +466,30 @@ public class Settings {
                 tutorLevelUpMoveSanity, keepFieldMoveTutors,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.FULL));
 
-        // 22 tutors good damaging
+        // 23 tutors good damaging
         out.write((tutorsForceGoodDamaging ? 0x80 : 0) | tutorsGoodDamagingPercent);
 
-        // 23 in game trades
+        // 24 in game trades
         out.write(makeByteSelected(inGameTradesMod == InGameTradesMod.RANDOMIZE_GIVEN_AND_REQUESTED,
                 inGameTradesMod == InGameTradesMod.RANDOMIZE_GIVEN, randomizeInGameTradesItems,
                 randomizeInGameTradesIVs, randomizeInGameTradesNicknames, randomizeInGameTradesOTs,
                 inGameTradesMod == InGameTradesMod.UNCHANGED));
 
-        // 24 field items
+        // 25 field items
         out.write(makeByteSelected(fieldItemsMod == FieldItemsMod.RANDOM, fieldItemsMod == FieldItemsMod.SHUFFLE,
                 fieldItemsMod == FieldItemsMod.UNCHANGED, banBadRandomFieldItems, fieldItemsMod == FieldItemsMod.RANDOM_EVEN));
 
-        // 25 move randomizers
+        // 26 move randomizers
         // + static music
         out.write(makeByteSelected(randomizeMovePowers, randomizeMoveAccuracies, randomizeMovePPs, randomizeMoveTypes,
                 randomizeMoveCategory, correctStaticMusic));
 
-        // 26 evolutions
+        // 27 evolutions
         out.write(makeByteSelected(evolutionsMod == EvolutionsMod.UNCHANGED, evolutionsMod == EvolutionsMod.RANDOM,
                 evosSimilarStrength, evosSameTyping, evosMaxThreeStages, evosForceChange, evosAllowAltFormes,
                 evolutionsMod == EvolutionsMod.RANDOM_EVERY_LEVEL));
         
-        // 27 pokemon trainer misc
+        // 28 pokemon trainer misc
         out.write(makeByteSelected(trainersUsePokemonOfSimilarStrength, 
                 rivalCarriesStarterThroughout,
                 trainersMatchTypingDistribution,
@@ -491,7 +499,7 @@ public class Settings {
                 shinyChance,
                 betterTrainerMovesets));
 
-        // 28 - 31: pokemon restrictions
+        // 29 - 32: pokemon restrictions
         try {
             if (currentRestrictions != null) {
                 writeFullInt(out, currentRestrictions.toInt());
@@ -502,25 +510,25 @@ public class Settings {
             e.printStackTrace(); // better than nothing
         }
 
-        // 32 - 35: misc tweaks
+        // 33 - 36: misc tweaks
         try {
             writeFullInt(out, currentMiscTweaks);
         } catch (IOException e) {
             e.printStackTrace(); // better than nothing
         }
 
-        // 36 trainer pokemon level modifier
+        // 37 trainer pokemon level modifier
         out.write((trainersLevelModified ? 0x80 : 0) | (trainersLevelModifier+50));
 
-        // 37 shop items
+        // 38 shop items
         out.write(makeByteSelected(shopItemsMod == ShopItemsMod.RANDOM, shopItemsMod == ShopItemsMod.SHUFFLE,
                 shopItemsMod == ShopItemsMod.UNCHANGED, banBadRandomShopItems, banRegularShopItems, banOPShopItems,
                 balanceShopPrices, guaranteeEvolutionItems));
 
-        // 38 wild level modifier
+        // 39 wild level modifier
         out.write((wildLevelsModified ? 0x80 : 0) | (wildLevelModifier+50));
 
-        // 39 EXP curve mod, block broken moves, alt forme stuff
+        // 40 EXP curve mod, block broken moves, alt forme stuff
         out.write(makeByteSelected(
                 expCurveMod == ExpCurveMod.LEGENDARIES,
                 expCurveMod == ExpCurveMod.STRONG_LEGENDARIES,
@@ -531,13 +539,13 @@ public class Settings {
                 allowTrainerAlternateFormes,
                 allowWildAltFormes));
 
-        // 40 Double Battle Mode, Additional Boss/Important Trainer Pokemon, Weigh Duplicate Abilities
+        // 41 Double Battle Mode, Additional Boss/Important Trainer Pokemon, Weigh Duplicate Abilities
         out.write((doubleBattleMode ? 0x1 : 0) |
                 (additionalBossTrainerPokemon << 1) |
                 (additionalImportantTrainerPokemon << 4) |
                 (weighDuplicateAbilitiesTogether ? 0x80 : 0));
 
-        // 41 Additional Regular Trainer Pokemon, Aura modification, evolution moves, guarantee X items
+        // 42 Additional Regular Trainer Pokemon, Aura modification, evolution moves, guarantee X items
         out.write(additionalRegularTrainerPokemon |
                 ((auraMod == AuraMod.UNCHANGED) ? 0x8 : 0) |
                 ((auraMod == AuraMod.RANDOM) ? 0x10 : 0) |
@@ -545,7 +553,7 @@ public class Settings {
                 (evolutionMovesForAll ? 0x40 : 0) |
                 (guaranteeXItems ? 0x80 : 0));
 
-        // 42 Totem Pokemon settings
+        // 43 Totem Pokemon settings
         out.write(makeByteSelected(
                 totemPokemonMod == TotemPokemonMod.UNCHANGED,
                 totemPokemonMod == TotemPokemonMod.RANDOM,
@@ -556,20 +564,20 @@ public class Settings {
                 randomizeTotemHeldItems,
                 allowTotemAltFormes));
 
-        // 43 Totem level modifier
+        // 44 Totem level modifier
         out.write((totemLevelsModified ? 0x80 : 0) | (totemLevelModifier+50));
 
-        // 44 - 45: These two get a byte each for future proofing
+        // 45 - 46: These two get a byte each for future proofing
         out.write(updateBaseStatsToGeneration);
         out.write(updateMovesToGeneration);
 
-        // 46 Selected EXP curve
+        // 47 Selected EXP curve
         out.write(selectedEXPCurve.toByte());
 
-        // 47 Static level modifier
+        // 48 Static level modifier
         out.write((staticLevelModified ? 0x80 : 0) | (staticLevelModifier+50));
 
-        // 48 trainer pokemon held items / pokemon ensure two abilities
+        // 49 trainer pokemon held items / pokemon ensure two abilities
         out.write(makeByteSelected(randomizeHeldItemsForBossTrainerPokemon,
                 randomizeHeldItemsForImportantTrainerPokemon,
                 randomizeHeldItemsForRegularTrainerPokemon,
@@ -578,12 +586,12 @@ public class Settings {
                 highestLevelOnlyGetsItemsForTrainerPokemon,
                 ensureTwoAbilities));
 
-        // 49 pickup item randomization
+        // 50 pickup item randomization
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
                 pickupItemsMod == PickupItemsMod.UNCHANGED, banBadRandomPickupItems,
                 banIrregularAltFormes));
 
-        // 50 elite four unique pokemon (3 bits)
+        // 51 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
 
         try {
@@ -721,170 +729,171 @@ public class Settings {
         settings.setStaticPokemonMod(restoreEnum(StaticPokemonMod.class, data[17], 0, // UNCHANGED
                 1, // RANDOM_MATCHING
                 2, // COMPLETELY_RANDOM
-                3  // SIMILAR_STRENGTH 
+                3, // SIMILAR_STRENGTH
+                4  // SCRIPTED
         ));
         
-        settings.setLimitMainGameLegendaries(restoreState(data[17], 4));
-        settings.setLimit600(restoreState(data[17], 5));
-        settings.setAllowStaticAltFormes(restoreState(data[17], 6));
-        settings.setSwapStaticMegaEvos(restoreState(data[17], 7));
+        settings.setLimitMainGameLegendaries(restoreState(data[18], 0));
+        settings.setLimit600(restoreState(data[18], 1));
+        settings.setAllowStaticAltFormes(restoreState(data[18], 2));
+        settings.setSwapStaticMegaEvos(restoreState(data[18], 3));
         
-        settings.setTmsMod(restoreEnum(TMsMod.class, data[18], 4, // UNCHANGED
+        settings.setTmsMod(restoreEnum(TMsMod.class, data[19], 4, // UNCHANGED
                 3 // RANDOM
         ));
-        settings.setTmsHmsCompatibilityMod(restoreEnum(TMsHMsCompatibilityMod.class, data[18], 2, // UNCHANGED
+        settings.setTmsHmsCompatibilityMod(restoreEnum(TMsHMsCompatibilityMod.class, data[19], 2, // UNCHANGED
                 1, // RANDOM_PREFER_TYPE
                 0, // COMPLETELY_RANDOM
                 7 // FULL
         )); 
-        settings.setTmLevelUpMoveSanity(restoreState(data[18], 5));
-        settings.setKeepFieldMoveTMs(restoreState(data[18], 6));
+        settings.setTmLevelUpMoveSanity(restoreState(data[19], 5));
+        settings.setKeepFieldMoveTMs(restoreState(data[19], 6));
 
-        settings.setFullHMCompat(restoreState(data[19], 0));
-        settings.setTmsFollowEvolutions(restoreState(data[19], 1));
-        settings.setTutorFollowEvolutions(restoreState(data[19], 2));
+        settings.setFullHMCompat(restoreState(data[20], 0));
+        settings.setTmsFollowEvolutions(restoreState(data[20], 1));
+        settings.setTutorFollowEvolutions(restoreState(data[20], 2));
 
-        settings.setTmsForceGoodDamaging(restoreState(data[20], 7));
-        settings.setTmsGoodDamagingPercent(data[20] & 0x7F);
+        settings.setTmsForceGoodDamaging(restoreState(data[21], 7));
+        settings.setTmsGoodDamagingPercent(data[21] & 0x7F);
 
-        settings.setMoveTutorMovesMod(restoreEnum(MoveTutorMovesMod.class, data[21], 4, // UNCHANGED
+        settings.setMoveTutorMovesMod(restoreEnum(MoveTutorMovesMod.class, data[22], 4, // UNCHANGED
                 3 // RANDOM
         ));
-        settings.setMoveTutorsCompatibilityMod(restoreEnum(MoveTutorsCompatibilityMod.class, data[21], 2, // UNCHANGED
+        settings.setMoveTutorsCompatibilityMod(restoreEnum(MoveTutorsCompatibilityMod.class, data[22], 2, // UNCHANGED
                 1, // RANDOM_PREFER_TYPE
                 0, // COMPLETELY_RANDOM
                 7 // FULL
         ));
-        settings.setTutorLevelUpMoveSanity(restoreState(data[21], 5));
-        settings.setKeepFieldMoveTutors(restoreState(data[21], 6));
+        settings.setTutorLevelUpMoveSanity(restoreState(data[22], 5));
+        settings.setKeepFieldMoveTutors(restoreState(data[22], 6));
 
-        settings.setTutorsForceGoodDamaging(restoreState(data[22], 7));
-        settings.setTutorsGoodDamagingPercent(data[22] & 0x7F);
+        settings.setTutorsForceGoodDamaging(restoreState(data[23], 7));
+        settings.setTutorsGoodDamagingPercent(data[23] & 0x7F);
 
         // new 150
-        settings.setInGameTradesMod(restoreEnum(InGameTradesMod.class, data[23], 6, // UNCHANGED
+        settings.setInGameTradesMod(restoreEnum(InGameTradesMod.class, data[24], 6, // UNCHANGED
                 1, // RANDOMIZE_GIVEN
                 0 // RANDOMIZE_GIVEN_AND_REQUESTED
         ));
-        settings.setRandomizeInGameTradesItems(restoreState(data[23], 2));
-        settings.setRandomizeInGameTradesIVs(restoreState(data[23], 3));
-        settings.setRandomizeInGameTradesNicknames(restoreState(data[23], 4));
-        settings.setRandomizeInGameTradesOTs(restoreState(data[23], 5));
+        settings.setRandomizeInGameTradesItems(restoreState(data[24], 2));
+        settings.setRandomizeInGameTradesIVs(restoreState(data[24], 3));
+        settings.setRandomizeInGameTradesNicknames(restoreState(data[24], 4));
+        settings.setRandomizeInGameTradesOTs(restoreState(data[24], 5));
 
-        settings.setFieldItemsMod(restoreEnum(FieldItemsMod.class, data[24],  
+        settings.setFieldItemsMod(restoreEnum(FieldItemsMod.class, data[25],
                 2,  // UNCHANGED
                 1,  // SHUFFLE
                 0,  // RANDOM
                 4   // RANDOM_EVEN
         ));
-        settings.setBanBadRandomFieldItems(restoreState(data[24], 3));
+        settings.setBanBadRandomFieldItems(restoreState(data[25], 3));
 
         // new 170
-        settings.setRandomizeMovePowers(restoreState(data[25], 0));
-        settings.setRandomizeMoveAccuracies(restoreState(data[25], 1));
-        settings.setRandomizeMovePPs(restoreState(data[25], 2));
-        settings.setRandomizeMoveTypes(restoreState(data[25], 3));
-        settings.setRandomizeMoveCategory(restoreState(data[25], 4));
-        settings.setCorrectStaticMusic(restoreState(data[25], 5));
+        settings.setRandomizeMovePowers(restoreState(data[26], 0));
+        settings.setRandomizeMoveAccuracies(restoreState(data[26], 1));
+        settings.setRandomizeMovePPs(restoreState(data[26], 2));
+        settings.setRandomizeMoveTypes(restoreState(data[26], 3));
+        settings.setRandomizeMoveCategory(restoreState(data[26], 4));
+        settings.setCorrectStaticMusic(restoreState(data[26], 5));
 
-        settings.setEvolutionsMod(restoreEnum(EvolutionsMod.class, data[26], 0, // UNCHANGED
+        settings.setEvolutionsMod(restoreEnum(EvolutionsMod.class, data[27], 0, // UNCHANGED
                 1, // RANDOM
                 7 // RANDOM_EVERY_LEVEL
         ));
-        settings.setEvosSimilarStrength(restoreState(data[26], 2));
-        settings.setEvosSameTyping(restoreState(data[26], 3));
-        settings.setEvosMaxThreeStages(restoreState(data[26], 4));
-        settings.setEvosForceChange(restoreState(data[26], 5));
-        settings.setEvosAllowAltFormes(restoreState(data[26],6));
+        settings.setEvosSimilarStrength(restoreState(data[27], 2));
+        settings.setEvosSameTyping(restoreState(data[27], 3));
+        settings.setEvosMaxThreeStages(restoreState(data[27], 4));
+        settings.setEvosForceChange(restoreState(data[27], 5));
+        settings.setEvosAllowAltFormes(restoreState(data[27],6));
 
         // new pokemon trainer misc
-        settings.setTrainersUsePokemonOfSimilarStrength(restoreState(data[27], 0));
-        settings.setRivalCarriesStarterThroughout(restoreState(data[27], 1));
-        settings.setTrainersMatchTypingDistribution(restoreState(data[27], 2));
-        settings.setTrainersBlockLegendaries(restoreState(data[27], 3));
-        settings.setTrainersBlockEarlyWonderGuard(restoreState(data[27], 4));
-        settings.setSwapTrainerMegaEvos(restoreState(data[27], 5));
-        settings.setShinyChance(restoreState(data[27], 6));
-        settings.setBetterTrainerMovesets(restoreState(data[27], 7));
+        settings.setTrainersUsePokemonOfSimilarStrength(restoreState(data[28], 0));
+        settings.setRivalCarriesStarterThroughout(restoreState(data[28], 1));
+        settings.setTrainersMatchTypingDistribution(restoreState(data[28], 2));
+        settings.setTrainersBlockLegendaries(restoreState(data[28], 3));
+        settings.setTrainersBlockEarlyWonderGuard(restoreState(data[28], 4));
+        settings.setSwapTrainerMegaEvos(restoreState(data[28], 5));
+        settings.setShinyChance(restoreState(data[28], 6));
+        settings.setBetterTrainerMovesets(restoreState(data[28], 7));
 
         // gen restrictions
-        int genLimit = FileFunctions.readFullIntBigEndian(data, 28);
+        int genLimit = FileFunctions.readFullIntBigEndian(data, 29);
         GenRestrictions restrictions = null;
         if (genLimit != 0) {
             restrictions = new GenRestrictions(genLimit);
         }
         settings.setCurrentRestrictions(restrictions);
 
-        int codeTweaks = FileFunctions.readFullIntBigEndian(data, 32);
+        int codeTweaks = FileFunctions.readFullIntBigEndian(data, 33);
 
         settings.setCurrentMiscTweaks(codeTweaks);
 
-        settings.setTrainersLevelModified(restoreState(data[36], 7));
-        settings.setTrainersLevelModifier((data[36] & 0x7F) - 50);
-        //settings.setTrainersLevelModifier((data[36] & 0x7F));
-        settings.setShopItemsMod(restoreEnum(ShopItemsMod.class,data[37],
+        settings.setTrainersLevelModified(restoreState(data[37], 7));
+        settings.setTrainersLevelModifier((data[37] & 0x7F) - 50);
+        //settings.setTrainersLevelModifier((data[37] & 0x7F));
+        settings.setShopItemsMod(restoreEnum(ShopItemsMod.class,data[38],
                 2,
                 1,
                 0));
-        settings.setBanBadRandomShopItems(restoreState(data[37],3));
-        settings.setBanRegularShopItems(restoreState(data[37],4));
-        settings.setBanOPShopItems(restoreState(data[37],5));
-        settings.setBalanceShopPrices(restoreState(data[37],6));
-        settings.setGuaranteeEvolutionItems(restoreState(data[37],7));
+        settings.setBanBadRandomShopItems(restoreState(data[38],3));
+        settings.setBanRegularShopItems(restoreState(data[38],4));
+        settings.setBanOPShopItems(restoreState(data[38],5));
+        settings.setBalanceShopPrices(restoreState(data[38],6));
+        settings.setGuaranteeEvolutionItems(restoreState(data[38],7));
 
-        settings.setWildLevelsModified(restoreState(data[38],7));
-        settings.setWildLevelModifier((data[38] & 0x7F) - 50);
+        settings.setWildLevelsModified(restoreState(data[39],7));
+        settings.setWildLevelModifier((data[39] & 0x7F) - 50);
 
-        settings.setExpCurveMod(restoreEnum(ExpCurveMod.class,data[39],0,1,2));
+        settings.setExpCurveMod(restoreEnum(ExpCurveMod.class,data[40],0,1,2));
 
-        settings.setBlockBrokenMovesetMoves(restoreState(data[39],3));
-        settings.setBlockBrokenTMMoves(restoreState(data[39],4));
-        settings.setBlockBrokenTutorMoves(restoreState(data[39],5));
+        settings.setBlockBrokenMovesetMoves(restoreState(data[40],3));
+        settings.setBlockBrokenTMMoves(restoreState(data[40],4));
+        settings.setBlockBrokenTutorMoves(restoreState(data[40],5));
 
-        settings.setAllowTrainerAlternateFormes(restoreState(data[39],6));
-        settings.setAllowWildAltFormes(restoreState(data[39],7));
+        settings.setAllowTrainerAlternateFormes(restoreState(data[40],6));
+        settings.setAllowWildAltFormes(restoreState(data[40],7));
 
-        settings.setDoubleBattleMode(restoreState(data[40], 0));
-        settings.setAdditionalBossTrainerPokemon((data[40] & 0xE) >> 1);
-        settings.setAdditionalImportantTrainerPokemon((data[40] & 0x70) >> 4);
-        settings.setWeighDuplicateAbilitiesTogether(restoreState(data[40], 7));
+        settings.setDoubleBattleMode(restoreState(data[41], 0));
+        settings.setAdditionalBossTrainerPokemon((data[41] & 0xE) >> 1);
+        settings.setAdditionalImportantTrainerPokemon((data[41] & 0x70) >> 4);
+        settings.setWeighDuplicateAbilitiesTogether(restoreState(data[41], 7));
 
-        settings.setAdditionalRegularTrainerPokemon((data[41] & 0x7));
-        settings.setAuraMod(restoreEnum(AuraMod.class,data[41],3,4,5));
-        settings.setEvolutionMovesForAll(restoreState(data[41],6));
-        settings.setGuaranteeXItems(restoreState(data[41],7));
+        settings.setAdditionalRegularTrainerPokemon((data[42] & 0x7));
+        settings.setAuraMod(restoreEnum(AuraMod.class,data[42],3,4,5));
+        settings.setEvolutionMovesForAll(restoreState(data[42],6));
+        settings.setGuaranteeXItems(restoreState(data[42],7));
 
-        settings.setTotemPokemonMod(restoreEnum(TotemPokemonMod.class,data[42],0,1,2));
-        settings.setAllyPokemonMod(restoreEnum(AllyPokemonMod.class,data[42],3,4,5));
-        settings.setRandomizeTotemHeldItems(restoreState(data[42],6));
-        settings.setAllowTotemAltFormes(restoreState(data[42],7));
-        settings.setTotemLevelsModified(restoreState(data[43],7));
-        settings.setTotemLevelModifier((data[43] & 0x7F) - 50);
+        settings.setTotemPokemonMod(restoreEnum(TotemPokemonMod.class,data[43],0,1,2));
+        settings.setAllyPokemonMod(restoreEnum(AllyPokemonMod.class,data[43],3,4,5));
+        settings.setRandomizeTotemHeldItems(restoreState(data[43],6));
+        settings.setAllowTotemAltFormes(restoreState(data[43],7));
+        settings.setTotemLevelsModified(restoreState(data[44],7));
+        settings.setTotemLevelModifier((data[44] & 0x7F) - 50);
 
-        settings.setUpdateBaseStatsToGeneration(data[44]);
+        settings.setUpdateBaseStatsToGeneration(data[45]);
 
-        settings.setUpdateMovesToGeneration(data[45]);
+        settings.setUpdateMovesToGeneration(data[46]);
 
-        settings.setSelectedEXPCurve(ExpCurve.fromByte(data[46]));
+        settings.setSelectedEXPCurve(ExpCurve.fromByte(data[47]));
 
-        settings.setStaticLevelModified(restoreState(data[47],7));
-        settings.setStaticLevelModifier((data[47] & 0x7F) - 50);
+        settings.setStaticLevelModified(restoreState(data[48],7));
+        settings.setStaticLevelModifier((data[48] & 0x7F) - 50);
 
-        settings.setRandomizeHeldItemsForBossTrainerPokemon(restoreState(data[48], 0));
-        settings.setRandomizeHeldItemsForImportantTrainerPokemon(restoreState(data[48], 1));
-        settings.setRandomizeHeldItemsForRegularTrainerPokemon(restoreState(data[48], 2));
-        settings.setConsumableItemsOnlyForTrainers(restoreState(data[48], 3));
-        settings.setSensibleItemsOnlyForTrainers(restoreState(data[48], 4));
-        settings.setHighestLevelGetsItemsForTrainers(restoreState(data[48], 5));
-        settings.setEnsureTwoAbilities(restoreState(data[48], 6));
+        settings.setRandomizeHeldItemsForBossTrainerPokemon(restoreState(data[49], 0));
+        settings.setRandomizeHeldItemsForImportantTrainerPokemon(restoreState(data[49], 1));
+        settings.setRandomizeHeldItemsForRegularTrainerPokemon(restoreState(data[49], 2));
+        settings.setConsumableItemsOnlyForTrainers(restoreState(data[49], 3));
+        settings.setSensibleItemsOnlyForTrainers(restoreState(data[49], 4));
+        settings.setHighestLevelGetsItemsForTrainers(restoreState(data[49], 5));
+        settings.setEnsureTwoAbilities(restoreState(data[49], 6));
 
-        settings.setPickupItemsMod(restoreEnum(PickupItemsMod.class, data[49],
+        settings.setPickupItemsMod(restoreEnum(PickupItemsMod.class, data[50],
                 1, // UNCHANGED
                 0));       // RANDOMIZE
-        settings.setBanBadRandomPickupItems(restoreState(data[49], 2));
-        settings.setBanIrregularAltFormes(restoreState(data[49], 3));
+        settings.setBanBadRandomPickupItems(restoreState(data[50], 2));
+        settings.setBanIrregularAltFormes(restoreState(data[50], 3));
 
-        settings.setEliteFourUniquePokemonNumber(data[50] & 0x7);
+        settings.setEliteFourUniquePokemonNumber(data[51] & 0x7);
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -1028,6 +1037,13 @@ public class Settings {
     }
 
     // getters and setters
+
+    public void initScript()
+    {
+        script = new ScriptInstance(scriptSource);
+    }
+
+    public ScriptInstance getScript(){ return script; }
 
     public void setScriptSource(String source) { scriptSource = source; }
 
