@@ -92,6 +92,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     }
 
     private static List<HiliteWord> findComments(String content) {
+        content += "\n";
         List<HiliteWord> hiliteWords = new ArrayList<HiliteWord>();
         char[] data = content.toCharArray();
 
@@ -119,7 +120,6 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         {
             if(realWord.equals(keyword)){ return true;}
         }
-        System.out.println(realWord);
         return false;
     }
 
