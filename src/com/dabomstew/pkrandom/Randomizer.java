@@ -1212,7 +1212,7 @@ public class Randomizer {
             } else {
                 seenPokemon.put(oldStaticString, 1);
             }
-            log.println(" => " + newP.toString(settings.isStaticLevelModified()));
+            log.println(" => " + newP.toString(settings.isStaticLevelModified() || settings.getStaticPokemonMod() == Settings.StaticPokemonMod.FULL_SCRIPTED));
         }
         log.println();
 

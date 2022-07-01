@@ -3991,6 +3991,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean swapLegendaries = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.RANDOM_MATCHING;
         boolean similarStrength = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SIMILAR_STRENGTH;
         boolean scripted = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SCRIPTED;
+        boolean fullyScripted = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.FULL_SCRIPTED;
         boolean limitMainGameLegendaries = settings.isLimitMainGameLegendaries();
         boolean limit600 = settings.isLimit600();
         boolean allowAltFormes = settings.isAllowStaticAltFormes();
@@ -4203,7 +4204,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
             }
         }
-        else { // Completely random or scripted
+        else { // Completely random or (fully) scripted
             List<Pokemon> listInclFormesExclCosmetics =
                     mainPokemonListInclFormes
                             .stream()
@@ -4217,16 +4218,60 @@ public abstract class AbstractRomHandler implements RomHandler {
             for (StaticEncounter old : currentStaticPokemon) {
                 StaticEncounter newStatic = cloneStaticEncounter(old);
                 Pokemon newPK;
-                if (reallySwapMegaEvos && old.canMegaEvolve()) {
-                    newPK = getMegaEvoPokemon(settings, mainPokemonList, pokemonLeft, newStatic); //scripted handled in getMegaEvoPokemon()
-                } else {
-                    if (old.restrictedPool) {
-                        newPK = getRestrictedPokemon(settings, pokemonPool, pokemonLeft, old); //scripted handled in getRestrictedPokemon()
-                    } else if(scripted){
-                        newPK = settings.getScript().getScriptedStatic(pokemonLeft, old, false);
+                if(fullyScripted)
+                {
+                    if(reallySwapMegaEvos && old.canMegaEvolve())
+                    {
+                        List<MegaEvolution> megaEvos = megaEvolutionsList;
+                        List<Pokemon> megaEvoPokemon =
+                                megaEvos
+                                        .stream()
+                                        .filter(mega -> mega.method == 1)
+                                        .map(mega -> mega.from)
+                                        .distinct()
+                                        .collect(Collectors.toList());
+                        List<Pokemon> megaEvoPokemonLeft =
+                                megaEvoPokemon
+                                        .stream()
+                                        .filter(pokemonLeft::contains)
+                                        .collect(Collectors.toList());
+                        if (megaEvoPokemonLeft.isEmpty()) {
+                            megaEvoPokemonLeft = megaEvoPokemon
+                                    .stream()
+                                    .filter(pokemonPool::contains)
+                                    .collect(Collectors.toList());
+                        }
+
+                        newStatic = settings.getScript().getScriptedStaticFull(megaEvoPokemonLeft, old, true);
+                    }
+                    else if (old.restrictedPool) {
+                        List<Pokemon> restrictedPool = pokemonLeft.stream().filter(pk -> old.restrictedList.contains(pk)).collect(Collectors.toList());
+                        if (restrictedPool.isEmpty()) {
+                            restrictedPool = pokemonPool
+                                    .stream()
+                                    .filter(pk -> old.restrictedList.contains(pk))
+                                    .collect(Collectors.toList());
+                        }
+
+                        newStatic = settings.getScript().getScriptedStaticFull(restrictedPool, old, false);
                     }
                     else{
-                        newPK = pokemonLeft.remove(this.random.nextInt(pokemonLeft.size()));
+                        newStatic = settings.getScript().getScriptedStaticFull(pokemonPool, old, false);
+                    }
+
+                    newPK = newStatic.pkmn;
+                }
+                else{
+                    if (reallySwapMegaEvos && old.canMegaEvolve()) {
+                        newPK = getMegaEvoPokemon(settings, mainPokemonList, pokemonLeft, newStatic); //scripted handled in getMegaEvoPokemon()
+                    } else {
+                        if (old.restrictedPool) {
+                            newPK = getRestrictedPokemon(settings, pokemonPool, pokemonLeft, old); //scripted handled in getRestrictedPokemon()
+                        } else if (scripted) {
+                            newPK = settings.getScript().getScriptedStatic(pokemonLeft, old, false);
+                        } else {
+                            newPK = pokemonLeft.remove(this.random.nextInt(pokemonLeft.size()));
+                        }
                     }
                 }
                 pokemonLeft.remove(newPK);

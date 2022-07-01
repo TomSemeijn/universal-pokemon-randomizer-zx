@@ -34,4 +34,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectStaticPokemon");
         return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), Pokemon.class);
     }
+
+    public StaticEncounter getScriptedStaticFull(List<Pokemon> pokepool, StaticEncounter oldEncounter, boolean megaSwap)
+    {
+        PyFunction func = (PyFunction)interp.get("selectStaticPokemonFull");
+        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
+    }
 }

@@ -957,7 +957,7 @@
                 <children>
                   <component id="a28a1" class="javax.swing.JRadioButton" binding="stpUnchangedRadioButton" default-binding="true">
                     <constraints>
-                      <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.1" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -968,13 +968,13 @@
                   </component>
                   <hspacer id="c4003">
                     <constraints>
-                      <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="6" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="6.0" weighty="0.0"/>
                     </constraints>
                   </hspacer>
                   <vspacer id="ec4fb">
                     <constraints>
-                      <grid row="6" column="1" row-span="1" col-span="4" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="2" row-span="1" col-span="4" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                   </vspacer>
@@ -992,7 +992,7 @@
                   </vspacer>
                   <component id="66089" class="javax.swing.JRadioButton" binding="stpSwapLegendariesSwapStandardsRadioButton">
                     <constraints>
-                      <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1003,7 +1003,7 @@
                   </component>
                   <component id="17456" class="javax.swing.JRadioButton" binding="stpRandomCompletelyRadioButton" default-binding="true">
                     <constraints>
-                      <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1014,7 +1014,7 @@
                   </component>
                   <component id="282a5" class="javax.swing.JRadioButton" binding="stpRandomSimilarStrengthRadioButton">
                     <constraints>
-                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1025,7 +1025,7 @@
                   </component>
                   <component id="c441c" class="javax.swing.JCheckBox" binding="stpSwapMegaEvosCheckBox">
                     <constraints>
-                      <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1036,7 +1036,7 @@
                   </component>
                   <component id="84b86" class="javax.swing.JCheckBox" binding="stpPercentageLevelModifierCheckBox">
                     <constraints>
-                      <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="6.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1047,7 +1047,7 @@
                   </component>
                   <component id="f3518" class="javax.swing.JSlider" binding="stpPercentageLevelModifierSlider">
                     <constraints>
-                      <grid row="2" column="4" row-span="3" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="5" row-span="3" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1064,7 +1064,7 @@
                   </component>
                   <component id="ae826" class="javax.swing.JCheckBox" binding="stpRandomize600BSTCheckBox">
                     <constraints>
-                      <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.8" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1075,7 +1075,7 @@
                   </component>
                   <component id="69057" class="javax.swing.JCheckBox" binding="stpAllowAltFormesCheckBox">
                     <constraints>
-                      <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1086,7 +1086,7 @@
                   </component>
                   <component id="cde9e" class="javax.swing.JCheckBox" binding="stpLimitMainGameLegendariesCheckBox">
                     <constraints>
-                      <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="1.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1097,7 +1097,7 @@
                   </component>
                   <component id="4f53f" class="javax.swing.JCheckBox" binding="stpFixMusicCheckBox">
                     <constraints>
-                      <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1108,12 +1108,24 @@
                   </component>
                   <component id="5691d" class="javax.swing.JRadioButton" binding="stpScriptedRadioButton">
                     <constraints>
-                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
                       <enabled value="false"/>
                       <text value="Scripted"/>
+                      <toolTipText value="Use scripting to select every static pokemon"/>
+                    </properties>
+                  </component>
+                  <component id="e4691" class="javax.swing.JRadioButton" binding="stpScriptedFullRadioButton">
+                    <constraints>
+                      <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Fully Scripted"/>
+                      <toolTipText value="Use scripting to select everything about all static encounters (including pokemon, level, held items, etc.)"/>
                     </properties>
                   </component>
                 </children>
@@ -3883,6 +3895,7 @@
       <member id="17456"/>
       <member id="282a5"/>
       <member id="5691d"/>
+      <member id="e4691"/>
     </group>
     <group name="tradeButtonGroup">
       <member id="4e02b"/>

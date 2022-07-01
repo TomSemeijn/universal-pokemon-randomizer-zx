@@ -214,7 +214,7 @@ public class Settings {
     private boolean allowWildAltFormes;
 
     public enum StaticPokemonMod {
-        UNCHANGED, RANDOM_MATCHING, COMPLETELY_RANDOM, SIMILAR_STRENGTH, SCRIPTED
+        UNCHANGED, RANDOM_MATCHING, COMPLETELY_RANDOM, SIMILAR_STRENGTH, SCRIPTED, FULL_SCRIPTED
     }
 
     private StaticPokemonMod staticPokemonMod = StaticPokemonMod.UNCHANGED;
@@ -437,7 +437,8 @@ public class Settings {
                 staticPokemonMod == StaticPokemonMod.RANDOM_MATCHING,
                 staticPokemonMod == StaticPokemonMod.COMPLETELY_RANDOM,
                 staticPokemonMod == StaticPokemonMod.SIMILAR_STRENGTH,
-                staticPokemonMod == StaticPokemonMod.SCRIPTED
+                staticPokemonMod == StaticPokemonMod.SCRIPTED,
+                staticPokemonMod == StaticPokemonMod.FULL_SCRIPTED
                 ));
 
         // 18 static pokemon 2
@@ -730,7 +731,8 @@ public class Settings {
                 1, // RANDOM_MATCHING
                 2, // COMPLETELY_RANDOM
                 3, // SIMILAR_STRENGTH
-                4  // SCRIPTED
+                4, // SCRIPTED
+                5  // FULL_SCRIPTED
         ));
         
         settings.setLimitMainGameLegendaries(restoreState(data[18], 0));
