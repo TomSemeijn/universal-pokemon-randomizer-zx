@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+//from https://stackoverflow.com/questions/34681453/how-can-i-change-the-background-color-of-an-uneditable-jtextpane-in-java
+
 public class JythonStyledDocument extends DefaultStyledDocument {
     private StyleContext styleContext;
     private Style defaultStyle;
