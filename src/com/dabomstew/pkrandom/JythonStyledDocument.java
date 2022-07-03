@@ -59,30 +59,21 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
     private synchronized void refreshDocument() throws BadLocationException {
         String text = getText(0, getLength());
-        final List<HiliteWord> keywords = findKeywords(text);
-
         setCharacterAttributes(0, text.length(), defaultStyle, true);
-        for(HiliteWord word : keywords) {
-            int p0 = word._position;
-            setCharacterAttributes(p0, word._word.length(), keywordStyle, true);
-        }
 
-        final List<HiliteWord> functions = findFunctions(text);
-        for(HiliteWord word : functions) {
-            int p0 = word._position;
-            setCharacterAttributes(p0, word._word.length(), funcStyle, true);
-        }
+        setStyleOf(keywordStyle, findKeywords(text));
+        setStyleOf(funcStyle, findFunctions(text));
 
-        final List<HiliteWord> comments = findComments(text);
-        for(HiliteWord word : comments) {
-            int p0 = word._position;
-            setCharacterAttributes(p0, word._word.length(), commentStyle, true);
-        }
+        List<HiliteWord>[] commentsAndStrings = findStringsAndComments(text);
+        setStyleOf(commentStyle, commentsAndStrings[1]);
+        setStyleOf(stringStyle, commentsAndStrings[0]);
+    }
 
-        final List<HiliteWord> strings = findStrings(text);
-        for(HiliteWord word : strings) {
+    private synchronized void setStyleOf(Style style, List<HiliteWord> words)
+    {
+        for(HiliteWord word : words) {
             int p0 = word._position;
-            setCharacterAttributes(p0, word._word.length(), stringStyle, true);
+            setCharacterAttributes(p0, word._word.length(), style, true);
         }
     }
 
@@ -108,29 +99,6 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                 word += ch;
             }
         }
-        return hiliteWords;
-    }
-
-    private static List<HiliteWord> findComments(String content) {
-        content += "\n";
-        List<HiliteWord> hiliteWords = new ArrayList<HiliteWord>();
-        char[] data = content.toCharArray();
-
-        boolean inComment = false;
-        int commentStart = -1;
-        for (int index = 0; index < data.length; index++) {
-            if (inComment) {
-                if(data[index] == '\n'){
-                    String str = new String(data, commentStart, index - commentStart);
-                    hiliteWords.add(new HiliteWord(str,(commentStart)));
-                    inComment = false;
-                }
-            } else {
-                inComment = data[index] == '#';
-                if(inComment){ commentStart = index; }
-            }
-        }
-
         return hiliteWords;
     }
 
@@ -168,10 +136,12 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         return hiliteWords;
     }
 
-    private static List<HiliteWord> findStrings(String content)
+    private static List<HiliteWord>[] findStringsAndComments(String content)
     {
         content += " ";
-        List<HiliteWord> found = new ArrayList<HiliteWord>();
+        List<HiliteWord> strings = new ArrayList<HiliteWord>();
+        List<HiliteWord> comments = new ArrayList<HiliteWord>();
+        int commentStart = -1;
         int lastQuote = -1;
         char quoteType = '\0';
         boolean escaped = false;
@@ -186,10 +156,20 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                     escaped = true;
                     break;
                 case '#':
-                    inComment = true;
+                    if(lastQuote == -1 && !inComment)
+                    {
+                        inComment = true;
+                        commentStart = index;
+                    }
                     break;
                 case '\n':
-                    inComment = false;
+                    if(inComment)
+                    {
+                        String str = new String(data, commentStart, (index + 1) - commentStart);
+                        comments.add(new HiliteWord(str, commentStart));
+                        commentStart = -1;
+                        inComment = false;
+                    }
                     break;
                 case '"':
                 case '\'':
@@ -204,7 +184,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                         else if(quoteType == ch)
                         {
                             String str = new String(data, lastQuote, (index + 1) - lastQuote);
-                            found.add(new HiliteWord(str, lastQuote));
+                            strings.add(new HiliteWord(str, lastQuote));
                             lastQuote = -1;
                             quoteType = '\0';
                         }
@@ -216,10 +196,10 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         if(lastQuote != -1)
         {
             String str = new String(data, lastQuote, data.length - 1 - lastQuote);
-            found.add(new HiliteWord(str, lastQuote));
+            strings.add(new HiliteWord(str, lastQuote));
         }
 
-        return found;
+        return new List[]{ strings, comments };
     }
 
     private static final boolean isKeyword(String word) {
