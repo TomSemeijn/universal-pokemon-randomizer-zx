@@ -138,7 +138,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
     private static List<HiliteWord>[] findStringsAndComments(String content)
     {
-        content += " ";
+        content += "\n ";
         List<HiliteWord> strings = new ArrayList<HiliteWord>();
         List<HiliteWord> comments = new ArrayList<HiliteWord>();
         int commentStart = -1;
