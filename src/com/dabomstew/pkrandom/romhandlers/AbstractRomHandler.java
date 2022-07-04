@@ -4243,6 +4243,11 @@ public abstract class AbstractRomHandler implements RomHandler {
                         }
 
                         newStatic = settings.getScript().getScriptedStaticFull(megaEvoPokemonLeft, old, true);
+
+                        newStatic.heldItem = newStatic.pkmn
+                                .megaEvolutionsFrom
+                                .get(this.random.nextInt(newStatic.pkmn.megaEvolutionsFrom.size()))
+                                .argument;
                     }
                     else if (old.restrictedPool) {
                         List<Pokemon> restrictedPool = pokemonLeft.stream().filter(pk -> old.restrictedList.contains(pk)).collect(Collectors.toList());

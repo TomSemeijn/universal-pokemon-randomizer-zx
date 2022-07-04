@@ -4005,6 +4005,7 @@ public class NewRandomizerGUI {
                 "#oldEncounter - a StaticEncounter object representing the original encounter",
                 "#megaSwap - true if the current request is for swapping a mega-evolvable pokemon",
                 "#           (if true, the pokepool will only contain mega-evolvable pokemon that have not been selected before)",
+                "#           (if true, the held item of the pokemon will be changed to its mega stone)",
                 "#",
                 "#return: a StaticEncounter object representing the modified encounter"
         };
