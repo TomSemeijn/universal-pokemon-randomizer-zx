@@ -301,11 +301,12 @@ public class NewRandomizerGUI {
     private JComboBox tpComboBox;
     private JCheckBox tpBetterMovesetsCheckBox;
     private JCheckBox paEnsureTwoAbilitiesCheckbox;
+
     private JPanel scriptingPanel;
     private JTextPane sScriptInput;
-    private JButton sTestButton;
     private JRadioButton stpScriptedRadioButton;
     private JRadioButton stpScriptedFullRadioButton;
+    private JRadioButton igtScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -414,7 +415,6 @@ public class NewRandomizerGUI {
         frame.setTitle(String.format(bundle.getString("GUI.windowTitle"),Version.VERSION_STRING));
 
         openROMButton.addActionListener(e -> loadROM());
-        sTestButton.addActionListener(e -> testPython());
         pbsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -445,6 +445,8 @@ public class NewRandomizerGUI {
         igtUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         igtRandomizeGivenPokemonOnlyRadioButton.addActionListener(e -> enableOrDisableSubControls());
         igtRandomizeBothRequestedGivenRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        igtScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        igtScriptedRadioButton.addActionListener(e -> addTradeScriptFunc());
         pmsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pmsRandomPreferringSameTypeRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pmsRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -732,18 +734,6 @@ public class NewRandomizerGUI {
         settingsMenu.add(keepOrUnloadGameAfterRandomizingMenuItem);
     }
 
-    private void testPython()
-    {
-        String scriptText = sScriptInput.getText();
-        try{
-            PythonInterpreter interp = new PythonInterpreter();
-            interp.exec(scriptText);
-        }
-        catch(Exception e)
-        {
-            System.out.println(e.toString());
-        }
-    }
     private void loadROM() {
         romOpenChooser.setSelectedFile(null);
         int returnVal = romOpenChooser.showOpenDialog(mainPanel);
@@ -1135,7 +1125,7 @@ public class NewRandomizerGUI {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        sScriptInput = new JTextPane(new JythonStyledDocument());
+        sScriptInput = new NoWrapJTextPane(new JythonStyledDocument());
     }
 
 
@@ -1582,11 +1572,13 @@ public class NewRandomizerGUI {
         igtRandomizeBothRequestedGivenRadioButton
                 .setSelected(settings.getInGameTradesMod() == Settings.InGameTradesMod.RANDOMIZE_GIVEN_AND_REQUESTED);
         igtRandomizeGivenPokemonOnlyRadioButton.setSelected(settings.getInGameTradesMod() == Settings.InGameTradesMod.RANDOMIZE_GIVEN);
+        igtScriptedRadioButton.setSelected(settings.getInGameTradesMod() == Settings.InGameTradesMod.SCRIPTED);
         igtRandomizeItemsCheckBox.setSelected(settings.isRandomizeInGameTradesItems());
         igtRandomizeIVsCheckBox.setSelected(settings.isRandomizeInGameTradesIVs());
         igtRandomizeNicknamesCheckBox.setSelected(settings.isRandomizeInGameTradesNicknames());
         igtRandomizeOTsCheckBox.setSelected(settings.isRandomizeInGameTradesOTs());
         igtUnchangedRadioButton.setSelected(settings.getInGameTradesMod() == Settings.InGameTradesMod.UNCHANGED);
+        igtScriptedRadioButton.setSelected(settings.getInGameTradesMod() == Settings.InGameTradesMod.SCRIPTED);
 
         fiRandomRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM);
         fiRandomEvenDistributionRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM_EVEN);
@@ -1787,7 +1779,7 @@ public class NewRandomizerGUI {
         settings.setBlockBrokenTutorMoves(mtNoGameBreakingMovesCheckBox.isSelected());
         settings.setTutorFollowEvolutions(mtFollowEvolutionsCheckBox.isSelected());
 
-        settings.setInGameTradesMod(igtUnchangedRadioButton.isSelected(), igtRandomizeGivenPokemonOnlyRadioButton.isSelected(), igtRandomizeBothRequestedGivenRadioButton.isSelected());
+        settings.setInGameTradesMod(igtUnchangedRadioButton.isSelected(), igtRandomizeGivenPokemonOnlyRadioButton.isSelected(), igtRandomizeBothRequestedGivenRadioButton.isSelected(), igtScriptedRadioButton.isSelected());
         settings.setRandomizeInGameTradesItems(igtRandomizeItemsCheckBox.isSelected());
         settings.setRandomizeInGameTradesIVs(igtRandomizeIVsCheckBox.isSelected());
         settings.setRandomizeInGameTradesNicknames(igtRandomizeNicknamesCheckBox.isSelected());
@@ -2159,6 +2151,9 @@ public class NewRandomizerGUI {
         igtRandomizeBothRequestedGivenRadioButton.setVisible(true);
         igtRandomizeBothRequestedGivenRadioButton.setEnabled(false);
         igtRandomizeBothRequestedGivenRadioButton.setSelected(false);
+        igtScriptedRadioButton.setVisible(true);
+        igtScriptedRadioButton.setEnabled(false);
+        igtScriptedRadioButton.setSelected(false);
         igtRandomizeNicknamesCheckBox.setVisible(true);
         igtRandomizeNicknamesCheckBox.setEnabled(false);
         igtRandomizeNicknamesCheckBox.setSelected(false);
@@ -2745,6 +2740,7 @@ public class NewRandomizerGUI {
             igtUnchangedRadioButton.setSelected(true);
             igtRandomizeGivenPokemonOnlyRadioButton.setEnabled(true);
             igtRandomizeBothRequestedGivenRadioButton.setEnabled(true);
+            igtScriptedRadioButton.setEnabled(true);
 
             igtRandomizeNicknamesCheckBox.setEnabled(false);
             igtRandomizeOTsCheckBox.setEnabled(false);
@@ -4015,6 +4011,31 @@ public class NewRandomizerGUI {
         if(stpScriptedFullRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "StaticEncounter");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    private void addTradeScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects given and/or received pokemon in in-game trades",
+                "#pokepool - a List<Pokemon> of all available pokemon",
+                "#oldTrade - an IngameTrade object representing the original trade",
+                "#",
+                "#return: an IngameTrade object representing the modified trade",
+                "#NOTE: Nicknames, OTs, IVs, and items can be set here, but will be overridden by the unscripted options if their checkboxes are selected"
+        };
+        String funcDeclaration = "def selectInGameTradePokemon(pokepool, oldTrade):";
+        String funcBody = "\n\toldTrade.givenPokemon = pokepool.get(0) #example\n\toldTrade.nickname = \"Dippy\"\n\treturn oldTrade";
+
+        if(igtScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "IngameTrade");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

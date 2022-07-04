@@ -5303,6 +5303,7 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeIngameTrades(Settings settings) {
         boolean randomizeRequest = settings.getInGameTradesMod() == Settings.InGameTradesMod.RANDOMIZE_GIVEN_AND_REQUESTED;
+        boolean scripted = settings.getInGameTradesMod() == Settings.InGameTradesMod.SCRIPTED;
         boolean randomNickname = settings.isRandomizeInGameTradesNicknames();
         boolean randomOT = settings.isRandomizeInGameTradesOTs();
         boolean randomStats = settings.isRandomizeInGameTradesIVs();
@@ -5348,29 +5349,40 @@ public abstract class AbstractRomHandler implements RomHandler {
         int trnameCount = trainerNames.size();
 
         for (IngameTrade trade : trades) {
-            // pick new given pokemon
-            Pokemon oldgiven = trade.givenPokemon;
-            Pokemon given = this.randomPokemon();
-            while (usedGivens.contains(given)) {
-                given = this.randomPokemon();
-            }
-            usedGivens.add(given);
-            trade.givenPokemon = given;
 
-            // requested pokemon?
-            if (oldgiven == trade.requestedPokemon) {
-                // preserve trades for the same pokemon
-                trade.requestedPokemon = given;
-            } else if (randomizeRequest) {
-                if (trade.requestedPokemon != null) {
-                    Pokemon request = this.randomPokemon();
-                    while (usedRequests.contains(request) || request == given) {
-                        request = this.randomPokemon();
+            Pokemon oldgiven = trade.givenPokemon;
+
+            if(scripted) //scripted trade
+            {
+                trade = settings.getScript().getScriptedInGameTrade(this.mainPokemonList, trade);
+            }
+            else //unscripted trade
+            {
+                // pick new given pokemon
+                Pokemon given = this.randomPokemon();
+                while (usedGivens.contains(given)) {
+                    given = this.randomPokemon();
+                }
+                usedGivens.add(given);
+                trade.givenPokemon = given;
+
+                // requested pokemon?
+                if (oldgiven == trade.requestedPokemon) {
+                    // preserve trades for the same pokemon
+                    trade.requestedPokemon = given;
+                } else if (randomizeRequest) {
+                    if (trade.requestedPokemon != null) {
+                        Pokemon request = this.randomPokemon();
+                        while (usedRequests.contains(request) || request == given) {
+                            request = this.randomPokemon();
+                        }
+                        usedRequests.add(request);
+                        trade.requestedPokemon = request;
                     }
-                    usedRequests.add(request);
-                    trade.requestedPokemon = request;
                 }
             }
+
+            //unscripted settings other than the pokemon themselves override scripting when selected:
 
             // nickname?
             if (randomNickname && nickCount > usedNicknames.size()) {
@@ -5405,6 +5417,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             if (randomItem) {
                 trade.item = possibleItems.randomItem(this.random);
             }
+
         }
 
         // things that the game doesn't support should just be ignored

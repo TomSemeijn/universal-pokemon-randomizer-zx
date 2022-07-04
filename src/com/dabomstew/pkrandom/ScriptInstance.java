@@ -1,5 +1,6 @@
 package com.dabomstew.pkrandom;
 
+import com.dabomstew.pkrandom.pokemon.IngameTrade;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.StaticEncounter;
 import org.python.core.*;
@@ -39,5 +40,11 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectStaticPokemonFull");
         return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
+    }
+
+    public IngameTrade getScriptedInGameTrade(List<Pokemon> pokepool, IngameTrade oldTrade)
+    {
+        PyFunction func = (PyFunction)interp.get("selectInGameTradePokemon");
+        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
     }
 }

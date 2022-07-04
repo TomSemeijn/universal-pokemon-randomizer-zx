@@ -619,6 +619,7 @@ public class Randomizer {
         switch(settings.getInGameTradesMod()) {
             case RANDOMIZE_GIVEN:
             case RANDOMIZE_GIVEN_AND_REQUESTED:
+            case SCRIPTED:
                 romHandler.randomizeIngameTrades(settings);
                 tradesChanged = true;
                 break;

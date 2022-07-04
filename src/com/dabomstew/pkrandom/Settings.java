@@ -283,7 +283,7 @@ public class Settings {
     private MoveTutorsCompatibilityMod moveTutorsCompatibilityMod = MoveTutorsCompatibilityMod.UNCHANGED;
 
     public enum InGameTradesMod {
-        UNCHANGED, RANDOMIZE_GIVEN, RANDOMIZE_GIVEN_AND_REQUESTED
+        UNCHANGED, RANDOMIZE_GIVEN, RANDOMIZE_GIVEN_AND_REQUESTED, SCRIPTED
     }
 
     private InGameTradesMod inGameTradesMod = InGameTradesMod.UNCHANGED;
@@ -472,9 +472,9 @@ public class Settings {
 
         // 24 in game trades
         out.write(makeByteSelected(inGameTradesMod == InGameTradesMod.RANDOMIZE_GIVEN_AND_REQUESTED,
-                inGameTradesMod == InGameTradesMod.RANDOMIZE_GIVEN, randomizeInGameTradesItems,
-                randomizeInGameTradesIVs, randomizeInGameTradesNicknames, randomizeInGameTradesOTs,
-                inGameTradesMod == InGameTradesMod.UNCHANGED));
+                inGameTradesMod == InGameTradesMod.RANDOMIZE_GIVEN, inGameTradesMod == InGameTradesMod.SCRIPTED,
+                randomizeInGameTradesItems, randomizeInGameTradesIVs, randomizeInGameTradesNicknames,
+                randomizeInGameTradesOTs, inGameTradesMod == InGameTradesMod.UNCHANGED));
 
         // 25 field items
         out.write(makeByteSelected(fieldItemsMod == FieldItemsMod.RANDOM, fieldItemsMod == FieldItemsMod.SHUFFLE,
@@ -775,12 +775,13 @@ public class Settings {
         // new 150
         settings.setInGameTradesMod(restoreEnum(InGameTradesMod.class, data[24], 6, // UNCHANGED
                 1, // RANDOMIZE_GIVEN
-                0 // RANDOMIZE_GIVEN_AND_REQUESTED
+                0, // RANDOMIZE_GIVEN_AND_REQUESTED
+                2  // SCRIPTED
         ));
-        settings.setRandomizeInGameTradesItems(restoreState(data[24], 2));
-        settings.setRandomizeInGameTradesIVs(restoreState(data[24], 3));
-        settings.setRandomizeInGameTradesNicknames(restoreState(data[24], 4));
-        settings.setRandomizeInGameTradesOTs(restoreState(data[24], 5));
+        settings.setRandomizeInGameTradesItems(restoreState(data[24], 3));
+        settings.setRandomizeInGameTradesIVs(restoreState(data[24], 4));
+        settings.setRandomizeInGameTradesNicknames(restoreState(data[24], 5));
+        settings.setRandomizeInGameTradesOTs(restoreState(data[24], 6));
 
         settings.setFieldItemsMod(restoreEnum(FieldItemsMod.class, data[25],
                 2,  // UNCHANGED
