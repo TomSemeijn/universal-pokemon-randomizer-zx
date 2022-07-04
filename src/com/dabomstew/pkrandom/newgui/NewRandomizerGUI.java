@@ -35,7 +35,6 @@ import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
-import org.python.util.PythonInterpreter;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -307,6 +306,7 @@ public class NewRandomizerGUI {
     private JRadioButton stpScriptedRadioButton;
     private JRadioButton stpScriptedFullRadioButton;
     private JRadioButton igtScriptedRadioButton;
+    private JRadioButton wpScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -460,6 +460,8 @@ public class NewRandomizerGUI {
         wpRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         wpArea1To1RadioButton.addActionListener(e -> enableOrDisableSubControls());
         wpGlobal1To1RadioButton.addActionListener(e -> enableOrDisableSubControls());
+        wpScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        wpScriptedRadioButton.addActionListener(e -> addWildEncounterScriptFunc());
         wpSetMinimumCatchRateCheckBox.addActionListener(e -> enableOrDisableSubControls());
         wpRandomizeHeldItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         wpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1500,6 +1502,7 @@ public class NewRandomizerGUI {
         wpARNoneRadioButton.setSelected(settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.NONE);
         wpARTypeThemeAreasRadioButton
                 .setSelected(settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.TYPE_THEME_AREAS);
+        wpScriptedRadioButton.setSelected(settings.getWildPokemonMod() == Settings.WildPokemonMod.SCRIPTED);
         wpGlobal1To1RadioButton.setSelected(settings.getWildPokemonMod() == Settings.WildPokemonMod.GLOBAL_MAPPING);
         wpRandomRadioButton.setSelected(settings.getWildPokemonMod() == Settings.WildPokemonMod.RANDOM);
         wpUnchangedRadioButton.setSelected(settings.getWildPokemonMod() == Settings.WildPokemonMod.UNCHANGED);
@@ -1733,7 +1736,7 @@ public class NewRandomizerGUI {
         settings.setTotemLevelModifier(totpPercentageLevelModifierSlider.getValue());
 
         settings.setWildPokemonMod(wpUnchangedRadioButton.isSelected(), wpRandomRadioButton.isSelected(), wpArea1To1RadioButton.isSelected(),
-                wpGlobal1To1RadioButton.isSelected());
+                wpGlobal1To1RadioButton.isSelected(), wpScriptedRadioButton.isSelected());
         settings.setWildPokemonRestrictionMod(wpARNoneRadioButton.isSelected(), wpARSimilarStrengthRadioButton.isSelected(),
                 wpARCatchEmAllModeRadioButton.isSelected(), wpARTypeThemeAreasRadioButton.isSelected());
         settings.setUseTimeBasedEncounters(wpUseTimeBasedEncountersCheckBox.isSelected());
@@ -2371,6 +2374,9 @@ public class NewRandomizerGUI {
         wpGlobal1To1RadioButton.setVisible(true);
         wpGlobal1To1RadioButton.setEnabled(false);
         wpGlobal1To1RadioButton.setSelected(false);
+        wpScriptedRadioButton.setVisible(true);
+        wpScriptedRadioButton.setEnabled(false);
+        wpScriptedRadioButton.setSelected(false);
         wpARNoneRadioButton.setVisible(true);
         wpARNoneRadioButton.setEnabled(false);
         wpARNoneRadioButton.setSelected(false);
@@ -2846,6 +2852,7 @@ public class NewRandomizerGUI {
             wpRandomRadioButton.setEnabled(true);
             wpArea1To1RadioButton.setEnabled(true);
             wpGlobal1To1RadioButton.setEnabled(true);
+            wpScriptedRadioButton.setEnabled(true);
 
             wpARNoneRadioButton.setSelected(true);
 
@@ -3441,6 +3448,16 @@ public class NewRandomizerGUI {
             wpARCatchEmAllModeRadioButton.setEnabled(false);
             wpARTypeThemeAreasRadioButton.setEnabled(false);
             wpBalanceShakingGrassPokemonCheckBox.setEnabled(false);
+        } else if(wpScriptedRadioButton.isSelected()) {
+                wpARNoneRadioButton.setEnabled(false);
+                wpARNoneRadioButton.setSelected(true);
+                wpARSimilarStrengthRadioButton.setEnabled(false);
+                wpARSimilarStrengthRadioButton.setSelected(false);
+                wpARCatchEmAllModeRadioButton.setEnabled(false);
+                wpARCatchEmAllModeRadioButton.setSelected(false);
+                wpARTypeThemeAreasRadioButton.setEnabled(false);
+                wpARTypeThemeAreasRadioButton.setSelected(false);
+                wpBalanceShakingGrassPokemonCheckBox.setEnabled(false);
         } else {
             wpARNoneRadioButton.setEnabled(false);
             wpARNoneRadioButton.setSelected(true);
@@ -3918,10 +3935,10 @@ public class NewRandomizerGUI {
 
     private String addImport(String sourceStr, String importFrom, String imported)
     {
-        String importStr = "from " + importFrom + " import " + imported;
+        String importStr = "from " + importFrom + " import " + imported + "\n";
         if(!sourceStr.contains(importStr))
         {
-            sourceStr = importStr + "\n" + sourceStr;
+            sourceStr = importStr + sourceStr;
         }
         return sourceStr;
     }
@@ -4036,6 +4053,31 @@ public class NewRandomizerGUI {
         if(igtScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "IngameTrade");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addWildEncounterScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects wild pokemon encounters per-area",
+                "#pokepool - a List<Pokemon> of all available pokemon in this current area",
+                "#oldArea - an EncounterSet object representing the original area of wild pokemon",
+                "#",
+                "#return: an EncounterSet object representing the modified area of wild pokemon"
+        };
+        String funcDeclaration = "def selectWildEncountersForArea(pokepool, oldArea):";
+        String funcBody = "\n\tfor enc in oldArea.encounters:\n\t\tenc.pokemon = pokepool.get(min(enc.level, pokepool.size() - 1))\n\treturn oldArea";
+
+        if(wpScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "EncounterSet");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Encounter");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

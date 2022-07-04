@@ -193,7 +193,7 @@ public class Settings {
     private boolean betterTrainerMovesets;
 
     public enum WildPokemonMod {
-        UNCHANGED, RANDOM, AREA_MAPPING, GLOBAL_MAPPING
+        UNCHANGED, RANDOM, AREA_MAPPING, GLOBAL_MAPPING, SCRIPTED
     }
 
     public enum WildPokemonRestrictionMod {
@@ -424,12 +424,12 @@ public class Settings {
                 wildPokemonRestrictionMod == WildPokemonRestrictionMod.NONE,
                 wildPokemonRestrictionMod == WildPokemonRestrictionMod.TYPE_THEME_AREAS,
                 wildPokemonMod == WildPokemonMod.GLOBAL_MAPPING, wildPokemonMod == WildPokemonMod.RANDOM,
-                wildPokemonMod == WildPokemonMod.UNCHANGED, useTimeBasedEncounters));
+                wildPokemonMod == WildPokemonMod.UNCHANGED, wildPokemonMod == WildPokemonMod.SCRIPTED));
 
         // 16 wild pokemon 2
         out.write(makeByteSelected(useMinimumCatchRate, blockWildLegendaries,
                 wildPokemonRestrictionMod == WildPokemonRestrictionMod.SIMILAR_STRENGTH, randomizeWildPokemonHeldItems,
-                banBadRandomWildPokemonHeldItems, false, false, balanceShakingGrass)
+                banBadRandomWildPokemonHeldItems, useTimeBasedEncounters, false, balanceShakingGrass)
                 | ((minimumCatchRateLevel - 1) << 5));
 
         // 17 static pokemon
@@ -710,14 +710,15 @@ public class Settings {
         settings.setWildPokemonMod(restoreEnum(WildPokemonMod.class, data[15], 6, // UNCHANGED
                 5, // RANDOM
                 1, // AREA_MAPPING
-                4 // GLOBAL_MAPPING
+                4, // GLOBAL_MAPPING
+                7  // SCRIPTED
         ));
         settings.setWildPokemonRestrictionMod(getEnum(WildPokemonRestrictionMod.class, restoreState(data[15], 2), // NONE
                 restoreState(data[16], 2), // SIMILAR_STRENGTH
                 restoreState(data[15], 0), // CATCH_EM_ALL
                 restoreState(data[15], 3) // TYPE_THEME_AREAS
         ));
-        settings.setUseTimeBasedEncounters(restoreState(data[15], 7));
+        settings.setUseTimeBasedEncounters(restoreState(data[16], 5));
 
         settings.setUseMinimumCatchRate(restoreState(data[16], 0));
         settings.setBlockWildLegendaries(restoreState(data[16], 1));

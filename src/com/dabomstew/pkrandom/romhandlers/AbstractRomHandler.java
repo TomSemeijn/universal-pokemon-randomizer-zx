@@ -681,6 +681,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean catchEmAll = settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.CATCH_EM_ALL;
         boolean typeThemed = settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.TYPE_THEME_AREAS;
         boolean usePowerLevels = settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.SIMILAR_STRENGTH;
+        boolean scripted = settings.getWildPokemonMod() == Settings.WildPokemonMod.SCRIPTED;
         boolean noLegendaries = settings.isBlockWildLegendaries();
         boolean balanceShakingGrass = settings.isBalanceShakingGrass();
         int levelModifier = settings.isWildLevelsModified() ? settings.getWildLevelModifier() : 0;
@@ -857,6 +858,18 @@ public abstract class AbstractRomHandler implements RomHandler {
                         }
                         setFormeForEncounter(enc, enc.pokemon);
                     }
+                }
+            }
+        } else if(scripted) { //scripted
+            List<Pokemon> pokepool = allowAltFormes ? (noLegendaries ? noLegendaryListInclFormes : mainPokemonListInclFormes) : (noLegendaries ? noLegendaryList : mainPokemonList);
+            pokepool.removeAll(banned);
+            for (EncounterSet area : scrambledEncounters) {
+                List<Pokemon> localPool = new ArrayList<>(pokepool);
+                localPool.removeAll(area.bannedPokemon);
+                area = settings.getScript().getScriptedWildEncounterSet(localPool, area);
+                for(Encounter enc : area.encounters) //TEMP: check if should be removed
+                {
+                    setFormeForEncounter(enc, enc.pokemon);
                 }
             }
         } else {
