@@ -3678,10 +3678,15 @@
                   <component id="dd825" class="javax.swing.JTextPane" binding="sScriptInput" custom-create="true">
                     <constraints/>
                     <properties>
+                      <caretColor color="-13750738"/>
                       <enabled value="false"/>
-                      <font name="Consolas" size="36"/>
+                      <font name="Consolas" size="32"/>
                       <foreground color="-14342875"/>
+                      <opaque value="false"/>
                     </properties>
+                    <clientProperties>
+                      <JEditorPane.honorDisplayProperties class="java.lang.Boolean" value="false"/>
+                    </clientProperties>
                   </component>
                 </children>
               </scrollpane>
