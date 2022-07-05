@@ -92,43 +92,56 @@ public abstract class AbstractRomHandler implements RomHandler {
         mainPokemonListInclFormes = this.allPokemonInclFormesWithoutNull();
         altFormesList = this.getAltFormes();
         megaEvolutionsList = this.getMegaEvolutions();
-        if (restrictions != null) {
+        if (restrictions != null || settings.isScriptedPokemonLimit()) {
             mainPokemonList = new ArrayList<>();
             mainPokemonListInclFormes = new ArrayList<>();
             megaEvolutionsList = new ArrayList<>();
             List<Pokemon> allPokemon = this.getPokemon();
-
-            if (restrictions.allow_gen1) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.bulbasaur, Species.mew);
-            }
-
-            if (restrictions.allow_gen2 && allPokemon.size() > Gen2Constants.pokemonCount) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.chikorita, Species.celebi);
-            }
-
-            if (restrictions.allow_gen3 && allPokemon.size() > Gen3Constants.pokemonCount) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.treecko, Species.deoxys);
-            }
-
-            if (restrictions.allow_gen4 && allPokemon.size() > Gen4Constants.pokemonCount) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.turtwig, Species.arceus);
-            }
-
-            if (restrictions.allow_gen5 && allPokemon.size() > Gen5Constants.pokemonCount) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.victini, Species.genesect);
-            }
-
-            if (restrictions.allow_gen6 && allPokemon.size() > Gen6Constants.pokemonCount) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.chespin, Species.volcanion);
-            }
-
             int maxGen7SpeciesID = isSM ? Species.marshadow : Species.zeraora;
-            if (restrictions.allow_gen7 && allPokemon.size() > maxGen7SpeciesID) {
-                addPokesFromRange(mainPokemonList, allPokemon, Species.rowlet, maxGen7SpeciesID);
+
+            if(restrictions == null)
+            {
+                addPokesFromRange(mainPokemonList, allPokemon, Species.bulbasaur, allPokemon.size() - 1);
+            }
+            else
+            {
+                if (restrictions.allow_gen1) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.bulbasaur, Species.mew);
+                }
+
+                if (restrictions.allow_gen2 && allPokemon.size() > Gen2Constants.pokemonCount) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.chikorita, Species.celebi);
+                }
+
+                if (restrictions.allow_gen3 && allPokemon.size() > Gen3Constants.pokemonCount) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.treecko, Species.deoxys);
+                }
+
+                if (restrictions.allow_gen4 && allPokemon.size() > Gen4Constants.pokemonCount) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.turtwig, Species.arceus);
+                }
+
+                if (restrictions.allow_gen5 && allPokemon.size() > Gen5Constants.pokemonCount) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.victini, Species.genesect);
+                }
+
+                if (restrictions.allow_gen6 && allPokemon.size() > Gen6Constants.pokemonCount) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.chespin, Species.volcanion);
+                }
+
+                if (restrictions.allow_gen7 && allPokemon.size() > maxGen7SpeciesID) {
+                    addPokesFromRange(mainPokemonList, allPokemon, Species.rowlet, maxGen7SpeciesID);
+                }
+            }
+
+            //apply scripted restrictions
+            if(settings.isScriptedPokemonLimit())
+            {
+                mainPokemonList = settings.getScript().getLimitedPokepool(mainPokemonList);
             }
 
             // If the user specified it, add all the evolutionary relatives for everything in the mainPokemonList
-            if (restrictions.allow_evolutionary_relatives) {
+            if (restrictions != null && restrictions.allow_evolutionary_relatives) {
                 addEvolutionaryRelatives(mainPokemonList);
             }
 

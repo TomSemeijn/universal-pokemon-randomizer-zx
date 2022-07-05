@@ -307,6 +307,7 @@ public class NewRandomizerGUI {
     private JRadioButton igtScriptedRadioButton;
     private JRadioButton wpScriptedRadioButton;
     private JCheckBox tpScriptedHeldItemsCheckBox;
+    private JCheckBox limitPokemonScriptingCheckbox;
 
     private static JFrame frame;
 
@@ -531,6 +532,8 @@ public class NewRandomizerGUI {
             }
         });
         limitPokemonCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        limitPokemonScriptingCheckbox.addActionListener(e -> enableOrDisableSubControls());
+        limitPokemonScriptingCheckbox.addActionListener(e -> addPokemonLimitScriptFunc());
         tpAllowAlternateFormesCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpBossTrainersCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpImportantTrainersCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1355,6 +1358,7 @@ public class NewRandomizerGUI {
     private void restoreStateFromSettings(Settings settings) {
 
         limitPokemonCheckBox.setSelected(settings.isLimitPokemon());
+        limitPokemonScriptingCheckbox.setSelected(settings.isScriptedPokemonLimit());
         currentRestrictions = settings.getCurrentRestrictions();
         if (currentRestrictions != null) {
             currentRestrictions.limitToGen(romHandler.generationOfPokemon());
@@ -1621,6 +1625,7 @@ public class NewRandomizerGUI {
         settings.setRomName(this.romHandler.getROMName());
 
         settings.setLimitPokemon(limitPokemonCheckBox.isSelected() && limitPokemonCheckBox.isVisible());
+        settings.setScriptedPokemonLimit(limitPokemonScriptingCheckbox.isSelected());
         settings.setCurrentRestrictions(currentRestrictions);
         settings.setBanIrregularAltFormes(noIrregularAltFormesCheckBox.isSelected() && noIrregularAltFormesCheckBox.isVisible());
         settings.setRaceMode(raceModeCheckBox.isSelected());
@@ -1921,6 +1926,9 @@ public class NewRandomizerGUI {
         limitPokemonCheckBox.setVisible(true);
         limitPokemonCheckBox.setEnabled(false);
         limitPokemonCheckBox.setSelected(false);
+        limitPokemonScriptingCheckbox.setVisible(true);
+        limitPokemonScriptingCheckbox.setEnabled(false);
+        limitPokemonScriptingCheckbox.setSelected(false);
         limitPokemonButton.setVisible(true);
         limitPokemonButton.setEnabled(false);
         noIrregularAltFormesCheckBox.setVisible(true);
@@ -2623,6 +2631,8 @@ public class NewRandomizerGUI {
             limitPokemonCheckBox.setVisible(true);
             limitPokemonCheckBox.setEnabled(true);
             limitPokemonButton.setVisible(true);
+            limitPokemonScriptingCheckbox.setVisible(true);
+            limitPokemonScriptingCheckbox.setEnabled(true);
 
             noIrregularAltFormesCheckBox.setVisible(pokemonGeneration >= 4);
             noIrregularAltFormesCheckBox.setEnabled(pokemonGeneration >= 4);
@@ -4120,6 +4130,29 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Trainer");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TrainerPokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addPokemonLimitScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#filters the given list of pokemon to limit the pokemon available in-game (this affects all options where pokemon are selected)",
+                "#pokepool - a List<Pokemon> of available pokemon before this function is called",
+                "#           (this is affected by the usual pokemon limiting options)",
+                "#",
+                "#return: a List<Pokemon> of all available pokemon"
+        };
+        String funcDeclaration = "def limitPokemon(pokepool):";
+        String funcBody = "\n\ttoRemove = [] #example\n\tfor poke in pokepool:\n\t\tif('B' in poke.name):\n\t\t\ttoRemove.append(poke)\n\tfor poke in toRemove:\n\t\tpokepool.remove(pokepool.indexOf(poke))\n\treturn pokepool";
+
+        if(limitPokemonScriptingCheckbox.isSelected())
+        {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

@@ -16,6 +16,12 @@ public class ScriptInstance {
         interp.exec(source);
     }
 
+    public List<Pokemon> getLimitedPokepool(List<Pokemon> pokepool)
+    {
+        PyFunction func = (PyFunction)interp.get("limitPokemon");
+        return Py.tojava(func.__call__(Py.java2py(pokepool)), List.class);
+    }
+
     public List<Pokemon> getScriptedStarters(List<Pokemon> pokepool)
     {
         PyFunction func = (PyFunction)interp.get("selectStarter");

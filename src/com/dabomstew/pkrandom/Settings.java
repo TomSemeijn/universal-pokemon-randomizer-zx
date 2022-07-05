@@ -324,6 +324,8 @@ public class Settings {
 
     private boolean scriptedTrainerHeldItems;
 
+    private boolean scriptedPokemonLimit;
+
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
         byte[] settings = toString().getBytes("UTF-8");
@@ -373,7 +375,7 @@ public class Settings {
 
         // 0: general options #1 + trainer/class names
         out.write(makeByteSelected(changeImpossibleEvolutions, updateMoves, updateMovesLegacy, randomizeTrainerNames,
-                randomizeTrainerClassNames, makeEvolutionsEasier, removeTimeBasedEvolutions));
+                randomizeTrainerClassNames, makeEvolutionsEasier, removeTimeBasedEvolutions, scriptedPokemonLimit));
 
         // 1: pokemon base stats & abilities
         out.write(makeByteSelected(baseStatsFollowEvolutions, baseStatisticsMod == BaseStatisticsMod.RANDOM,
@@ -643,6 +645,7 @@ public class Settings {
         settings.setRandomizeTrainerClassNames(restoreState(data[0], 4));
         settings.setMakeEvolutionsEasier(restoreState(data[0], 5));
         settings.setRemoveTimeBasedEvolutions(restoreState(data[0], 6));
+        settings.setScriptedPokemonLimit(restoreState(data[0], 7));
 
         settings.setBaseStatisticsMod(restoreEnum(BaseStatisticsMod.class, data[1], 3, // UNCHANGED
                 2, // SHUFFLE
@@ -2355,6 +2358,16 @@ public class Settings {
     public boolean isScriptedTrainerHeldItems()
     {
         return scriptedTrainerHeldItems;
+    }
+
+    public void setScriptedPokemonLimit(boolean scriptedPokemonLimit)
+    {
+        this.scriptedPokemonLimit = scriptedPokemonLimit;
+    }
+
+    public boolean isScriptedPokemonLimit()
+    {
+        return scriptedPokemonLimit;
     }
 
     private static int makeByteSelected(boolean... bools) {
