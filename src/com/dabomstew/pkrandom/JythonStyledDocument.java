@@ -18,7 +18,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private Style stringStyle;
 
     private static String[] keywords = {
-            "def", "import", "from", "return", "for", "in"
+            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case"
     };
 
     public JythonStyledDocument() {
