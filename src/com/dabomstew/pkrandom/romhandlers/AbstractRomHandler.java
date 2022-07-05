@@ -5153,6 +5153,11 @@ public abstract class AbstractRomHandler implements RomHandler {
                 // No held items at all, abort
                 return;
             }
+            if(settings.isScriptedWildHeldItems())
+            {
+                pk = settings.getScript().getScriptedWildHeldItemPokemon(possibleItems, pk, pk.commonHeldItem != -1, pk.rareHeldItem != -1, pk.guaranteedHeldItem != -1, pk.darkGrassHeldItem != -1);
+                continue;
+            }
             boolean canHaveDarkGrass = pk.darkGrassHeldItem != -1;
             if (pk.guaranteedHeldItem != -1) {
                 // Guaranteed held items are supported.

@@ -2259,7 +2259,7 @@
                   </hspacer>
                   <vspacer id="580fb">
                     <constraints>
-                      <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                   </vspacer>
@@ -2310,7 +2310,7 @@
                   </component>
                   <grid id="ff19e" layout-manager="GridBagLayout">
                     <constraints>
-                      <grid row="1" column="2" row-span="6" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="2" row-span="7" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                       <gridbag top="0" left="0" bottom="0" right="80" weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties/>
@@ -2436,7 +2436,7 @@
                   </component>
                   <component id="da56d" class="javax.swing.JCheckBox" binding="wpBalanceShakingGrassPokemonCheckBox">
                     <constraints>
-                      <grid row="6" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="7" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -2447,7 +2447,7 @@
                   </component>
                   <component id="a5c09" class="javax.swing.JCheckBox" binding="wpPercentageLevelModifierCheckBox" default-binding="true">
                     <constraints>
-                      <grid row="7" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="8" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -2458,7 +2458,7 @@
                   </component>
                   <component id="7e56b" class="javax.swing.JSlider" binding="wpPercentageLevelModifierSlider" default-binding="true">
                     <constraints>
-                      <grid row="8" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="9" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0" ipadx="30"/>
                     </constraints>
                     <properties>
@@ -2492,7 +2492,7 @@
                   </component>
                   <component id="438d0" class="javax.swing.JCheckBox" binding="wpAllowAltFormesCheckBox">
                     <constraints>
-                      <grid row="9" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="10" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -2510,6 +2510,17 @@
                       <enabled value="false"/>
                       <text value="Scripted"/>
                       <toolTipText value="Use scripting to select wild pokemon"/>
+                    </properties>
+                  </component>
+                  <component id="c488b" class="javax.swing.JCheckBox" binding="wpScriptHeldItemsCheckBox">
+                    <constraints>
+                      <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted Held Items"/>
+                      <toolTipText value="Use scripting to select held items for wild pokemon"/>
                     </properties>
                   </component>
                 </children>

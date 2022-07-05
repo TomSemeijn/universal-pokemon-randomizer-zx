@@ -326,6 +326,8 @@ public class Settings {
 
     private boolean scriptedPokemonLimit;
 
+    private boolean scriptedWildHeldItems;
+
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
         byte[] settings = toString().getBytes("UTF-8");
@@ -435,7 +437,7 @@ public class Settings {
         // 16 wild pokemon 2
         out.write(makeByteSelected(useMinimumCatchRate, blockWildLegendaries,
                 wildPokemonRestrictionMod == WildPokemonRestrictionMod.SIMILAR_STRENGTH, randomizeWildPokemonHeldItems,
-                banBadRandomWildPokemonHeldItems, useTimeBasedEncounters, false, balanceShakingGrass)
+                banBadRandomWildPokemonHeldItems, useTimeBasedEncounters, scriptedWildHeldItems, balanceShakingGrass)
                 | ((minimumCatchRateLevel - 1) << 5));
 
         // 17 static pokemon
@@ -727,6 +729,7 @@ public class Settings {
                 restoreState(data[15], 3) // TYPE_THEME_AREAS
         ));
         settings.setUseTimeBasedEncounters(restoreState(data[16], 5));
+        settings.setScriptedWildHeldItems(restoreState(data[16], 6));
 
         settings.setUseMinimumCatchRate(restoreState(data[16], 0));
         settings.setBlockWildLegendaries(restoreState(data[16], 1));
@@ -2368,6 +2371,16 @@ public class Settings {
     public boolean isScriptedPokemonLimit()
     {
         return scriptedPokemonLimit;
+    }
+
+    public void setScriptedWildHeldItems(boolean scriptedWildHeldItems)
+    {
+        this.scriptedWildHeldItems = scriptedWildHeldItems;
+    }
+
+    public boolean isScriptedWildHeldItems()
+    {
+        return scriptedWildHeldItems;
     }
 
     private static int makeByteSelected(boolean... bools) {

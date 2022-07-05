@@ -63,4 +63,32 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemonItem");
         return Py.tojava(func.__call__(Py.java2py(itempool), Py.java2py(trainer), Py.java2py(pokemon)), Integer.class);
     }
+
+    public Pokemon getScriptedWildHeldItemPokemon(ItemList itempool, Pokemon pokemon, boolean supportCommon, boolean supportRare, boolean supportGuaranteed, boolean supportDarkGrass)
+    {
+        PyFunction func = (PyFunction)interp.get("selectWildPokemonHeldItem");
+        PyObject[] args = {Py.java2py(itempool), Py.java2py(pokemon), new PyBoolean(supportCommon), new PyBoolean(supportRare), new PyBoolean(supportGuaranteed), new PyBoolean(supportDarkGrass)};
+        PyDictionary result = (PyDictionary)(func.__call__(args));
+        int common = result.has_key(new PyString("common")) ? ((PyInteger)result.get(new PyString("common"))).asInt() : 0;
+        int rare = result.has_key(new PyString("rare")) ? ((PyInteger)result.get(new PyString("rare"))).asInt() : 0;
+        int guaranteed = result.has_key(new PyString("guaranteed")) ? ((PyInteger)result.get(new PyString("guaranteed"))).asInt() : 0;
+        int darkGrass = result.has_key(new PyString("darkGrass")) ? ((PyInteger)result.get(new PyString("darkGrass"))).asInt() : 0;
+        if(supportCommon && common != 0)
+        {
+            pokemon.commonHeldItem = common == -1 ? 0 : common;
+        }
+        if(supportRare && rare != 0)
+        {
+            pokemon.rareHeldItem = rare == -1 ? 0 : rare;
+        }
+        if(supportGuaranteed && guaranteed != 0)
+        {
+            pokemon.guaranteedHeldItem = guaranteed == -1 ? 0 : guaranteed;
+        }
+        if(supportDarkGrass && darkGrass != 0 && (!supportGuaranteed || guaranteed == 0))
+        {
+            pokemon.darkGrassHeldItem = darkGrass == -1 ? 0 : darkGrass;
+        }
+        return pokemon;
+    }
 }

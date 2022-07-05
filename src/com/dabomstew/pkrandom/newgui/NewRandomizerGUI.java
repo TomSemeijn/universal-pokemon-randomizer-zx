@@ -308,6 +308,7 @@ public class NewRandomizerGUI {
     private JRadioButton wpScriptedRadioButton;
     private JCheckBox tpScriptedHeldItemsCheckBox;
     private JCheckBox limitPokemonScriptingCheckbox;
+    private JCheckBox wpScriptHeldItemsCheckBox;
 
     private static JFrame frame;
 
@@ -463,6 +464,7 @@ public class NewRandomizerGUI {
         wpScriptedRadioButton.addActionListener(e -> addWildEncounterScriptFunc());
         wpSetMinimumCatchRateCheckBox.addActionListener(e -> enableOrDisableSubControls());
         wpRandomizeHeldItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        wpScriptHeldItemsCheckBox.addActionListener(e -> addWildHeldItemScriptFunc());
         wpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tmUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         tmRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1520,6 +1522,7 @@ public class NewRandomizerGUI {
                 .setSelected(settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.SIMILAR_STRENGTH);
         wpRandomizeHeldItemsCheckBox.setSelected(settings.isRandomizeWildPokemonHeldItems());
         wpBanBadItemsCheckBox.setSelected(settings.isBanBadRandomWildPokemonHeldItems());
+        wpScriptHeldItemsCheckBox.setSelected(settings.isScriptedWildHeldItems());
         wpBalanceShakingGrassPokemonCheckBox.setSelected(settings.isBalanceShakingGrass());
         wpPercentageLevelModifierCheckBox.setSelected(settings.isWildLevelsModified());
         wpPercentageLevelModifierSlider.setValue(settings.getWildLevelModifier());
@@ -1751,6 +1754,7 @@ public class NewRandomizerGUI {
         settings.setBlockWildLegendaries(wpDontUseLegendariesCheckBox.isSelected());
         settings.setRandomizeWildPokemonHeldItems(wpRandomizeHeldItemsCheckBox.isSelected() && wpRandomizeHeldItemsCheckBox.isVisible());
         settings.setBanBadRandomWildPokemonHeldItems(wpBanBadItemsCheckBox.isSelected() && wpBanBadItemsCheckBox.isVisible());
+        settings.setScriptedWildHeldItems(wpScriptHeldItemsCheckBox.isSelected() && wpScriptHeldItemsCheckBox.isVisible());
         settings.setBalanceShakingGrass(wpBalanceShakingGrassPokemonCheckBox.isSelected() && wpBalanceShakingGrassPokemonCheckBox.isVisible());
         settings.setWildLevelsModified(wpPercentageLevelModifierCheckBox.isSelected());
         settings.setWildLevelModifier(wpPercentageLevelModifierSlider.getValue());
@@ -2413,6 +2417,9 @@ public class NewRandomizerGUI {
         wpBanBadItemsCheckBox.setVisible(true);
         wpBanBadItemsCheckBox.setEnabled(false);
         wpBanBadItemsCheckBox.setSelected(false);
+        wpScriptHeldItemsCheckBox.setVisible(true);
+        wpScriptHeldItemsCheckBox.setEnabled(false);
+        wpScriptHeldItemsCheckBox.setSelected(false);
         wpBalanceShakingGrassPokemonCheckBox.setVisible(true);
         wpBalanceShakingGrassPokemonCheckBox.setEnabled(false);
         wpBalanceShakingGrassPokemonCheckBox.setSelected(false);
@@ -2871,6 +2878,7 @@ public class NewRandomizerGUI {
             wpSetMinimumCatchRateCheckBox.setEnabled(true);
             wpRandomizeHeldItemsCheckBox.setEnabled(true);
             wpRandomizeHeldItemsCheckBox.setVisible(pokemonGeneration != 1);
+            wpScriptHeldItemsCheckBox.setVisible(wpRandomizeHeldItemsCheckBox.isVisible());
             wpBanBadItemsCheckBox.setVisible(pokemonGeneration != 1);
             wpBalanceShakingGrassPokemonCheckBox.setVisible(pokemonGeneration == 5);
             wpPercentageLevelModifierCheckBox.setEnabled(true);
@@ -3503,9 +3511,12 @@ public class NewRandomizerGUI {
                 && wpRandomizeHeldItemsCheckBox.isVisible()
                 && wpRandomizeHeldItemsCheckBox.isEnabled()) { // ??? why all three
             wpBanBadItemsCheckBox.setEnabled(true);
+            wpScriptHeldItemsCheckBox.setEnabled(true);
         } else {
             wpBanBadItemsCheckBox.setEnabled(false);
             wpBanBadItemsCheckBox.setSelected(false);
+            wpScriptHeldItemsCheckBox.setEnabled(false);
+            wpScriptHeldItemsCheckBox.setSelected(false);
         }
 
         if (wpSetMinimumCatchRateCheckBox.isSelected()) {
@@ -4154,6 +4165,38 @@ public class NewRandomizerGUI {
         if(limitPokemonScriptingCheckbox.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addWildHeldItemScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#filters the given list of pokemon to limit the pokemon available in-game (this affects all options where pokemon are selected)",
+                "#itempool - an ItemList of all available items",
+                "#pokemon - the pokemon to set the held item(s) for",
+                "#supportCommon - true if this pokemon can have a common held item (if set when false it will be ignored)",
+                "#supportRare - true if this pokemon can have a rare held item (if set when false it will be ignored)",
+                "#supportGuaranteed - true if this pokemon can have a guaranteed held item (if set when false it will be ignored)",
+                "#supportDarkGrass - true if this pokemon can have a dark grass held item (if set when false it will be ignored)",
+                "#",
+                "#return:   a dictionary of structure: { \"common\": int, \"rare\": int, \"guaranteed\": int, \"darkGrass\": int }, missing keys are ignored",
+                "#          that represents the held items the pokemon can have in the wild (with -1 being none and 0 being unchanged)",
+                "#NOTE: use the imported Item class to access held items by variable name"
+
+        };
+        String funcDeclaration = "def selectWildPokemonHeldItem(itempool, pokemon, supportCommon, supportRare, supportGuaranteed, supportDarkGrass):";
+        String funcBody = "\n\tresult = { \"common\": 0, \"rare\": 0, \"guaranteed\": 0, \"darkGrass\": 0 }\n\tif pokemon.name == 'BULBASAUR':\n\t\tresult[\"guaranteed\"] = Items.masterBall\n\treturn result";
+
+        if(wpScriptHeldItemsCheckBox.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ItemList");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
