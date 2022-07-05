@@ -322,6 +322,8 @@ public class Settings {
     private PickupItemsMod pickupItemsMod = PickupItemsMod.UNCHANGED;
     private boolean banBadRandomPickupItems;
 
+    private boolean scriptedTrainerHeldItems;
+
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
         byte[] settings = toString().getBytes("UTF-8");
@@ -414,7 +416,8 @@ public class Settings {
                 trainersMod == TrainersMod.MAINPLAYTHROUGH,
                 trainersMod == TrainersMod.TYPE_THEMED,
                 trainersMod == TrainersMod.TYPE_THEMED_ELITE4_GYMS,
-                trainersMod == TrainersMod.SCRIPTED));
+                trainersMod == TrainersMod.SCRIPTED,
+                scriptedTrainerHeldItems));
         
         // 14 trainer pokemon force evolutions
         out.write((trainersForceFullyEvolved ? 0x80 : 0) | trainersForceFullyEvolvedLevel);
@@ -706,6 +709,7 @@ public class Settings {
                 6  // SCRIPTED
         ));
 
+        settings.setScriptedTrainerHeldItems(restoreState(data[13], 7));
         settings.setTrainersForceFullyEvolved(restoreState(data[14], 7));
         settings.setTrainersForceFullyEvolvedLevel(data[14] & 0x7F);
 
@@ -2342,6 +2346,16 @@ public class Settings {
 
     public void setBanBadRandomPickupItems(boolean banBadRandomPickupItems) {
         this.banBadRandomPickupItems = banBadRandomPickupItems;
+    }
+
+    public void setScriptedTrainerHeldItems(boolean scriptedTrainerHeldItems)
+    {
+        this.scriptedTrainerHeldItems = scriptedTrainerHeldItems;
+    }
+
+    public boolean isScriptedTrainerHeldItems()
+    {
+        return scriptedTrainerHeldItems;
     }
 
     private static int makeByteSelected(boolean... bools) {

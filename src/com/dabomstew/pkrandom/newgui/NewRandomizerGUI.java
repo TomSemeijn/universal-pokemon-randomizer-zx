@@ -307,6 +307,7 @@ public class NewRandomizerGUI {
     private JRadioButton stpScriptedFullRadioButton;
     private JRadioButton igtScriptedRadioButton;
     private JRadioButton wpScriptedRadioButton;
+    private JCheckBox tpScriptedHeldItemsCheckBox;
 
     private static JFrame frame;
 
@@ -538,6 +539,7 @@ public class NewRandomizerGUI {
         tpImportantTrainersCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpRegularTrainersCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpBossTrainersItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        tpScriptedHeldItemsCheckBox.addActionListener(e -> addTrainerHeldItemScriptFunc());
         tpImportantTrainersItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpRegularTrainersItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         totpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1477,6 +1479,7 @@ public class NewRandomizerGUI {
         tpImportantTrainersItemsCheckBox.setSelected(settings.isRandomizeHeldItemsForImportantTrainerPokemon());
         tpRegularTrainersItemsCheckBox.setSelected(settings.isRandomizeHeldItemsForRegularTrainerPokemon());
         tpConsumableItemsOnlyCheckBox.setSelected(settings.isConsumableItemsOnlyForTrainers());
+        tpScriptedHeldItemsCheckBox.setSelected(settings.isScriptedTrainerHeldItems());
         tpSensibleItemsCheckBox.setSelected(settings.isSensibleItemsOnlyForTrainers());
         tpHighestLevelGetsItemCheckBox.setSelected(settings.isHighestLevelGetsItemsForTrainers());
 
@@ -1726,6 +1729,7 @@ public class NewRandomizerGUI {
         settings.setRandomizeHeldItemsForImportantTrainerPokemon(tpImportantTrainersItemsCheckBox.isVisible() && tpImportantTrainersItemsCheckBox.isSelected());
         settings.setRandomizeHeldItemsForRegularTrainerPokemon(tpRegularTrainersItemsCheckBox.isVisible() && tpRegularTrainersItemsCheckBox.isSelected());
         settings.setConsumableItemsOnlyForTrainers(tpConsumableItemsOnlyCheckBox.isVisible() && tpConsumableItemsOnlyCheckBox.isSelected());
+        settings.setScriptedTrainerHeldItems(tpScriptedHeldItemsCheckBox.isSelected());
         settings.setSensibleItemsOnlyForTrainers(tpSensibleItemsCheckBox.isVisible() && tpSensibleItemsCheckBox.isSelected());
         settings.setHighestLevelGetsItemsForTrainers(tpHighestLevelGetsItemCheckBox.isVisible() && tpHighestLevelGetsItemCheckBox.isSelected());
 
@@ -2311,6 +2315,9 @@ public class NewRandomizerGUI {
         tpConsumableItemsOnlyCheckBox.setVisible(true);
         tpConsumableItemsOnlyCheckBox.setEnabled(false);
         tpConsumableItemsOnlyCheckBox.setSelected(false);
+        tpScriptedHeldItemsCheckBox.setVisible(true);
+        tpScriptedHeldItemsCheckBox.setEnabled(false);
+        tpScriptedHeldItemsCheckBox.setSelected(false);
         tpSensibleItemsCheckBox.setVisible(true);
         tpSensibleItemsCheckBox.setEnabled(false);
         tpSensibleItemsCheckBox.setSelected(false);
@@ -2812,6 +2819,8 @@ public class NewRandomizerGUI {
             tpRegularTrainersItemsCheckBox.setEnabled(false);
             tpConsumableItemsOnlyCheckBox.setVisible(trainersHeldItemSupport);
             tpConsumableItemsOnlyCheckBox.setEnabled(false);
+            tpScriptedHeldItemsCheckBox.setVisible(trainersHeldItemSupport);
+            tpScriptedHeldItemsCheckBox.setEnabled(false);
             tpSensibleItemsCheckBox.setVisible(trainersHeldItemSupport);
             tpSensibleItemsCheckBox.setEnabled(false);
             tpHighestLevelGetsItemCheckBox.setVisible(trainersHeldItemSupport);
@@ -3318,6 +3327,8 @@ public class NewRandomizerGUI {
             tpRegularTrainersItemsCheckBox.setSelected(false);
             tpConsumableItemsOnlyCheckBox.setEnabled(false);
             tpConsumableItemsOnlyCheckBox.setSelected(false);
+            tpScriptedHeldItemsCheckBox.setEnabled(false);
+            tpScriptedHeldItemsCheckBox.setSelected(false);
             tpSensibleItemsCheckBox.setEnabled(false);
             tpSensibleItemsCheckBox.setSelected(false);
             tpHighestLevelGetsItemCheckBox.setEnabled(false);
@@ -3386,10 +3397,12 @@ public class NewRandomizerGUI {
         if (tpBossTrainersItemsCheckBox.isSelected() || tpImportantTrainersItemsCheckBox.isSelected() ||
                 tpRegularTrainersItemsCheckBox.isSelected()) {
             tpConsumableItemsOnlyCheckBox.setEnabled(true);
+            tpScriptedHeldItemsCheckBox.setEnabled(true);;
             tpSensibleItemsCheckBox.setEnabled(true);
             tpHighestLevelGetsItemCheckBox.setEnabled(true);
         } else {
             tpConsumableItemsOnlyCheckBox.setEnabled(false);
+            tpScriptedHeldItemsCheckBox.setEnabled(false);
             tpSensibleItemsCheckBox.setEnabled(false);
             tpHighestLevelGetsItemCheckBox.setEnabled(false);
         }
@@ -4121,6 +4134,35 @@ public class NewRandomizerGUI {
 
         if(isTrainerSetting(TRAINER_SCRIPTED))
         {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Trainer");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TrainerPokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addTrainerHeldItemScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects the held item for the given trainer pokemon",
+                "#itempool - a List<int> of available held item indices",
+                "#           (this is affected by the \"Consumable only\" and \"Sensible items\" settings)",
+                "#trainer - a Trainer object representing the trainer that owns the pokemon to give an item to",
+                "#pokemon - a TrainerPokemon object representing the pokemon to give an item to",
+                "#",
+                "#return: an integer representing the index of the new held item or -1 if there should be no held item",
+                "#NOTE: use the imported Item class to access held items by variable name"
+        };
+        String funcDeclaration = "def selectTrainerPokemonItem(itempool, trainer, pokemon):";
+        String funcBody = "\n\tif(itempool.contains(Items.oranBerry)): #example\n\t\treturn Items.oranBerry\n\treturn 0";
+
+        if(tpScriptedHeldItemsCheckBox.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Trainer");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TrainerPokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");

@@ -57,4 +57,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemon");
         return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(trainer), Py.java2py(oldPokemon), new PyBoolean(megaSwap)), TrainerPokemon.class);
     }
+
+    public Integer getScriptedTrainerPokemonHeldItem(List<Integer> itempool, Trainer trainer, TrainerPokemon pokemon)
+    {
+        PyFunction func = (PyFunction)interp.get("selectTrainerPokemonItem");
+        return Py.tojava(func.__call__(Py.java2py(itempool), Py.java2py(trainer), Py.java2py(pokemon)), Integer.class);
+    }
 }

@@ -1993,7 +1993,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                                 movesets,
                                 highestLevelPoke.level) :
                         highestLevelPoke.moves;
-                randomizeHeldItem(highestLevelPoke, settings, moves, moveset);
+                randomizeHeldItem(t, highestLevelPoke, settings, moves, moveset);
             } else {
                 for (TrainerPokemon tp : t.pokemon) {
                     int[] moveset = tp.resetMoves ?
@@ -2002,10 +2002,10 @@ public abstract class AbstractRomHandler implements RomHandler {
                                     movesets,
                                     tp.level) :
                             tp.moves;
-                    randomizeHeldItem(tp, settings, moves, moveset);
+                    randomizeHeldItem(t, tp, settings, moves, moveset);
                     if (t.requiresUniqueHeldItems) {
                         while (!t.pokemonHaveUniqueHeldItems()) {
-                            randomizeHeldItem(tp, settings, moves, moveset);
+                            randomizeHeldItem(t, tp, settings, moves, moveset);
                         }
                     }
                 }
@@ -2014,7 +2014,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         this.setTrainers(currentTrainers, false);
     }
 
-    private void randomizeHeldItem(TrainerPokemon tp, Settings settings, List<Move> moves, int[] moveset) {
+    private void randomizeHeldItem(Trainer t, TrainerPokemon tp, Settings settings, List<Move> moves, int[] moveset) {
         boolean sensibleItemsOnly = settings.isSensibleItemsOnlyForTrainers();
         boolean consumableItemsOnly = settings.isConsumableItemsOnlyForTrainers();
         boolean swapMegaEvolutions = settings.isSwapTrainerMegaEvos();
@@ -2032,7 +2032,19 @@ public abstract class AbstractRomHandler implements RomHandler {
         } else {
             toChooseFrom = getAllHeldItems();
         }
-        tp.heldItem = toChooseFrom.get(random.nextInt(toChooseFrom.size()));
+
+        if(settings.isScriptedTrainerHeldItems())
+        {
+            Integer result = settings.getScript().getScriptedTrainerPokemonHeldItem(toChooseFrom, t, tp);
+            if(result != -1)
+            {
+                tp.heldItem = result;
+            }
+        }
+        else
+        {
+            tp.heldItem = toChooseFrom.get(random.nextInt(toChooseFrom.size()));
+        }
     }
 
     @Override
