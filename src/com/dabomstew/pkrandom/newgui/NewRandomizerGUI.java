@@ -348,7 +348,7 @@ public class NewRandomizerGUI {
     private List<String> trainerSettings = new ArrayList<>();
     private List<String> trainerSettingToolTips = new ArrayList<>();
     private final int TRAINER_UNCHANGED = 0, TRAINER_RANDOM = 1, TRAINER_RANDOM_EVEN = 2, TRAINER_RANDOM_EVEN_MAIN = 3,
-                        TRAINER_TYPE_THEMED = 4, TRAINER_TYPE_THEMED_ELITE4_GYMS = 5;
+                        TRAINER_TYPE_THEMED = 4, TRAINER_TYPE_THEMED_ELITE4_GYMS = 5, TRAINER_SCRIPTED = 6;
 
     public NewRandomizerGUI() {
         ToolTipManager.sharedInstance().setInitialDelay(400);
@@ -581,6 +581,7 @@ public class NewRandomizerGUI {
         tpComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 enableOrDisableSubControls();
+                addTrainerScriptFunc();
             }
         });
     }
@@ -1701,7 +1702,8 @@ public class NewRandomizerGUI {
 
         settings.setTrainersMod(isTrainerSetting(TRAINER_UNCHANGED), isTrainerSetting(TRAINER_RANDOM),
                 isTrainerSetting(TRAINER_RANDOM_EVEN), isTrainerSetting(TRAINER_RANDOM_EVEN_MAIN),
-                isTrainerSetting(TRAINER_TYPE_THEMED), isTrainerSetting(TRAINER_TYPE_THEMED_ELITE4_GYMS));
+                isTrainerSetting(TRAINER_TYPE_THEMED), isTrainerSetting(TRAINER_TYPE_THEMED_ELITE4_GYMS),
+                isTrainerSetting(TRAINER_SCRIPTED));
         settings.setTrainersUsePokemonOfSimilarStrength(tpSimilarStrengthCheckBox.isSelected());
         settings.setRivalCarriesStarterThroughout(tpRivalCarriesStarterCheckBox.isSelected());
         settings.setTrainersMatchTypingDistribution(tpWeightTypesCheckBox.isSelected());
@@ -3406,6 +3408,18 @@ public class NewRandomizerGUI {
             tpWeightTypesCheckBox.setSelected(false);
         }
 
+        //trying to use similar strength is not compatible with scripting
+        //since it would interfere with the concept of custom selection in an intrusive way (unlike things like pokemon restrictions and level modifiers)
+        //it could still be implemented within the script by the user themselves
+        //the same goes for "no early wonder guard", since the script can change both the level and pokemon and choose not to pick a random pokemon there is no way to enforce this rule
+        if(isTrainerSetting(TRAINER_SCRIPTED))
+        {
+            tpSimilarStrengthCheckBox.setEnabled(false);
+            tpSimilarStrengthCheckBox.setSelected(false);
+            tpNoEarlyWonderGuardCheckBox.setEnabled(false);
+            tpNoEarlyWonderGuardCheckBox.setSelected(false);
+        }
+
         if (tpEliteFourUniquePokemonCheckBox.isSelected()) {
             tpEliteFourUniquePokemonSpinner.setEnabled(true);
         } else {
@@ -4078,6 +4092,37 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "EncounterSet");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Encounter");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addTrainerScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects the pokemon of the given trainer",
+                "#pokepool - a List<Pokemon> of all available pokemon in this current area",
+                "#trainer - a Trainer object representing the trainer that owns the pokemon",
+                "#oldPokemon - a TrainerPokemon object representing the original pokemon",
+                "#megaSwap - true if the current request is for swapping a mega-evolvable pokemon",
+                "#           (if true, the pokepool will only contain mega-evolvable pokemon that have not been selected before)",
+                "#           (if true, the held item of the pokemon will be changed to its mega stone)",
+                "#",
+                "#return: a TrainerPokemon object representing the modified pokemon",
+                "#NOTE: the result of this function can be overridden if \"rival carries starter\" or \"force fully evolved\" options are used",
+                "#NOTE: the additional pokemon option will already be applied, so those pokemon are selected here as well"
+        };
+        String funcDeclaration = "def selectTrainerPokemon(pokepool, trainer, oldPokemon, megaSwap):";
+        String funcBody = "\n\toldPokemon.pokemon = pokepool.get(min(oldPokemon.level, pokepool.size() - 1)) #example\n\treturn oldPokemon";
+
+        if(isTrainerSetting(TRAINER_SCRIPTED))
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Trainer");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TrainerPokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

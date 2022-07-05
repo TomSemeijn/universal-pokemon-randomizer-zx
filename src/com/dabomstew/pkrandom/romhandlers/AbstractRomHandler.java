@@ -36,7 +36,6 @@ import com.dabomstew.pkrandom.*;
 import com.dabomstew.pkrandom.constants.*;
 import com.dabomstew.pkrandom.exceptions.RandomizationException;
 import com.dabomstew.pkrandom.pokemon.*;
-import org.python.core.PyFunction;
 
 public abstract class AbstractRomHandler implements RomHandler {
 
@@ -1643,6 +1642,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean isTypeThemedEliteFourGymOnly = settings.getTrainersMod() == Settings.TrainersMod.TYPE_THEMED_ELITE4_GYMS;
         boolean distributionSetting = settings.getTrainersMod() == Settings.TrainersMod.DISTRIBUTED;
         boolean mainPlaythroughSetting = settings.getTrainersMod() == Settings.TrainersMod.MAINPLAYTHROUGH;
+        boolean scripted = settings.getTrainersMod() == Settings.TrainersMod.SCRIPTED;
         boolean includeFormes = settings.isAllowTrainerAlternateFormes();
         boolean banIrregularAltFormes = settings.isBanIrregularAltFormes();
         boolean swapMegaEvos = settings.isSwapTrainerMegaEvos();
@@ -1866,26 +1866,40 @@ public abstract class AbstractRomHandler implements RomHandler {
                     bannedList.addAll(evolvesIntoTheWrongType);
                 }
 
-                Pokemon newPK = pickTrainerPokeReplacement(
-                                oldPK,
-                                usePowerLevels,
-                                typeForTrainer,
-                                noLegendaries,
-                                wgAllowed,
-                                distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index)),
-                                swapThisMegaEvo,
-                                abilitiesAreRandomized,
-                                includeFormes,
-                                banIrregularAltFormes
-                        );
+                Pokemon newPK;
+                boolean usePlacementHistory = distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index));
+                if(scripted)
+                {
+                    List<Pokemon> pickFrom = getTrainerPokePool(typeForTrainer, noLegendaries, usePlacementHistory, swapThisMegaEvo, abilitiesAreRandomized, includeFormes, banIrregularAltFormes);
+                    TrainerPokemon newTpk = settings.getScript().getScriptedTrainerPokemon(pickFrom, t, tp, swapThisMegaEvo);
+                    tp = newTpk;
+                    newPK = tp.pokemon;
+                }
+                else{
+                    newPK = pickTrainerPokeReplacement(
+                            oldPK,
+                            usePowerLevels,
+                            typeForTrainer,
+                            noLegendaries,
+                            wgAllowed,
+                            usePlacementHistory,
+                            swapThisMegaEvo,
+                            abilitiesAreRandomized,
+                            includeFormes,
+                            banIrregularAltFormes
+                    );
+                }
 
                 // Chosen Pokemon is locked in past here
-                if (distributionSetting || (mainPlaythroughSetting && mainPlaythroughTrainers.contains(t.index))) {
+                if (usePlacementHistory) {
                     setPlacementHistory(newPK);
                 }
                 tp.pokemon = newPK;
                 setFormeForTrainerPokemon(tp, newPK);
-                tp.abilitySlot = getRandomAbilitySlot(newPK);
+                if(tp.abilitySlot != 0)
+                {
+                    tp.abilitySlot = getRandomAbilitySlot(newPK);
+                }
                 tp.resetMoves = true;
 
                 if (!eliteFourRival) {
@@ -6863,12 +6877,10 @@ public abstract class AbstractRomHandler implements RomHandler {
     private List<Pokemon> bannedList = new ArrayList<>();
     private List<Pokemon> usedAsUniqueList = new ArrayList<>();
 
-
-    private Pokemon pickTrainerPokeReplacement(Pokemon current, boolean usePowerLevels, Type type,
-                                               boolean noLegendaries, boolean wonderGuardAllowed,
-                                               boolean usePlacementHistory, boolean swapMegaEvos,
-                                               boolean abilitiesAreRandomized, boolean allowAltFormes,
-                                               boolean banIrregularAltFormes) {
+    private List<Pokemon> getTrainerPokePool(Type type, boolean noLegendaries,
+                                             boolean usePlacementHistory, boolean swapMegaEvos,
+                                             boolean abilitiesAreRandomized, boolean allowAltFormes,
+                                             boolean banIrregularAltFormes) {
         List<Pokemon> pickFrom;
         List<Pokemon> withoutBannedPokemon;
 
@@ -6925,6 +6937,16 @@ public abstract class AbstractRomHandler implements RomHandler {
         if (!withoutBannedPokemon.isEmpty()) {
             pickFrom = withoutBannedPokemon;
         }
+        return pickFrom;
+    }
+
+    private Pokemon pickTrainerPokeReplacement(Pokemon current, boolean usePowerLevels, Type type,
+                                               boolean noLegendaries, boolean wonderGuardAllowed,
+                                               boolean usePlacementHistory, boolean swapMegaEvos,
+                                               boolean abilitiesAreRandomized, boolean allowAltFormes,
+                                               boolean banIrregularAltFormes) {
+
+        List<Pokemon> pickFrom = getTrainerPokePool(type, noLegendaries, usePlacementHistory, swapMegaEvos, abilitiesAreRandomized, allowAltFormes, banIrregularAltFormes);
 
         if (usePowerLevels) {
             // start with within 10% and add 5% either direction till we find
