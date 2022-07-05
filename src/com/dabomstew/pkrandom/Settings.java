@@ -214,7 +214,7 @@ public class Settings {
     private boolean allowWildAltFormes;
 
     public enum StaticPokemonMod {
-        UNCHANGED, RANDOM_MATCHING, COMPLETELY_RANDOM, SIMILAR_STRENGTH, SCRIPTED, FULL_SCRIPTED
+        UNCHANGED, RANDOM_MATCHING, COMPLETELY_RANDOM, SIMILAR_STRENGTH, SCRIPTED
     }
 
     private StaticPokemonMod staticPokemonMod = StaticPokemonMod.UNCHANGED;
@@ -441,8 +441,7 @@ public class Settings {
                 staticPokemonMod == StaticPokemonMod.RANDOM_MATCHING,
                 staticPokemonMod == StaticPokemonMod.COMPLETELY_RANDOM,
                 staticPokemonMod == StaticPokemonMod.SIMILAR_STRENGTH,
-                staticPokemonMod == StaticPokemonMod.SCRIPTED,
-                staticPokemonMod == StaticPokemonMod.FULL_SCRIPTED
+                staticPokemonMod == StaticPokemonMod.SCRIPTED
                 ));
 
         // 18 static pokemon 2

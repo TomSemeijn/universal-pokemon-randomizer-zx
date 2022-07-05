@@ -4030,7 +4030,6 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean swapLegendaries = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.RANDOM_MATCHING;
         boolean similarStrength = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SIMILAR_STRENGTH;
         boolean scripted = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SCRIPTED;
-        boolean fullyScripted = settings.getStaticPokemonMod() == Settings.StaticPokemonMod.FULL_SCRIPTED;
         boolean limitMainGameLegendaries = settings.isLimitMainGameLegendaries();
         boolean limit600 = settings.isLimit600();
         boolean allowAltFormes = settings.isAllowStaticAltFormes();
@@ -4243,7 +4242,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
             }
         }
-        else { // Completely random or (fully) scripted
+        else { // Completely random or scripted
             List<Pokemon> listInclFormesExclCosmetics =
                     mainPokemonListInclFormes
                             .stream()
@@ -4257,7 +4256,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             for (StaticEncounter old : currentStaticPokemon) {
                 StaticEncounter newStatic = cloneStaticEncounter(old);
                 Pokemon newPK;
-                if(fullyScripted)
+                if(scripted)
                 {
                     if(reallySwapMegaEvos && old.canMegaEvolve())
                     {
@@ -4281,7 +4280,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                                     .collect(Collectors.toList());
                         }
 
-                        newStatic = settings.getScript().getScriptedStaticFull(megaEvoPokemonLeft, old, true);
+                        newStatic = settings.getScript().getScriptedStatic(megaEvoPokemonLeft, old, true);
 
                         newStatic.heldItem = newStatic.pkmn
                                 .megaEvolutionsFrom
@@ -4297,10 +4296,10 @@ public abstract class AbstractRomHandler implements RomHandler {
                                     .collect(Collectors.toList());
                         }
 
-                        newStatic = settings.getScript().getScriptedStaticFull(restrictedPool, old, false);
+                        newStatic = settings.getScript().getScriptedStatic(restrictedPool, old, false);
                     }
                     else{
-                        newStatic = settings.getScript().getScriptedStaticFull(pokemonPool, old, false);
+                        newStatic = settings.getScript().getScriptedStatic(pokemonPool, old, false);
                     }
 
                     newPK = newStatic.pkmn;
@@ -4311,9 +4310,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                     } else {
                         if (old.restrictedPool) {
                             newPK = getRestrictedPokemon(settings, pokemonPool, pokemonLeft, old); //scripted handled in getRestrictedPokemon()
-                        } else if (scripted) {
-                            newPK = settings.getScript().getScriptedStatic(pokemonLeft, old, false);
-                        } else {
+                        }  else {
                             newPK = pokemonLeft.remove(this.random.nextInt(pokemonLeft.size()));
                         }
                     }
@@ -4354,7 +4351,6 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     private Pokemon getRestrictedPokemon(Settings settings, List<Pokemon> fullList, List<Pokemon> pokemonLeft, StaticEncounter old) {
-        Pokemon newPK;
         List<Pokemon> restrictedPool = pokemonLeft.stream().filter(pk -> old.restrictedList.contains(pk)).collect(Collectors.toList());
         if (restrictedPool.isEmpty()) {
             restrictedPool = fullList
@@ -4362,14 +4358,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                             .filter(pk -> old.restrictedList.contains(pk))
                             .collect(Collectors.toList());
         }
-        if(settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SCRIPTED)
-        {
-            newPK = settings.getScript().getScriptedStatic(restrictedPool, old, false);
-        }
-        else
-        {
-            newPK = restrictedPool.remove(this.random.nextInt(restrictedPool.size()));
-        }
+        Pokemon newPK = restrictedPool.remove(this.random.nextInt(restrictedPool.size()));
         pokemonLeft.remove(newPK);
         return newPK;
     }
@@ -4460,7 +4449,6 @@ public abstract class AbstractRomHandler implements RomHandler {
                         .map(mega -> mega.from)
                         .distinct()
                         .collect(Collectors.toList());
-        Pokemon newPK;
         List<Pokemon> megaEvoPokemonLeft =
                 megaEvoPokemon
                         .stream()
@@ -4472,14 +4460,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                     .filter(fullList::contains)
                     .collect(Collectors.toList());
         }
-        if(settings.getStaticPokemonMod() == Settings.StaticPokemonMod.SCRIPTED)
-        {
-            newPK = settings.getScript().getScriptedStatic(megaEvoPokemonLeft, newStatic, true);
-            megaEvoPokemonLeft.remove(newPK);
-        }
-        else{
-            newPK = megaEvoPokemonLeft.remove(this.random.nextInt(megaEvoPokemonLeft.size()));
-        }
+        Pokemon newPK = megaEvoPokemonLeft.remove(this.random.nextInt(megaEvoPokemonLeft.size()));
         pokemonLeft.remove(newPK);
         newStatic.heldItem = newPK
                 .megaEvolutionsFrom
