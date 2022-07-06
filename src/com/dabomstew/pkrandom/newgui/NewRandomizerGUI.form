@@ -1341,17 +1341,6 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.mdRandomizeMoveTypesCheckBox.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="7dbd0" class="javax.swing.JCheckBox" binding="mdRandomizeMoveCategoryCheckBox">
-                    <constraints>
-                      <grid row="1" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="0.6" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.mdRandomizeMoveCategoryCheckBox.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.mdRandomizeMoveCategoryCheckBox.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="5eccc" class="javax.swing.JCheckBox" binding="mdUpdateMovesCheckBox">
                     <constraints>
                       <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -1373,6 +1362,28 @@
                       <model>
                         <item value="--"/>
                       </model>
+                    </properties>
+                  </component>
+                  <component id="7dbd0" class="javax.swing.JCheckBox" binding="mdRandomizeMoveCategoryCheckBox">
+                    <constraints>
+                      <grid row="2" column="2" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.6" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.mdRandomizeMoveCategoryCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.mdRandomizeMoveCategoryCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="4ebda" class="javax.swing.JCheckBox" binding="mdScriptedCheckBox">
+                    <constraints>
+                      <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to change move data"/>
                     </properties>
                   </component>
                 </children>

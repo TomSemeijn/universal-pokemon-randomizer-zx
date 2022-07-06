@@ -309,6 +309,7 @@ public class NewRandomizerGUI {
     private JCheckBox tpScriptedHeldItemsCheckBox;
     private JCheckBox limitPokemonScriptingCheckbox;
     private JCheckBox wpScriptHeldItemsCheckBox;
+    private JCheckBox mdScriptedCheckBox;
 
     private static JFrame frame;
 
@@ -553,6 +554,8 @@ public class NewRandomizerGUI {
         totpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pbsUpdateBaseStatsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         mdUpdateMovesCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        mdScriptedCheckBox.addActionListener(e -> addMoveDataScriptFunc());
+
         frame.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -1444,6 +1447,7 @@ public class NewRandomizerGUI {
         mdRandomizeMovePowerCheckBox.setSelected(settings.isRandomizeMovePowers());
         mdRandomizeMovePPCheckBox.setSelected(settings.isRandomizeMovePPs());
         mdRandomizeMoveTypesCheckBox.setSelected(settings.isRandomizeMoveTypes());
+        mdScriptedCheckBox.setSelected(settings.isScriptMoveData());
 
         pmsRandomCompletelyRadioButton.setSelected(settings.getMovesetsMod() == Settings.MovesetsMod.COMPLETELY_RANDOM);
         pmsRandomPreferringSameTypeRadioButton.setSelected(settings.getMovesetsMod() == Settings.MovesetsMod.RANDOM_PREFER_SAME_TYPE);
@@ -1693,6 +1697,7 @@ public class NewRandomizerGUI {
         settings.setRandomizeMovePowers(mdRandomizeMovePowerCheckBox.isSelected());
         settings.setRandomizeMovePPs(mdRandomizeMovePPCheckBox.isSelected());
         settings.setRandomizeMoveTypes(mdRandomizeMoveTypesCheckBox.isSelected());
+        settings.setScriptMoveData(mdScriptedCheckBox.isSelected());
 
         settings.setMovesetsMod(pmsUnchangedRadioButton.isSelected(), pmsRandomPreferringSameTypeRadioButton.isSelected(),
                 pmsRandomCompletelyRadioButton.isSelected(), pmsMetronomeOnlyModeRadioButton.isSelected());
@@ -2194,6 +2199,9 @@ public class NewRandomizerGUI {
         mdRandomizeMoveCategoryCheckBox.setVisible(true);
         mdRandomizeMoveCategoryCheckBox.setEnabled(false);
         mdRandomizeMoveCategoryCheckBox.setSelected(false);
+        mdScriptedCheckBox.setVisible(true);
+        mdScriptedCheckBox.setEnabled(false);
+        mdScriptedCheckBox.setSelected(false);
         mdUpdateMovesCheckBox.setVisible(true);
         mdUpdateMovesCheckBox.setEnabled(false);
         mdUpdateMovesCheckBox.setSelected(false);
@@ -2780,6 +2788,7 @@ public class NewRandomizerGUI {
             mdRandomizeMoveAccuracyCheckBox.setEnabled(true);
             mdRandomizeMovePPCheckBox.setEnabled(true);
             mdRandomizeMoveTypesCheckBox.setEnabled(true);
+            mdScriptedCheckBox.setEnabled(true);
             mdRandomizeMoveCategoryCheckBox.setEnabled(romHandler.hasPhysicalSpecialSplit());
             mdRandomizeMoveCategoryCheckBox.setVisible(romHandler.hasPhysicalSpecialSplit());
             mdUpdateMovesCheckBox.setEnabled(pokemonGeneration < 8);
@@ -4198,6 +4207,32 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ItemList");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addImport(scriptText, "java.util", "List");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addMoveDataScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Sets the move data of the given move",
+                "#oldMove - a Move object representing the original move",
+                "#hasPhysicalSpecialSplit - True if the game being randomized for has a physical-special split (true for generation 4+)",
+                "#",
+                "#return: a Move object representing the modified move",
+                "#NOTE: use the imported Move class to access moves by variable name",
+                "#NOTE: the result of this function will still be affected by other selected move data options"
+        };
+        String funcDeclaration = "def setMoveData(oldMove, hasPhysicalSpecialSplit):";
+        String funcBody = "\n\tif(oldMove.category == MoveCategory.PHYSICAL): #example\n\t\toldMove.power = max(10, 100 - oldMove.power)\n\toldMove.pp *= 2\n\treturn oldMove";
+
+        if(mdScriptedCheckBox.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "MoveCategory");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

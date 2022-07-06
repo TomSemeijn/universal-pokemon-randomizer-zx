@@ -91,4 +91,10 @@ public class ScriptInstance {
         }
         return pokemon;
     }
+
+    public Move getScriptedMoveData(Move oldMove, boolean hasPhysicalSpecialSplit)
+    {
+        PyFunction func = (PyFunction)interp.get("setMoveData");
+        return Py.tojava(func.__call__(Py.java2py(oldMove), new PyBoolean(hasPhysicalSpecialSplit)), Move.class);
+    }
 }

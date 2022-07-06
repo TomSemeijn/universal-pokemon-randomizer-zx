@@ -292,6 +292,8 @@ public interface RomHandler {
 
     void randomizeMoveCategory();
 
+    void scriptMoves(ScriptInstance script);
+
     void updateMoves(Settings settings);
 
     // stuff for printing move changes

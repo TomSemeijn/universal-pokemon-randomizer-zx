@@ -50,7 +50,7 @@ public class Settings {
 
     public static final int VERSION = Version.VERSION;
 
-    public static final int LENGTH_OF_SETTINGS_DATA = 52;
+    public static final int LENGTH_OF_SETTINGS_DATA = 53;
 
     private CustomNamesSet customNames;
 
@@ -328,6 +328,8 @@ public class Settings {
 
     private boolean scriptedWildHeldItems;
 
+    private boolean scriptMoveData;
+
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
         byte[] settings = toString().getBytes("UTF-8");
@@ -601,6 +603,9 @@ public class Settings {
 
         // 51 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
+
+        // 52 extra scripting options
+        out.write(makeByteSelected(scriptMoveData));
 
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
@@ -909,6 +914,8 @@ public class Settings {
         settings.setBanIrregularAltFormes(restoreState(data[50], 3));
 
         settings.setEliteFourUniquePokemonNumber(data[51] & 0x7);
+
+        settings.setScriptMoveData(restoreState(data[52], 0));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -2381,6 +2388,16 @@ public class Settings {
     public boolean isScriptedWildHeldItems()
     {
         return scriptedWildHeldItems;
+    }
+
+    public void setScriptMoveData(boolean scriptMoveData)
+    {
+        this.scriptMoveData = scriptMoveData;
+    }
+
+    public boolean isScriptMoveData()
+    {
+        return scriptMoveData;
     }
 
     private static int makeByteSelected(boolean... bools) {

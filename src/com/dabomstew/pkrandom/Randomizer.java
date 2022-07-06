@@ -123,6 +123,12 @@ public class Randomizer {
             logMoveUpdates(log);
         }
 
+        if(settings.isScriptMoveData())
+        {
+            romHandler.scriptMoves(settings.getScript());
+            movesChanged = true;
+        }
+
         if (settings.isRandomizeMovePowers()) {
             romHandler.randomizeMovePowers();
             movesChanged = true;

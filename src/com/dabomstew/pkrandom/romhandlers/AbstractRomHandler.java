@@ -2981,6 +2981,19 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
+    public void scriptMoves(ScriptInstance script)
+    {
+        final boolean hasSplit = hasPhysicalSpecialSplit();
+        List<Move> moves = this.getMoves();
+        for (int k = 0; k < moves.size(); k++) {
+            Move mv = moves.get(k);
+            if (mv != null && mv.internalId != Moves.struggle && mv.power >= 10) {
+                moves.set(k, script.getScriptedMoveData(mv, hasSplit));
+            }
+        }
+    }
+
+    @Override
     public void updateMoves(Settings settings) {
         int generation = settings.getUpdateMovesToGeneration();
 
