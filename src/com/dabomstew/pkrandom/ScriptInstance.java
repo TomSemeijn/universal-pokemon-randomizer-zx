@@ -97,4 +97,16 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("setMoveData");
         return Py.tojava(func.__call__(Py.java2py(oldMove), new PyBoolean(hasPhysicalSpecialSplit)), Move.class);
     }
+
+    public List<MoveLearnt> getScriptedLearntMoveset(Pokemon pokemon, List<MoveLearnt> oldMoveset)
+    {
+        PyFunction func = (PyFunction)interp.get("setLearntMoveset");
+        return Py.tojava(func.__call__(Py.java2py(pokemon), Py.java2py(oldMoveset)), List.class);
+    }
+
+    public List<Integer> getScriptedEggMoveset(Pokemon pokemon, List<Integer> oldMoveset)
+    {
+        PyFunction func = (PyFunction)interp.get("setEggMoveset");
+        return Py.tojava(func.__call__(Py.java2py(pokemon), Py.java2py(oldMoveset)), List.class);
+    }
 }

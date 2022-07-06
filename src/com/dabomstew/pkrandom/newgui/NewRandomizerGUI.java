@@ -310,6 +310,8 @@ public class NewRandomizerGUI {
     private JCheckBox limitPokemonScriptingCheckbox;
     private JCheckBox wpScriptHeldItemsCheckBox;
     private JCheckBox mdScriptedCheckBox;
+    private JCheckBox pmsScriptLearntCheckBox;
+    private JCheckBox pmsScriptEggCheckBox;
 
     private static JFrame frame;
 
@@ -454,6 +456,8 @@ public class NewRandomizerGUI {
         pmsMetronomeOnlyModeRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pmsGuaranteedLevel1MovesCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pmsForceGoodDamagingCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        pmsScriptLearntCheckBox.addActionListener(e -> addLearntMovesScriptFunc());
+        pmsScriptEggCheckBox.addActionListener(e -> addEggMovesScriptFunc());
         tpForceFullyEvolvedAtCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpEliteFourUniquePokemonCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1460,6 +1464,8 @@ public class NewRandomizerGUI {
         pmsForceGoodDamagingSlider.setValue(settings.getMovesetsGoodDamagingPercent());
         pmsNoGameBreakingMovesCheckBox.setSelected(settings.isBlockBrokenMovesetMoves());
         pmsEvolutionMovesCheckBox.setSelected(settings.isEvolutionMovesForAll());
+        pmsScriptLearntCheckBox.setSelected(settings.isScriptLearntMoves());
+        pmsScriptEggCheckBox.setSelected(settings.isScriptEggMoves());
 
         tpSimilarStrengthCheckBox.setSelected(settings.isTrainersUsePokemonOfSimilarStrength());
         tpComboBox.setSelectedItem(trainerSettings.get(settings.getTrainersMod().ordinal()));
@@ -1704,6 +1710,8 @@ public class NewRandomizerGUI {
         settings.setStartWithGuaranteedMoves(pmsGuaranteedLevel1MovesCheckBox.isSelected() && pmsGuaranteedLevel1MovesCheckBox.isVisible());
         settings.setGuaranteedMoveCount(pmsGuaranteedLevel1MovesSlider.getValue());
         settings.setReorderDamagingMoves(pmsReorderDamagingMovesCheckBox.isSelected());
+        settings.setScriptLearntMoves(pmsScriptLearntCheckBox.isSelected());
+        settings.setScriptEggMoves(pmsScriptEggCheckBox.isSelected());
 
         settings.setMovesetsForceGoodDamaging(pmsForceGoodDamagingCheckBox.isSelected());
         settings.setMovesetsGoodDamagingPercent(pmsForceGoodDamagingSlider.getValue());
@@ -2233,6 +2241,12 @@ public class NewRandomizerGUI {
         pmsForceGoodDamagingCheckBox.setVisible(true);
         pmsForceGoodDamagingCheckBox.setEnabled(false);
         pmsForceGoodDamagingCheckBox.setSelected(false);
+        pmsScriptLearntCheckBox.setVisible(true);
+        pmsScriptLearntCheckBox.setEnabled(false);
+        pmsScriptLearntCheckBox.setSelected(false);
+        pmsScriptEggCheckBox.setVisible(true);
+        pmsScriptEggCheckBox.setEnabled(false);
+        pmsScriptEggCheckBox.setSelected(false);
         pmsGuaranteedLevel1MovesSlider.setVisible(true);
         pmsGuaranteedLevel1MovesSlider.setEnabled(false);
         pmsGuaranteedLevel1MovesSlider.setValue(pmsGuaranteedLevel1MovesSlider.getMinimum());
@@ -2801,6 +2815,9 @@ public class NewRandomizerGUI {
             pmsRandomCompletelyRadioButton.setEnabled(true);
             pmsMetronomeOnlyModeRadioButton.setEnabled(true);
 
+            pmsScriptLearntCheckBox.setEnabled(true);
+            pmsScriptEggCheckBox.setEnabled(true);
+
             pmsGuaranteedLevel1MovesCheckBox.setVisible(romHandler.supportsFourStartingMoves());
             pmsGuaranteedLevel1MovesSlider.setVisible(romHandler.supportsFourStartingMoves());
             pmsEvolutionMovesCheckBox.setVisible(pokemonGeneration >= 7);
@@ -3289,6 +3306,20 @@ public class NewRandomizerGUI {
             pmsReorderDamagingMovesCheckBox.setEnabled(true);
             pmsNoGameBreakingMovesCheckBox.setEnabled(true);
             pmsEvolutionMovesCheckBox.setEnabled(true);
+        }
+
+        //scriping movesets shouldn't be available in metronome-only mode
+        if(pmsMetronomeOnlyModeRadioButton.isSelected())
+        {
+            pmsScriptLearntCheckBox.setEnabled(false);
+            pmsScriptLearntCheckBox.setSelected(false);
+            pmsScriptEggCheckBox.setEnabled(false);
+            pmsScriptEggCheckBox.setSelected(false);
+        }
+        else
+        {
+            pmsScriptLearntCheckBox.setEnabled(true);
+            pmsScriptEggCheckBox.setEnabled(true);
         }
 
         if (pmsGuaranteedLevel1MovesCheckBox.isSelected()) {
@@ -4232,6 +4263,56 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "MoveCategory");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addLearntMovesScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's learnt moves before other options are run on it",
+                "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
+                "#oldMoveset - a List<MoveLearnt> object representing the original set of moves learned by leveling up",
+                "#",
+                "#return: a List<MoveLearnt> object representing the modified set of moves learned by leveling up",
+                "#NOTE: use the imported Move class to access moves by variable name",
+                "#NOTE: the result of this function will still be affected by other selected moveset options"
+        };
+        String funcDeclaration = "def setLearntMoveset(pokemon, oldMoveset):";
+        String funcBody = "\n\tnewMove = MoveLearnt()\n\tnewMove.move = Moves.splash\n\tnewMove.level = 100\n\toldMoveset.add(newMove)\n\treturn oldMoveset";
+
+        if(pmsScriptLearntCheckBox.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "MoveLearnt");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addEggMovesScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's egg moves before other options are run on it",
+                "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
+                "#oldMoveset - a List<Integer> object representing the original set of egg moves",
+                "#",
+                "#return: a List<Integer> object representing the modified set of egg moves",
+                "#NOTE: use the imported Move class to access moves by variable name",
+                "#NOTE: the result of this function will still be affected by other selected moveset options",
+                "#WARNING: you CANNOT change the number of egg moves a pokemon has, you can only change what moves they are"
+        };
+        String funcDeclaration = "def setEggMoveset(pokemon, oldMoveset):";
+        String funcBody = "\n\tif(oldMoveset.size() > 0):\n\t\toldMoveset.set(0, Moves.splash)\n\treturn oldMoveset";
+
+        if(pmsScriptEggCheckBox.isSelected())
+        {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 

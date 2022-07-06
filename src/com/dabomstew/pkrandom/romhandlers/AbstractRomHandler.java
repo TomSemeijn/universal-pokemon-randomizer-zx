@@ -3409,6 +3409,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         double goodDamagingPercentage =
                 settings.isMovesetsForceGoodDamaging() ? settings.getMovesetsGoodDamagingPercent() / 100.0 : 0;
         boolean evolutionMovesForAll = settings.isEvolutionMovesForAll();
+        boolean scriptOnly = settings.getMovesetsMod() == Settings.MovesetsMod.UNCHANGED;
 
         // Get current sets
         Map<Integer, List<MoveLearnt>> movesets = this.getMovesLearnt();
@@ -3426,6 +3427,16 @@ public abstract class AbstractRomHandler implements RomHandler {
             int lv1AttackingMove = 0;
             Pokemon pkmn = findPokemonInPoolWithSpeciesID(mainPokemonListInclFormes, pkmnNum);
             if (pkmn == null) {
+                continue;
+            }
+
+            //apply scripting
+            if(settings.isScriptLearntMoves())
+            {
+                moves = settings.getScript().getScriptedLearntMoveset(pkmn, moves);
+            }
+            if(scriptOnly)
+            {
                 continue;
             }
 
@@ -3589,6 +3600,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean noBroken = settings.isBlockBrokenMovesetMoves();
         double goodDamagingPercentage =
                 settings.isMovesetsForceGoodDamaging() ? settings.getMovesetsGoodDamagingPercent() / 100.0 : 0;
+        boolean scriptOnly = settings.getMovesetsMod() == Settings.MovesetsMod.UNCHANGED;
 
         // Get current sets
         Map<Integer, List<Integer>> movesets = this.getEggMoves();
@@ -3605,6 +3617,16 @@ public abstract class AbstractRomHandler implements RomHandler {
             List<Integer> moves = movesets.get(pkmnNum);
             Pokemon pkmn = findPokemonInPoolWithSpeciesID(mainPokemonListInclFormes, pkmnNum);
             if (pkmn == null) {
+                continue;
+            }
+
+            //apply scripting
+            if(settings.isScriptEggMoves())
+            {
+                moves = settings.getScript().getScriptedEggMoveset(pkmn, moves);
+            }
+            if(scriptOnly)
+            {
                 continue;
             }
 

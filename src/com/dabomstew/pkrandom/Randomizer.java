@@ -307,7 +307,10 @@ public class Randomizer {
         // 2. Reorder moves by damage
         // Note: "Metronome only" is handled after trainers instead
 
-        if (settings.getMovesetsMod() != Settings.MovesetsMod.UNCHANGED &&
+        boolean scriptLearnt = settings.isScriptLearntMoves();
+        boolean scriptEgg = settings.isScriptEggMoves();
+
+        if ((settings.getMovesetsMod() != Settings.MovesetsMod.UNCHANGED || settings.isScriptLearntMoves() || settings.isScriptEggMoves()) &&
                 settings.getMovesetsMod() != Settings.MovesetsMod.METRONOME_ONLY) {
             romHandler.randomizeMovesLearnt(settings);
             romHandler.randomizeEggMoves(settings);
