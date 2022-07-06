@@ -110,8 +110,15 @@ public class Randomizer {
         }
 
         // Move updates & data changes
-        // 1. Update moves to a future generation
-        // 2. Randomize move stats
+        // 1. Run move data script
+        // 2. Update moves to a future generation
+        // 3. Randomize move stats
+
+        if(settings.isScriptMoveData())
+        {
+            romHandler.scriptMoves(settings.getScript());
+            movesChanged = true;
+        }
 
         if (settings.isUpdateMoves()) {
             romHandler.initMoveUpdates();
@@ -121,12 +128,6 @@ public class Randomizer {
 
         if (movesUpdated) {
             logMoveUpdates(log);
-        }
-
-        if(settings.isScriptMoveData())
-        {
-            romHandler.scriptMoves(settings.getScript());
-            movesChanged = true;
         }
 
         if (settings.isRandomizeMovePowers()) {
