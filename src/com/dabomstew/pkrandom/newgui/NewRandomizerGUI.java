@@ -38,6 +38,8 @@ import com.dabomstew.pkrandom.romhandlers.*;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -1142,6 +1144,8 @@ public class NewRandomizerGUI {
     private void createUIComponents() {
         // TODO: place custom component creation code here
         sScriptInput = new NoWrapJTextPane(new JythonStyledDocument());
+        sScriptInput.setBackground(new Color(50, 50, 50));
+        sScriptInput.setCaretColor(Color.white);
     }
 
 

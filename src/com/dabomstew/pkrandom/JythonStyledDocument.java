@@ -26,14 +26,15 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     public JythonStyledDocument() {
         styleContext = new StyleContext();
         defaultStyle = styleContext.getStyle(StyleContext.DEFAULT_STYLE);
+        StyleConstants.setForeground(defaultStyle, Color.white);
         commentStyle = styleContext.addStyle("comment", null);
-        StyleConstants.setForeground(commentStyle, new Color(85, 150, 6));
+        StyleConstants.setForeground(commentStyle, new Color(87, 166, 74));
         StyleConstants.setItalic(commentStyle, true);
         keywordStyle = styleContext.addStyle("keyword", null);
-        StyleConstants.setForeground(keywordStyle, Color.blue);
+        StyleConstants.setForeground(keywordStyle, new Color(86, 156, 214));
         StyleConstants.setBold(keywordStyle, true);
         funcStyle = styleContext.addStyle("function", null);
-        StyleConstants.setForeground(funcStyle, new Color(178, 60, 178));
+        StyleConstants.setForeground(funcStyle, new Color(220, 220, 170));
         stringStyle = styleContext.addStyle("string", null);
         StyleConstants.setForeground(stringStyle, new Color(211, 144, 116));
         boolStyle = styleContext.addStyle("string", null);
