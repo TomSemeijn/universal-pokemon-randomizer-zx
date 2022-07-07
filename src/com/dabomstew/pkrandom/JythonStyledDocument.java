@@ -37,7 +37,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         StyleConstants.setForeground(funcStyle, new Color(220, 220, 170));
         stringStyle = styleContext.addStyle("string", null);
         StyleConstants.setForeground(stringStyle, new Color(211, 144, 116));
-        boolStyle = styleContext.addStyle("string", null);
+        boolStyle = styleContext.addStyle("argument", null);
         StyleConstants.setForeground(boolStyle, new Color(204, 120, 50));
         StyleConstants.setBold(boolStyle, true);
     }
