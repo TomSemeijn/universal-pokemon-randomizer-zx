@@ -18,7 +18,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private Style stringStyle;
 
     private static String[] keywords = {
-            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case"
+            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not"
     };
 
     public JythonStyledDocument() {
@@ -61,8 +61,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         String text = getText(0, getLength());
         setCharacterAttributes(0, text.length(), defaultStyle, true);
 
-        setStyleOf(keywordStyle, findKeywords(text));
         setStyleOf(funcStyle, findFunctions(text));
+        setStyleOf(keywordStyle, findKeywords(text));
 
         List<HiliteWord>[] commentsAndStrings = findStringsAndComments(text);
         setStyleOf(commentStyle, commentsAndStrings[1]);
