@@ -17,6 +17,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
     private Style stringStyle;
 
+    private Style boolStyle;
+
     private static String[] keywords = {
             "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not"
     };
@@ -34,6 +36,9 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         StyleConstants.setForeground(funcStyle, new Color(178, 60, 178));
         stringStyle = styleContext.addStyle("string", null);
         StyleConstants.setForeground(stringStyle, new Color(211, 144, 116));
+        boolStyle = styleContext.addStyle("string", null);
+        StyleConstants.setForeground(boolStyle, new Color(204, 120, 50));
+        StyleConstants.setBold(boolStyle, true);
     }
 
     public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
@@ -63,6 +68,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
         setStyleOf(funcStyle, findFunctions(text));
         setStyleOf(keywordStyle, findKeywords(text));
+        setStyleOf(boolStyle, findBools(text));
 
         List<HiliteWord>[] commentsAndStrings = findStringsAndComments(text);
         setStyleOf(commentStyle, commentsAndStrings[1]);
@@ -78,6 +84,20 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     }
 
     private static List<HiliteWord> findKeywords(String content) {
+        return findWords(content, (str -> isKeyword(str)));
+    }
+
+    private static List<HiliteWord> findBools(String content)
+    {
+        return findWords(content, (str -> str.trim().equals("True") || str.trim().equals("False")));
+    }
+
+    private interface StrCheck{
+        public boolean op(String str);
+    }
+
+    private static List<HiliteWord> findWords(String content, StrCheck check)
+    {
         content += " ";
         List<HiliteWord> hiliteWords = new ArrayList<HiliteWord>();
         int lastWhitespacePosition = 0;
@@ -89,7 +109,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
             if(!(Character.isLetter(ch) || Character.isDigit(ch) || ch == '_')) {
                 lastWhitespacePosition = index;
                 if(word.length() > 0) {
-                    if(isKeyword(word)) {
+                    if(check.op(word)) {
                         hiliteWords.add(new HiliteWord(word,(lastWhitespacePosition - word.length())));
                     }
                     word="";
