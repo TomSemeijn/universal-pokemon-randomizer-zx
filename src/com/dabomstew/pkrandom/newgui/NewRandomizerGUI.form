@@ -3766,7 +3766,7 @@
                   <component id="dd825" class="javax.swing.JTextPane" binding="sScriptInput" custom-create="true">
                     <constraints/>
                     <properties>
-                      <caretColor color="-13750738"/>
+                      <caretColor color="-1"/>
                       <enabled value="false"/>
                       <font name="Consolas" size="32"/>
                       <foreground color="-14342875"/>
