@@ -194,6 +194,8 @@ public class Settings {
 
     private boolean scriptLearntMoves;
 
+    private boolean scriptAfterLearntMoves;
+
     private boolean scriptEggMoves;
 
     public enum WildPokemonMod {
@@ -609,7 +611,7 @@ public class Settings {
         out.write(eliteFourUniquePokemonNumber);
 
         // 52 extra scripting options
-        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves));
+        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves));
 
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
@@ -922,6 +924,7 @@ public class Settings {
         settings.setScriptMoveData(restoreState(data[52], 0));
         settings.setScriptLearntMoves(restoreState(data[52], 1));
         settings.setScriptEggMoves(restoreState(data[52], 2));
+        settings.setScriptAfterLearntMoves(restoreState(data[52], 3));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -2414,6 +2417,16 @@ public class Settings {
     public boolean isScriptLearntMoves()
     {
         return scriptLearntMoves;
+    }
+
+    public void setScriptAfterLearntMoves(boolean scriptAfterLearntMoves)
+    {
+        this.scriptAfterLearntMoves = scriptAfterLearntMoves;
+    }
+
+    public boolean isScriptAfterLearntMoves()
+    {
+        return scriptAfterLearntMoves;
     }
 
     public void setScriptEggMoves(boolean scriptEggMoves)

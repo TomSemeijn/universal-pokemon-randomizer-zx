@@ -312,6 +312,7 @@ public class NewRandomizerGUI {
     private JCheckBox mdScriptedCheckBox;
     private JCheckBox pmsScriptLearntCheckBox;
     private JCheckBox pmsScriptEggCheckBox;
+    private JCheckBox pmsScriptLearnAfterCheckBox;
 
     private static JFrame frame;
 
@@ -457,6 +458,7 @@ public class NewRandomizerGUI {
         pmsGuaranteedLevel1MovesCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pmsForceGoodDamagingCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pmsScriptLearntCheckBox.addActionListener(e -> addLearntMovesScriptFunc());
+        pmsScriptLearnAfterCheckBox.addActionListener(e -> addAfterLearntMovesScriptFunc());
         pmsScriptEggCheckBox.addActionListener(e -> addEggMovesScriptFunc());
         tpForceFullyEvolvedAtCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tpPercentageLevelModifierCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1465,6 +1467,7 @@ public class NewRandomizerGUI {
         pmsNoGameBreakingMovesCheckBox.setSelected(settings.isBlockBrokenMovesetMoves());
         pmsEvolutionMovesCheckBox.setSelected(settings.isEvolutionMovesForAll());
         pmsScriptLearntCheckBox.setSelected(settings.isScriptLearntMoves());
+        pmsScriptLearnAfterCheckBox.setSelected(settings.isScriptLearntMoves());
         pmsScriptEggCheckBox.setSelected(settings.isScriptEggMoves());
 
         tpSimilarStrengthCheckBox.setSelected(settings.isTrainersUsePokemonOfSimilarStrength());
@@ -1711,6 +1714,7 @@ public class NewRandomizerGUI {
         settings.setGuaranteedMoveCount(pmsGuaranteedLevel1MovesSlider.getValue());
         settings.setReorderDamagingMoves(pmsReorderDamagingMovesCheckBox.isSelected());
         settings.setScriptLearntMoves(pmsScriptLearntCheckBox.isSelected());
+        settings.setScriptAfterLearntMoves(pmsScriptLearnAfterCheckBox.isSelected());
         settings.setScriptEggMoves(pmsScriptEggCheckBox.isSelected());
 
         settings.setMovesetsForceGoodDamaging(pmsForceGoodDamagingCheckBox.isSelected());
@@ -2247,6 +2251,9 @@ public class NewRandomizerGUI {
         pmsScriptEggCheckBox.setVisible(true);
         pmsScriptEggCheckBox.setEnabled(false);
         pmsScriptEggCheckBox.setSelected(false);
+        pmsScriptLearnAfterCheckBox.setVisible(true);
+        pmsScriptLearnAfterCheckBox.setEnabled(false);
+        pmsScriptLearnAfterCheckBox.setSelected(false);
         pmsGuaranteedLevel1MovesSlider.setVisible(true);
         pmsGuaranteedLevel1MovesSlider.setEnabled(false);
         pmsGuaranteedLevel1MovesSlider.setValue(pmsGuaranteedLevel1MovesSlider.getMinimum());
@@ -3300,12 +3307,15 @@ public class NewRandomizerGUI {
             pmsNoGameBreakingMovesCheckBox.setSelected(false);
             pmsEvolutionMovesCheckBox.setEnabled(false);
             pmsEvolutionMovesCheckBox.setSelected(false);
+            pmsScriptLearnAfterCheckBox.setEnabled(false);
+            pmsScriptLearnAfterCheckBox.setSelected(false);
         } else {
             pmsGuaranteedLevel1MovesCheckBox.setEnabled(true);
             pmsForceGoodDamagingCheckBox.setEnabled(true);
             pmsReorderDamagingMovesCheckBox.setEnabled(true);
             pmsNoGameBreakingMovesCheckBox.setEnabled(true);
             pmsEvolutionMovesCheckBox.setEnabled(true);
+            pmsScriptLearnAfterCheckBox.setEnabled(true);
         }
 
         //scriping movesets shouldn't be available in metronome-only mode
@@ -3315,6 +3325,8 @@ public class NewRandomizerGUI {
             pmsScriptLearntCheckBox.setSelected(false);
             pmsScriptEggCheckBox.setEnabled(false);
             pmsScriptEggCheckBox.setSelected(false);
+            pmsScriptLearnAfterCheckBox.setEnabled(false);
+            pmsScriptLearnAfterCheckBox.setSelected(false);
         }
         else
         {
@@ -4274,7 +4286,7 @@ public class NewRandomizerGUI {
     {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
-                "#Modifies a pokemon's learnt moves before other options are run on it",
+                "#Modifies a pokemon's learnt moves BEFORE other options are run on it",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
                 "#oldMoveset - a List<MoveLearnt> object representing the original set of moves learned by leveling up",
                 "#",
@@ -4295,11 +4307,36 @@ public class NewRandomizerGUI {
         }
     }
 
+    public void addAfterLearntMovesScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's learnt moves AFTER other options are run on it",
+                "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
+                "#oldMoveset - a List<MoveLearnt> object representing the original set of moves learned by leveling up",
+                "#",
+                "#return: a List<MoveLearnt> object representing the modified set of moves learned by leveling up",
+                "#NOTE: use the imported Move class to access moves by variable name",
+                "#NOTE: the result of this function will not be affected by other moveset options because they have been applied beforehand"
+        };
+        String funcDeclaration = "def setLearntMovesetPost(pokemon, oldMoveset):";
+        String funcBody = "\n\tfor x in oldMoveset: #example\n\t\tx.move = Moves.splash\n\treturn oldMoveset";
+
+        if(pmsScriptLearnAfterCheckBox.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "MoveLearnt");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
     public void addEggMovesScriptFunc()
     {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
-                "#Modifies a pokemon's egg moves before other options are run on it",
+                "#Modifies a pokemon's egg moves AFTER other options are run on it",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
                 "#oldMoveset - a List<Integer> object representing the original set of egg moves",
                 "#",

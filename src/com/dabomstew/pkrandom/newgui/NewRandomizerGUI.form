@@ -1435,13 +1435,13 @@
                   </component>
                   <hspacer id="5551e">
                     <constraints>
-                      <grid row="1" column="6" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="7" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                   </hspacer>
                   <vspacer id="98120">
                     <constraints>
-                      <grid row="7" column="1" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="7" column="1" row-span="1" col-span="4" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                   </vspacer>
@@ -1479,20 +1479,9 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsRandomCompletelyRadioButton.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="bc810" class="javax.swing.JRadioButton" binding="pmsMetronomeOnlyModeRadioButton">
-                    <constraints>
-                      <grid row="4" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsMetronomeOnlyModeRadioButton.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsMetronomeOnlyModeRadioButton.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="d836e" class="javax.swing.JCheckBox" binding="pmsGuaranteedLevel1MovesCheckBox">
                     <constraints>
-                      <grid row="1" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1503,7 +1492,7 @@
                   </component>
                   <component id="c408b" class="javax.swing.JCheckBox" binding="pmsReorderDamagingMovesCheckBox">
                     <constraints>
-                      <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1514,7 +1503,7 @@
                   </component>
                   <component id="ee040" class="javax.swing.JCheckBox" binding="pmsNoGameBreakingMovesCheckBox">
                     <constraints>
-                      <grid row="3" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1523,20 +1512,9 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsNoGameBreakingMovesCheckBox.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="aba8f" class="javax.swing.JCheckBox" binding="pmsForceGoodDamagingCheckBox" default-binding="true">
-                    <constraints>
-                      <grid row="4" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsForceGoodDamagingCheckBox.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsForceGoodDamagingCheckBox.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="451d5" class="javax.swing.JSlider" binding="pmsGuaranteedLevel1MovesSlider">
                     <constraints>
-                      <grid row="1" column="5" row-span="2" col-span="1" vsize-policy="0" hsize-policy="6" anchor="9" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="6" row-span="2" col-span="1" vsize-policy="0" hsize-policy="6" anchor="9" fill="1" indent="0" use-parent-layout="false"/>
                       <gridbag top="0" left="10" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1554,7 +1532,7 @@
                   </component>
                   <component id="c6162" class="javax.swing.JSlider" binding="pmsForceGoodDamagingSlider" default-binding="true">
                     <constraints>
-                      <grid row="5" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="5" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1570,7 +1548,7 @@
                   </component>
                   <component id="7a835" class="javax.swing.JCheckBox" binding="pmsEvolutionMovesCheckBox">
                     <constraints>
-                      <grid row="6" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -1581,24 +1559,56 @@
                   </component>
                   <component id="a0a72" class="javax.swing.JCheckBox" binding="pmsScriptLearntCheckBox">
                     <constraints>
-                      <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="2" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
                       <enabled value="false"/>
-                      <text value="Script Learnt Moves"/>
-                      <toolTipText value="Use scripting to change the learnt moves of pokemon before running other options"/>
+                      <text value="Prescript Learnt Moves"/>
+                      <toolTipText value="Use scripting to change the learnt moves of pokemon BEFORE running other options"/>
                     </properties>
                   </component>
-                  <component id="46dd4" class="javax.swing.JCheckBox" binding="pmsScriptEggCheckBox">
+                  <component id="bc810" class="javax.swing.JRadioButton" binding="pmsMetronomeOnlyModeRadioButton">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsMetronomeOnlyModeRadioButton.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsMetronomeOnlyModeRadioButton.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="aba8f" class="javax.swing.JCheckBox" binding="pmsForceGoodDamagingCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="4" column="5" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsForceGoodDamagingCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pmsForceGoodDamagingCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="c22ad" class="javax.swing.JCheckBox" binding="pmsScriptLearnAfterCheckBox">
                     <constraints>
                       <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
                       <enabled value="false"/>
+                      <text value="Postscript Learnt Moves"/>
+                    </properties>
+                  </component>
+                  <component id="46dd4" class="javax.swing.JCheckBox" binding="pmsScriptEggCheckBox">
+                    <constraints>
+                      <grid row="4" column="3" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
                       <text value="Script Egg Moves"/>
-                      <toolTipText value="Use scripting to change the egg moves of pokemon before running other options"/>
+                      <toolTipText value="Use scripting to change the egg moves of pokemon AFTER running other options"/>
                     </properties>
                   </component>
                 </children>

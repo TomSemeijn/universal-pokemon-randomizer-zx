@@ -3430,163 +3430,168 @@ public abstract class AbstractRomHandler implements RomHandler {
                 continue;
             }
 
-            //apply scripting
+            //apply pre-scripting
             if(settings.isScriptLearntMoves())
             {
                 moves = settings.getScript().getScriptedLearntMoveset(pkmn, moves);
             }
-            if(scriptOnly)
-            {
-                continue;
-            }
 
-            double atkSpAtkRatio = pkmn.getAttackSpecialAttackRatio();
+            //apply options
+            if(!scriptOnly) {
+                double atkSpAtkRatio = pkmn.getAttackSpecialAttackRatio();
 
-            // 4 starting moves?
-            if (forceStartingMoves) {
-                int lv1count = 0;
-                for (MoveLearnt ml : moves) {
-                    if (ml.level == 1) {
-                        lv1count++;
+                // 4 starting moves?
+                if (forceStartingMoves) {
+                    int lv1count = 0;
+                    for (MoveLearnt ml : moves) {
+                        if (ml.level == 1) {
+                            lv1count++;
+                        }
+                    }
+                    if (lv1count < forceStartingMoveCount) {
+                        for (int i = 0; i < forceStartingMoveCount - lv1count; i++) {
+                            MoveLearnt fakeLv1 = new MoveLearnt();
+                            fakeLv1.level = 1;
+                            fakeLv1.move = 0;
+                            moves.add(0, fakeLv1);
+                        }
                     }
                 }
-                if (lv1count < forceStartingMoveCount) {
-                    for (int i = 0; i < forceStartingMoveCount - lv1count; i++) {
-                        MoveLearnt fakeLv1 = new MoveLearnt();
-                        fakeLv1.level = 1;
-                        fakeLv1.move = 0;
-                        moves.add(0, fakeLv1);
+
+                if (evolutionMovesForAll) {
+                    if (moves.get(0).level != 0) {
+                        MoveLearnt fakeEvoMove = new MoveLearnt();
+                        fakeEvoMove.level = 0;
+                        fakeEvoMove.move = 0;
+                        moves.add(0, fakeEvoMove);
                     }
                 }
-            }
 
-            if (evolutionMovesForAll) {
-                if (moves.get(0).level != 0) {
-                    MoveLearnt fakeEvoMove = new MoveLearnt();
-                    fakeEvoMove.level = 0;
-                    fakeEvoMove.move = 0;
-                    moves.add(0, fakeEvoMove);
+                if (pkmn.actuallyCosmetic) {
+                    for (int i = 0; i < moves.size(); i++) {
+                        moves.get(i).move = movesets.get(pkmn.baseForme.number).get(i).move;
+                    }
+                    continue;
                 }
-            }
 
-            if (pkmn.actuallyCosmetic) {
+                // Find last lv1 move
+                // lv1index ends up as the index of the first non-lv1 move
+                int lv1index = moves.get(0).level == 1 ? 0 : 1; // Evolution move handling (level 0 = evo move)
+                while (lv1index < moves.size() && moves.get(lv1index).level == 1) {
+                    lv1index++;
+                }
+
+                // last lv1 move is 1 before lv1index
+                if (lv1index != 0) {
+                    lv1index--;
+                }
+
+                // Force a certain amount of good damaging moves depending on the percentage
+                int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * moves.size());
+
+                // Replace moves as needed
                 for (int i = 0; i < moves.size(); i++) {
-                    moves.get(i).move = movesets.get(pkmn.baseForme.number).get(i).move;
-                }
-                continue;
-            }
+                    // should this move be forced damaging?
+                    boolean attemptDamaging = i == lv1index || goodDamagingLeft > 0;
 
-            // Find last lv1 move
-            // lv1index ends up as the index of the first non-lv1 move
-            int lv1index = moves.get(0).level == 1 ? 0 : 1; // Evolution move handling (level 0 = evo move)
-            while (lv1index < moves.size() && moves.get(lv1index).level == 1) {
-                lv1index++;
-            }
+                    // type themed?
+                    Type typeOfMove = null;
+                    if (typeThemed) {
+                        double picked = random.nextDouble();
+                        if ((pkmn.primaryType == Type.NORMAL && pkmn.secondaryType != null) ||
+                                (pkmn.secondaryType == Type.NORMAL)) {
 
-            // last lv1 move is 1 before lv1index
-            if (lv1index != 0) {
-                lv1index--;
-            }
+                            Type otherType = pkmn.primaryType == Type.NORMAL ? pkmn.secondaryType : pkmn.primaryType;
 
-            // Force a certain amount of good damaging moves depending on the percentage
-            int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * moves.size());
-
-            // Replace moves as needed
-            for (int i = 0; i < moves.size(); i++) {
-                // should this move be forced damaging?
-                boolean attemptDamaging = i == lv1index || goodDamagingLeft > 0;
-
-                // type themed?
-                Type typeOfMove = null;
-                if (typeThemed) {
-                    double picked = random.nextDouble();
-                    if ((pkmn.primaryType == Type.NORMAL && pkmn.secondaryType != null) ||
-                            (pkmn.secondaryType == Type.NORMAL)) {
-
-                        Type otherType = pkmn.primaryType == Type.NORMAL ? pkmn.secondaryType : pkmn.primaryType;
-
-                        // Normal/OTHER: 10% normal, 30% other, 60% random
-                        if (picked < 0.1) {
-                            typeOfMove = Type.NORMAL;
-                        } else if (picked < 0.4) {
-                            typeOfMove = otherType;
+                            // Normal/OTHER: 10% normal, 30% other, 60% random
+                            if (picked < 0.1) {
+                                typeOfMove = Type.NORMAL;
+                            } else if (picked < 0.4) {
+                                typeOfMove = otherType;
+                            }
+                            // else random
+                        } else if (pkmn.secondaryType != null) {
+                            // Primary/Secondary: 20% primary, 20% secondary, 60% random
+                            if (picked < 0.2) {
+                                typeOfMove = pkmn.primaryType;
+                            } else if (picked < 0.4) {
+                                typeOfMove = pkmn.secondaryType;
+                            }
+                            // else random
+                        } else {
+                            // Primary/None: 40% primary, 60% random
+                            if (picked < 0.4) {
+                                typeOfMove = pkmn.primaryType;
+                            }
+                            // else random
                         }
-                        // else random
-                    } else if (pkmn.secondaryType != null) {
-                        // Primary/Secondary: 20% primary, 20% secondary, 60% random
-                        if (picked < 0.2) {
-                            typeOfMove = pkmn.primaryType;
-                        } else if (picked < 0.4) {
-                            typeOfMove = pkmn.secondaryType;
-                        }
-                        // else random
-                    } else {
-                        // Primary/None: 40% primary, 60% random
-                        if (picked < 0.4) {
-                            typeOfMove = pkmn.primaryType;
-                        }
-                        // else random
                     }
-                }
 
-                // select a list to pick a move from that has at least one free
-                List<Move> pickList = validMoves;
-                if (attemptDamaging) {
-                    if (typeOfMove != null) {
-                        if (validTypeDamagingMoves.containsKey(typeOfMove)
-                                && checkForUnusedMove(validTypeDamagingMoves.get(typeOfMove), learnt)) {
-                            pickList = validTypeDamagingMoves.get(typeOfMove);
+                    // select a list to pick a move from that has at least one free
+                    List<Move> pickList = validMoves;
+                    if (attemptDamaging) {
+                        if (typeOfMove != null) {
+                            if (validTypeDamagingMoves.containsKey(typeOfMove)
+                                    && checkForUnusedMove(validTypeDamagingMoves.get(typeOfMove), learnt)) {
+                                pickList = validTypeDamagingMoves.get(typeOfMove);
+                            } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
+                                pickList = validDamagingMoves;
+                            }
                         } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
                             pickList = validDamagingMoves;
                         }
-                    } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
-                        pickList = validDamagingMoves;
+                        MoveCategory forcedCategory = random.nextDouble() < atkSpAtkRatio ? MoveCategory.PHYSICAL : MoveCategory.SPECIAL;
+                        List<Move> filteredList = pickList.stream().filter(mv -> mv.category == forcedCategory).collect(Collectors.toList());
+                        if (!filteredList.isEmpty() && checkForUnusedMove(filteredList, learnt)) {
+                            pickList = filteredList;
+                        }
+                    } else if (typeOfMove != null) {
+                        if (validTypeMoves.containsKey(typeOfMove)
+                                && checkForUnusedMove(validTypeMoves.get(typeOfMove), learnt)) {
+                            pickList = validTypeMoves.get(typeOfMove);
+                        }
                     }
-                    MoveCategory forcedCategory = random.nextDouble() < atkSpAtkRatio ? MoveCategory.PHYSICAL : MoveCategory.SPECIAL;
-                    List<Move> filteredList = pickList.stream().filter(mv -> mv.category == forcedCategory).collect(Collectors.toList());
-                    if (!filteredList.isEmpty() && checkForUnusedMove(filteredList, learnt)) {
-                        pickList = filteredList;
+
+                    // now pick a move until we get a valid one
+                    Move mv = pickList.get(random.nextInt(pickList.size()));
+                    while (learnt.contains(mv.number)) {
+                        mv = pickList.get(random.nextInt(pickList.size()));
                     }
-                } else if (typeOfMove != null) {
-                    if (validTypeMoves.containsKey(typeOfMove)
-                            && checkForUnusedMove(validTypeMoves.get(typeOfMove), learnt)) {
-                        pickList = validTypeMoves.get(typeOfMove);
+
+                    if (i == lv1index) {
+                        lv1AttackingMove = mv.number;
+                    } else {
+                        goodDamagingLeft--;
+                    }
+                    learnt.add(mv.number);
+
+                }
+
+                Collections.shuffle(learnt, random);
+                if (learnt.get(lv1index) != lv1AttackingMove) {
+                    for (int i = 0; i < learnt.size(); i++) {
+                        if (learnt.get(i) == lv1AttackingMove) {
+                            learnt.set(i, learnt.get(lv1index));
+                            learnt.set(lv1index, lv1AttackingMove);
+                            break;
+                        }
                     }
                 }
 
-                // now pick a move until we get a valid one
-                Move mv = pickList.get(random.nextInt(pickList.size()));
-                while (learnt.contains(mv.number)) {
-                    mv = pickList.get(random.nextInt(pickList.size()));
-                }
-
-                if (i == lv1index) {
-                    lv1AttackingMove = mv.number;
-                } else {
-                    goodDamagingLeft--;
-                }
-                learnt.add(mv.number);
-
-            }
-
-            Collections.shuffle(learnt, random);
-            if (learnt.get(lv1index) != lv1AttackingMove) {
+                // write all moves for the pokemon
                 for (int i = 0; i < learnt.size(); i++) {
-                    if (learnt.get(i) == lv1AttackingMove) {
-                        learnt.set(i, learnt.get(lv1index));
-                        learnt.set(lv1index, lv1AttackingMove);
-                        break;
+                    moves.get(i).move = learnt.get(i);
+                    if (i == lv1index) {
+                        // just in case, set this to lv1
+                        moves.get(i).level = 1;
                     }
                 }
             }
 
-            // write all moves for the pokemon
-            for (int i = 0; i < learnt.size(); i++) {
-                moves.get(i).move = learnt.get(i);
-                if (i == lv1index) {
-                    // just in case, set this to lv1
-                    moves.get(i).level = 1;
-                }
+            //apply post-scripting
+            if(settings.isScriptAfterLearntMoves())
+            {
+                moves = settings.getScript().getPostScriptedLearntMoveset(pkmn, moves);
             }
         }
         // Done, save
@@ -3620,106 +3625,106 @@ public abstract class AbstractRomHandler implements RomHandler {
                 continue;
             }
 
+            if(!scriptOnly)
+            {
+                double atkSpAtkRatio = pkmn.getAttackSpecialAttackRatio();
+
+                if (pkmn.actuallyCosmetic) {
+                    for (int i = 0; i < moves.size(); i++) {
+                        moves.set(i, movesets.get(pkmn.baseForme.number).get(i));
+                    }
+                    continue;
+                }
+
+                // Force a certain amount of good damaging moves depending on the percentage
+                int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * moves.size());
+
+                // Replace moves as needed
+                for (int i = 0; i < moves.size(); i++) {
+                    // should this move be forced damaging?
+                    boolean attemptDamaging = goodDamagingLeft > 0;
+
+                    // type themed?
+                    Type typeOfMove = null;
+                    if (typeThemed) {
+                        double picked = random.nextDouble();
+                        if ((pkmn.primaryType == Type.NORMAL && pkmn.secondaryType != null) ||
+                                (pkmn.secondaryType == Type.NORMAL)) {
+
+                            Type otherType = pkmn.primaryType == Type.NORMAL ? pkmn.secondaryType : pkmn.primaryType;
+
+                            // Normal/OTHER: 10% normal, 30% other, 60% random
+                            if (picked < 0.1) {
+                                typeOfMove = Type.NORMAL;
+                            } else if (picked < 0.4) {
+                                typeOfMove = otherType;
+                            }
+                            // else random
+                        } else if (pkmn.secondaryType != null) {
+                            // Primary/Secondary: 20% primary, 20% secondary, 60% random
+                            if (picked < 0.2) {
+                                typeOfMove = pkmn.primaryType;
+                            } else if (picked < 0.4) {
+                                typeOfMove = pkmn.secondaryType;
+                            }
+                            // else random
+                        } else {
+                            // Primary/None: 40% primary, 60% random
+                            if (picked < 0.4) {
+                                typeOfMove = pkmn.primaryType;
+                            }
+                            // else random
+                        }
+                    }
+
+                    // select a list to pick a move from that has at least one free
+                    List<Move> pickList = validMoves;
+                    if (attemptDamaging) {
+                        if (typeOfMove != null) {
+                            if (validTypeDamagingMoves.containsKey(typeOfMove)
+                                    && checkForUnusedMove(validTypeDamagingMoves.get(typeOfMove), learnt)) {
+                                pickList = validTypeDamagingMoves.get(typeOfMove);
+                            } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
+                                pickList = validDamagingMoves;
+                            }
+                        } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
+                            pickList = validDamagingMoves;
+                        }
+                        MoveCategory forcedCategory = random.nextDouble() < atkSpAtkRatio ? MoveCategory.PHYSICAL : MoveCategory.SPECIAL;
+                        List<Move> filteredList = pickList.stream().filter(mv -> mv.category == forcedCategory).collect(Collectors.toList());
+                        if (!filteredList.isEmpty() && checkForUnusedMove(filteredList, learnt)) {
+                            pickList = filteredList;
+                        }
+                    } else if (typeOfMove != null) {
+                        if (validTypeMoves.containsKey(typeOfMove)
+                                && checkForUnusedMove(validTypeMoves.get(typeOfMove), learnt)) {
+                            pickList = validTypeMoves.get(typeOfMove);
+                        }
+                    }
+
+                    // now pick a move until we get a valid one
+                    Move mv = pickList.get(random.nextInt(pickList.size()));
+                    while (learnt.contains(mv.number)) {
+                        mv = pickList.get(random.nextInt(pickList.size()));
+                    }
+
+                    goodDamagingLeft--;
+                    learnt.add(mv.number);
+                }
+
+                // write all moves for the pokemon
+                Collections.shuffle(learnt, random);
+                for (int i = 0; i < learnt.size(); i++) {
+                    moves.set(i, learnt.get(i));
+                }
+            }
+
             //apply scripting
             if(settings.isScriptEggMoves())
             {
                 moves = settings.getScript().getScriptedEggMoveset(pkmn, moves);
             }
-            if(scriptOnly)
-            {
-                continue;
-            }
 
-            double atkSpAtkRatio = pkmn.getAttackSpecialAttackRatio();
-
-            if (pkmn.actuallyCosmetic) {
-                for (int i = 0; i < moves.size(); i++) {
-                    moves.set(i, movesets.get(pkmn.baseForme.number).get(i));
-                }
-                continue;
-            }
-
-            // Force a certain amount of good damaging moves depending on the percentage
-            int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * moves.size());
-
-            // Replace moves as needed
-            for (int i = 0; i < moves.size(); i++) {
-                // should this move be forced damaging?
-                boolean attemptDamaging = goodDamagingLeft > 0;
-
-                // type themed?
-                Type typeOfMove = null;
-                if (typeThemed) {
-                    double picked = random.nextDouble();
-                    if ((pkmn.primaryType == Type.NORMAL && pkmn.secondaryType != null) ||
-                            (pkmn.secondaryType == Type.NORMAL)) {
-
-                        Type otherType = pkmn.primaryType == Type.NORMAL ? pkmn.secondaryType : pkmn.primaryType;
-
-                        // Normal/OTHER: 10% normal, 30% other, 60% random
-                        if (picked < 0.1) {
-                            typeOfMove = Type.NORMAL;
-                        } else if (picked < 0.4) {
-                            typeOfMove = otherType;
-                        }
-                        // else random
-                    } else if (pkmn.secondaryType != null) {
-                        // Primary/Secondary: 20% primary, 20% secondary, 60% random
-                        if (picked < 0.2) {
-                            typeOfMove = pkmn.primaryType;
-                        } else if (picked < 0.4) {
-                            typeOfMove = pkmn.secondaryType;
-                        }
-                        // else random
-                    } else {
-                        // Primary/None: 40% primary, 60% random
-                        if (picked < 0.4) {
-                            typeOfMove = pkmn.primaryType;
-                        }
-                        // else random
-                    }
-                }
-
-                // select a list to pick a move from that has at least one free
-                List<Move> pickList = validMoves;
-                if (attemptDamaging) {
-                    if (typeOfMove != null) {
-                        if (validTypeDamagingMoves.containsKey(typeOfMove)
-                                && checkForUnusedMove(validTypeDamagingMoves.get(typeOfMove), learnt)) {
-                            pickList = validTypeDamagingMoves.get(typeOfMove);
-                        } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
-                            pickList = validDamagingMoves;
-                        }
-                    } else if (checkForUnusedMove(validDamagingMoves, learnt)) {
-                        pickList = validDamagingMoves;
-                    }
-                    MoveCategory forcedCategory = random.nextDouble() < atkSpAtkRatio ? MoveCategory.PHYSICAL : MoveCategory.SPECIAL;
-                    List<Move> filteredList = pickList.stream().filter(mv -> mv.category == forcedCategory).collect(Collectors.toList());
-                    if (!filteredList.isEmpty() && checkForUnusedMove(filteredList, learnt)) {
-                        pickList = filteredList;
-                    }
-                } else if (typeOfMove != null) {
-                    if (validTypeMoves.containsKey(typeOfMove)
-                            && checkForUnusedMove(validTypeMoves.get(typeOfMove), learnt)) {
-                        pickList = validTypeMoves.get(typeOfMove);
-                    }
-                }
-
-                // now pick a move until we get a valid one
-                Move mv = pickList.get(random.nextInt(pickList.size()));
-                while (learnt.contains(mv.number)) {
-                    mv = pickList.get(random.nextInt(pickList.size()));
-                }
-
-                goodDamagingLeft--;
-                learnt.add(mv.number);
-            }
-
-            // write all moves for the pokemon
-            Collections.shuffle(learnt, random);
-            for (int i = 0; i < learnt.size(); i++) {
-                moves.set(i, learnt.get(i));
-            }
         }
         // Done, save
         this.setEggMoves(movesets);
