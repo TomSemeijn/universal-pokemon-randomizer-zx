@@ -4,6 +4,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 //from https://stackoverflow.com/questions/14400946/how-to-change-the-color-of-specific-words-in-a-jtextpane
 
@@ -22,6 +23,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private Style argStyle;
 
     private Style memberStyle;
+
+    private Style numericLiteralStyle;
 
     private static String[] keywords = {
             "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not", "class", "self", "pass", "del"
@@ -48,6 +51,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         StyleConstants.setForeground(argStyle, new Color(154, 154, 154));
         memberStyle = styleContext.addStyle("member", null);
         StyleConstants.setForeground(memberStyle, new Color(190, 183, 255));
+        numericLiteralStyle = styleContext.addStyle("member", null);
+        StyleConstants.setForeground(numericLiteralStyle, new Color(181, 206, 168));
     }
 
     public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
@@ -83,6 +88,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         setStyleOf(funcStyle, findClassDefNames(text));
         setStyleOf(keywordStyle, findKeywords(text));
         setStyleOf(boolStyle, findBools(text));
+        setStyleOf(numericLiteralStyle, findNumericLiterals(text));
 
         setStyleOf(commentStyle, commentsAndStrings[1]);
         setStyleOf(stringStyle, commentsAndStrings[0]);
@@ -400,6 +406,11 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         }
 
         return toReturn;
+    }
+
+    private static List<HiliteWord> findNumericLiterals(String content)
+    {
+        return findWords(content, (str, i) -> Pattern.compile("-?\\d+(\\.\\d+)?").matcher(str.trim()).matches()); //from https://www.baeldung.com/java-check-string-number
     }
 
     private static final boolean isKeyword(String word) {
