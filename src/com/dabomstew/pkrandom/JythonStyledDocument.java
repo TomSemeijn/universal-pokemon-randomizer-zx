@@ -26,6 +26,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
     private Style numericLiteralStyle;
 
+    private Style importStyle;
+
     private static String[] keywords = {
             "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not", "class", "self", "pass", "del"
     };
@@ -51,8 +53,12 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         StyleConstants.setForeground(argStyle, new Color(154, 154, 154));
         memberStyle = styleContext.addStyle("member", null);
         StyleConstants.setForeground(memberStyle, new Color(190, 183, 255));
-        numericLiteralStyle = styleContext.addStyle("member", null);
+        numericLiteralStyle = styleContext.addStyle("numericLiteral", null);
         StyleConstants.setForeground(numericLiteralStyle, new Color(181, 206, 168));
+        importStyle = styleContext.addStyle("import", null);
+        StyleConstants.setForeground(importStyle, new Color(154, 154, 154));
+        StyleConstants.setItalic(importStyle, true);
+        StyleConstants.setBold(importStyle, true);
     }
 
     public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
@@ -86,6 +92,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
         setStyleOf(funcStyle, findFunctions(text));
         setStyleOf(funcStyle, findClassDefNames(text));
+        setStyleOf(importStyle, findImportLines(text, commentsAndStrings[0], commentsAndStrings[1]));
         setStyleOf(keywordStyle, findKeywords(text));
         setStyleOf(boolStyle, findBools(text));
         setStyleOf(numericLiteralStyle, findNumericLiterals(text));
@@ -411,6 +418,45 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private static List<HiliteWord> findNumericLiterals(String content)
     {
         return findWords(content, (str, i) -> Pattern.compile("-?\\d+(\\.\\d+)?").matcher(str.trim()).matches()); //from https://www.baeldung.com/java-check-string-number
+    }
+
+    private static List<HiliteWord> findImportLines(String content, List<HiliteWord> comments, List<HiliteWord> strings)
+    {
+        List<HiliteWord> toReturn = new ArrayList<>();
+
+        List<HiliteWord> importKeywords = findWords(content, (str, i) -> str.equals("import"));
+        for(HiliteWord keyword : importKeywords)
+        {
+            if(!intersectsCommentOrString(keyword, comments, strings))
+            {
+                int lineStart = 0;
+                for(int k = keyword._position; k >= 0; k--)
+                {
+                    if(content.charAt(k) == '\n')
+                    {
+                        lineStart = k + 1;
+                        break;
+                    }
+                }
+
+                int lineEnd = content.length() - 1;
+                for(int k = keyword._position + keyword._word.length(); k < content.length(); k++)
+                {
+                    if(content.charAt(k) == '\n'){
+                        lineEnd = k;
+                        break;
+                    }
+                }
+
+                String line = content.substring(lineStart, lineEnd);
+                if(line.contains("from ") && line.contains(" import "))
+                {
+                    toReturn.add(new HiliteWord(line, lineStart));
+                }
+            }
+        }
+
+        return toReturn;
     }
 
     private static final boolean isKeyword(String word) {
