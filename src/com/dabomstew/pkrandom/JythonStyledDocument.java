@@ -42,6 +42,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         boolStyle = styleContext.addStyle("boolean", null);
         StyleConstants.setForeground(boolStyle, new Color(204, 120, 50));
         StyleConstants.setBold(boolStyle, true);
+        argStyle = styleContext.addStyle("arg", null);
+        StyleConstants.setForeground(argStyle, new Color(154, 154, 154));
     }
 
     public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
@@ -76,6 +78,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         List<HiliteWord>[] commentsAndStrings = findStringsAndComments(text);
         setStyleOf(commentStyle, commentsAndStrings[1]);
         setStyleOf(stringStyle, commentsAndStrings[0]);
+
+        setStyleOf(argStyle, findArguments(text, commentsAndStrings[0], commentsAndStrings[1]));
     }
 
     private synchronized void setStyleOf(Style style, List<HiliteWord> words)
@@ -87,16 +91,16 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     }
 
     private static List<HiliteWord> findKeywords(String content) {
-        return findWords(content, (str -> isKeyword(str)));
+        return findWords(content, ((str, i) -> isKeyword(str)));
     }
 
     private static List<HiliteWord> findBools(String content)
     {
-        return findWords(content, (str -> str.trim().equals("True") || str.trim().equals("False")));
+        return findWords(content, ((str, i) -> str.trim().equals("True") || str.trim().equals("False")));
     }
 
     private interface StrCheck{
-        public boolean op(String str);
+        public boolean op(String str, int pos);
     }
 
     private static List<HiliteWord> findWords(String content, StrCheck check)
@@ -112,7 +116,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
             if(!(Character.isLetter(ch) || Character.isDigit(ch) || ch == '_')) {
                 lastWhitespacePosition = index;
                 if(word.length() > 0) {
-                    if(check.op(word)) {
+                    if(check.op(word, index)) {
                         hiliteWords.add(new HiliteWord(word,(lastWhitespacePosition - word.length())));
                     }
                     word="";
@@ -225,6 +229,120 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         return new List[]{ strings, comments };
     }
 
+    private static List<HiliteWord> findArguments(String content, List<HiliteWord> comments, List<HiliteWord> strings)
+    {
+        List<HiliteWord> toReturn = new ArrayList<>();
+
+        List<HiliteWord> defs = findWords(content, ((str, i) -> str.trim().equals("def")));
+        for(HiliteWord definition : defs)
+        {
+            if(!intersectsCommentOrString(definition, comments, strings))
+            {
+                //find argument list
+                int argListStart = 0;
+                int argListEnd = 0;
+                int funcStart = 0;
+                for(int k = definition._position + definition._word.length(); k < content.length(); k++)
+                {
+                    char c = content.charAt(k);
+                    if(c == '\n'){ funcStart = k + 1; break; }
+                    if(c == '(' && argListStart == 0)
+                    {
+                        argListStart = k;
+                    }
+                    else if(c == ')')
+                    {
+                        argListEnd = k;
+                    }
+                }
+                String argListStr = content.substring(argListStart + 1, argListEnd);
+                String[] argList = argListStr.split(",");
+                for(int k = 0; k < argList.length; k++)
+                {
+                    argList[k] = argList[k].trim();
+                }
+
+                //find tab level of definition
+                int tabLevel = 0;
+                for(int k = definition._position; k >= 0; k--)
+                {
+                    char c = content.charAt(k);
+                    if(c == '\n'){ break; }
+                    if(c == '\t'){ tabLevel++; }
+                    else { tabLevel = 0; }
+                }
+
+                //find end of function (or end of code if there is no end yet)
+                boolean lineStart = true;
+                boolean resetTabs = false;
+                char lastChar = '.';
+                int currentTabLevel = 0;
+                int funcEnd = -1;
+                for(int k = funcStart; k < content.length(); k++)
+                {
+                    char c = content.charAt(k);
+                    boolean foundEnd = false;
+                    switch(c)
+                    {
+                        case '\n':
+                            if(lastChar == '\n')
+                            {
+                                currentTabLevel = 0;
+                            }
+                            lineStart = true;
+                            resetTabs = false;
+
+                            if(currentTabLevel <= tabLevel)
+                            {
+                                foundEnd = true;
+                                funcEnd = k - 1;
+                            }
+                            break;
+                        case '\t':
+                            if(lineStart)
+                            {
+                                if(!resetTabs)
+                                {
+                                    currentTabLevel = 0;
+                                    resetTabs = true;
+                                }
+                                currentTabLevel++;
+                            }
+                            break;
+                        default:
+                            if(lineStart)
+                            {
+                                lineStart = false;
+                                if(!resetTabs)
+                                {
+                                    currentTabLevel = 0;
+                                    resetTabs = true;
+                                }
+                                if(currentTabLevel <= tabLevel)
+                                {
+                                    foundEnd = true;
+                                    funcEnd = k - 1;
+                                }
+                            }
+                            break;
+                    }
+                    lastChar = c;
+                    if(foundEnd) { break; }
+                }
+                if(funcEnd == -1) { funcEnd = content.length() - 1; }
+
+                //find all mentions of arguments within the function (including the definition)
+                for(String arg : argList)
+                {
+                    int finalFuncEnd = funcEnd;
+                    List<HiliteWord> argMentions = findWords(content, ((str, i) -> str.trim().equals(arg) && i >= definition._position && i - 1 <= finalFuncEnd));
+                    toReturn.addAll(argMentions);
+                }
+            }
+        }
+        return toReturn;
+    }
+
     private static final boolean isKeyword(String word) {
         String realWord = word.trim();
         for(String keyword : keywords)
@@ -234,4 +352,30 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         return false;
     }
 
+    private static boolean intersectsCommentOrString(HiliteWord test, List<HiliteWord> comments, List<HiliteWord> strings)
+    {
+        for(HiliteWord str : comments)
+        {
+            if(intersect(test, str)) { return true; }
+        }
+        for(HiliteWord str : strings)
+        {
+            if(intersect(test, str)) { return true; }
+        }
+        return false;
+    }
+
+    private static boolean intersect(HiliteWord a , HiliteWord b)
+    {
+        final int aStart = a._position;
+        final int aEnd = aStart + a._word.length() - 1;
+
+        final int bStart = b._position;
+        final int bEnd = bStart + b._word.length() - 1;
+
+        return (aStart >= bStart && aStart <= bEnd) ||
+                (aEnd >= bStart && aEnd <= bEnd) ||
+                (bStart >= aStart && bStart <= aEnd) ||
+                (bEnd >= aStart && bEnd <= aEnd);
+    }
 }
