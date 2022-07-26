@@ -21,6 +21,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
     private Style argStyle;
 
+    private Style memberStyle;
+
     private static String[] keywords = {
             "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not"
     };
@@ -44,6 +46,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         StyleConstants.setBold(boolStyle, true);
         argStyle = styleContext.addStyle("arg", null);
         StyleConstants.setForeground(argStyle, new Color(154, 154, 154));
+        memberStyle = styleContext.addStyle("member", null);
+        StyleConstants.setForeground(memberStyle, new Color(190, 183, 255));
     }
 
     public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
@@ -70,6 +74,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private synchronized void refreshDocument() throws BadLocationException {
         String text = getText(0, getLength());
         setCharacterAttributes(0, text.length(), defaultStyle, true);
+
+        setStyleOf(memberStyle, findMembers(text));
 
         setStyleOf(funcStyle, findFunctions(text));
         setStyleOf(keywordStyle, findKeywords(text));
@@ -116,7 +122,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
             if(!(Character.isLetter(ch) || Character.isDigit(ch) || ch == '_')) {
                 lastWhitespacePosition = index;
                 if(word.length() > 0) {
-                    if(check.op(word, index)) {
+                    if(check.op(word, index - word.length())) {
                         hiliteWords.add(new HiliteWord(word,(lastWhitespacePosition - word.length())));
                     }
                     word="";
@@ -229,6 +235,31 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         return new List[]{ strings, comments };
     }
 
+    private static List<HiliteWord> findMembers(String content)
+    {
+        char[] data = content.toCharArray();
+        List<HiliteWord> members = findWords(content, (str, i) -> i > 0 ? data[i - 1] == '.' : false);
+        members.removeIf(word -> {
+
+            //find start of line
+            int lineStart = 0;
+            for(int k = word._position; k >= 0; k--)
+            {
+                char c = data[k];
+                if(c == '\n'){ lineStart = k + 1; break; }
+            }
+
+            //find from keyword within the line
+            String[] splitLine = content.substring(lineStart, word._position).split(" ");
+            for(String str : splitLine)
+            {
+                if(str.equals("from")){ return true; }
+            }
+            return false;
+        });
+        return members;
+    }
+
     private static List<HiliteWord> findArguments(String content, List<HiliteWord> comments, List<HiliteWord> strings)
     {
         List<HiliteWord> toReturn = new ArrayList<>();
@@ -329,7 +360,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                 for(String arg : argList)
                 {
                     int finalFuncEnd = funcEnd;
-                    List<HiliteWord> argMentions = findWords(content, ((str, i) -> str.trim().equals(arg) && i >= definition._position && i - 1 <= finalFuncEnd));
+                    List<HiliteWord> argMentions = findWords(content, ((str, i) -> str.trim().equals(arg) && i >= definition._position && i + str.length() - 1 <= finalFuncEnd));
                     toReturn.addAll(argMentions);
                 }
             }
