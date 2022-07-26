@@ -24,7 +24,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private Style memberStyle;
 
     private static String[] keywords = {
-            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not"
+            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not", "class", "self", "pass", "del"
     };
 
     public JythonStyledDocument() {
@@ -75,17 +75,17 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         String text = getText(0, getLength());
         setCharacterAttributes(0, text.length(), defaultStyle, true);
 
+        List<HiliteWord>[] commentsAndStrings = findStringsAndComments(text);
+        setStyleOf(argStyle, findArguments(text, commentsAndStrings[0], commentsAndStrings[1]));
         setStyleOf(memberStyle, findMembers(text));
 
         setStyleOf(funcStyle, findFunctions(text));
+        setStyleOf(funcStyle, findClassDefNames(text));
         setStyleOf(keywordStyle, findKeywords(text));
         setStyleOf(boolStyle, findBools(text));
 
-        List<HiliteWord>[] commentsAndStrings = findStringsAndComments(text);
         setStyleOf(commentStyle, commentsAndStrings[1]);
         setStyleOf(stringStyle, commentsAndStrings[0]);
-
-        setStyleOf(argStyle, findArguments(text, commentsAndStrings[0], commentsAndStrings[1]));
     }
 
     private synchronized void setStyleOf(Style style, List<HiliteWord> words)
@@ -365,6 +365,40 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                 }
             }
         }
+        return toReturn;
+    }
+
+    private static List<HiliteWord> findClassDefNames(String content)
+    {
+        List<HiliteWord> toReturn = new ArrayList<>();
+
+        List<HiliteWord> classKeywords = findWords(content, (str, i) -> str.equals("class"));
+        for(HiliteWord keyword : classKeywords)
+        {
+            int nameStart = -1;
+            for(int k = keyword._position + keyword._word.length(); k < content.length(); k++)
+            {
+                char c = content.charAt(k);
+                if(c != ' ' && c != '\t')
+                {
+                    nameStart = k;
+                    break;
+                }
+            }
+            if(nameStart == -1) { break; }
+            int nameEnd = content.length() - 1;
+            for(int k = nameStart; k < content.length(); k++)
+            {
+                char c = content.charAt(k);
+                if(c == ' ' || c == '\t' || c == ':')
+                {
+                    nameEnd = k;
+                    break;
+                }
+            }
+            toReturn.add(new HiliteWord(content.substring(nameStart, nameEnd), nameStart));
+        }
+
         return toReturn;
     }
 
