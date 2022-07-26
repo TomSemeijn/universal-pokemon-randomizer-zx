@@ -1146,6 +1146,7 @@ public class NewRandomizerGUI {
         sScriptInput = new NoWrapJTextPane(new JythonStyledDocument());
         sScriptInput.setBackground(new Color(50, 50, 50));
         sScriptInput.setCaretColor(Color.white);
+        sScriptInput.getDocument().addDocumentListener(new JythonDocumentListener());
     }
 
 
