@@ -291,12 +291,6 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                             }
                             lineStart = true;
                             resetTabs = false;
-
-                            if(currentTabLevel <= tabLevel)
-                            {
-                                foundEnd = true;
-                                funcEnd = k - 1;
-                            }
                             break;
                         case '\t':
                             if(lineStart)
