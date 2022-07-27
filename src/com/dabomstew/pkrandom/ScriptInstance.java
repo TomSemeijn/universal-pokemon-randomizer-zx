@@ -133,4 +133,24 @@ public class ScriptInstance {
         pokemon.spdef = spdef;
         pokemon.speed = spd;
     }
+
+    public void updateScriptedPokemonTypes(Pokemon pokemon)
+    {
+        PyFunction func = (PyFunction)interp.get("selectPokemonTypes");
+        PyDictionary result = (PyDictionary)(func.__call__(Py.java2py(pokemon)));
+
+        Type primary = result.has_key(new PyString("primary")) ? Py.tojava(result.get(new PyString("primary")), Type.class) : pokemon.primaryType;
+        Type secondary = result.has_key(new PyString("secondary")) ? Py.tojava(result.get(new PyString("secondary")), Type.class) : pokemon.secondaryType;
+
+        if(primary == null){
+            primary = pokemon.primaryType;
+        }
+        if(secondary == primary)
+        {
+            secondary = null;
+        }
+
+        pokemon.primaryType = primary;
+        pokemon.secondaryType = secondary;
+    }
 }

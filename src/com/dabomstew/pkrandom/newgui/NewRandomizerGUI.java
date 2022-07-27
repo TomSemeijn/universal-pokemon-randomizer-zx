@@ -316,6 +316,7 @@ public class NewRandomizerGUI {
     private JCheckBox pmsScriptLearnAfterCheckBox;
     private JScrollPane sScriptInputScrollPane;
     private JRadioButton pbsScriptedRadioButton;
+    private JRadioButton ptScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -591,6 +592,8 @@ public class NewRandomizerGUI {
         ptUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         ptRandomFollowEvolutionsRadioButton.addActionListener(e -> enableOrDisableSubControls());
         ptRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        ptScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        ptScriptedRadioButton.addActionListener(e -> addPokemonTypeScriptFunc());
         spRandomizeStarterHeldItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         tmLevelupMoveSanityCheckBox.addActionListener(e -> enableOrDisableSubControls());
         mtLevelupMoveSanityCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1431,6 +1434,7 @@ public class NewRandomizerGUI {
         paWeighDuplicatesTogetherCheckBox.setSelected(settings.isWeighDuplicateAbilitiesTogether());
         paEnsureTwoAbilitiesCheckbox.setSelected(settings.isEnsureTwoAbilities());
 
+        ptScriptedRadioButton.setSelected(settings.getTypesMod() == Settings.TypesMod.SCRIPTED);
         ptRandomFollowEvolutionsRadioButton.setSelected(settings.getTypesMod() == Settings.TypesMod.RANDOM_FOLLOW_EVOLUTIONS);
         ptRandomCompletelyRadioButton.setSelected(settings.getTypesMod() == Settings.TypesMod.COMPLETELY_RANDOM);
         ptUnchangedRadioButton.setSelected(settings.getTypesMod() == Settings.TypesMod.UNCHANGED);
@@ -1691,7 +1695,7 @@ public class NewRandomizerGUI {
         settings.setEnsureTwoAbilities(paEnsureTwoAbilitiesCheckbox.isSelected());
 
         settings.setTypesMod(ptUnchangedRadioButton.isSelected(), ptRandomFollowEvolutionsRadioButton.isSelected(),
-                ptRandomCompletelyRadioButton.isSelected());
+                ptRandomCompletelyRadioButton.isSelected(), ptScriptedRadioButton.isSelected());
         settings.setTypesFollowMegaEvolutions(ptFollowMegaEvosCheckBox.isSelected() && ptFollowMegaEvosCheckBox.isVisible());
         settings.setBlockBrokenMovesetMoves(pmsNoGameBreakingMovesCheckBox.isSelected());
         settings.setDualTypeOnly(ptIsDualTypeCheckBox.isSelected());
@@ -2051,6 +2055,9 @@ public class NewRandomizerGUI {
         ptFollowMegaEvosCheckBox.setVisible(true);
         ptFollowMegaEvosCheckBox.setEnabled(false);
         ptFollowMegaEvosCheckBox.setSelected(false);
+        ptScriptedRadioButton.setVisible(true);
+        ptScriptedRadioButton.setEnabled(false);
+        ptScriptedRadioButton.setSelected(false);
         ptIsDualTypeCheckBox.setVisible(true);
         ptIsDualTypeCheckBox.setEnabled(false);
         ptIsDualTypeCheckBox.setSelected(false);
@@ -2723,6 +2730,7 @@ public class NewRandomizerGUI {
             ptUnchangedRadioButton.setSelected(true);
             ptRandomFollowEvolutionsRadioButton.setEnabled(true);
             ptRandomCompletelyRadioButton.setEnabled(true);
+            ptScriptedRadioButton.setEnabled(true);
             ptFollowMegaEvosCheckBox.setVisible(romHandler.hasMegaEvolutions());
             ptIsDualTypeCheckBox.setEnabled(false);
 
@@ -3180,6 +3188,17 @@ public class NewRandomizerGUI {
             ptIsDualTypeCheckBox.setSelected(false);
         } else {
             ptFollowMegaEvosCheckBox.setEnabled(followMegaEvolutionControlsEnabled);
+            ptIsDualTypeCheckBox.setEnabled(true);
+        }
+
+        //scripted pokemon types isn't compatible with "force dual types"
+        //because it's too simple to implement in a script to warrant a complex way to force it when selected
+        if(ptScriptedRadioButton.isSelected())
+        {
+            ptIsDualTypeCheckBox.setEnabled(false);
+            ptIsDualTypeCheckBox.setSelected(false);
+        }
+        else{
             ptIsDualTypeCheckBox.setEnabled(true);
         }
 
@@ -4393,6 +4412,29 @@ public class NewRandomizerGUI {
         if(pbsScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addPokemonTypeScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's type(s)",
+                "#pokemon - a Pokemon object representing the pokemon whose type(s) are being changed",
+                "#",
+                "#return: a dictionary of structure: { \"primary\": Type, \"secondary\": Type }, missing keys are ignored",
+                "#NOTE: you can explicitly set the secondary type to None, if you set the primary type to None it will be ignored"
+        };
+        String funcDeclaration = "def selectPokemonTypes(pokemon):";
+        String funcBody = "\n\tresult = { \"primary\": Type.NORMAL, \"secondary\": Type.BUG }\n\treturn result";
+
+        if(ptScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

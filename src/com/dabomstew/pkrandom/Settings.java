@@ -116,7 +116,7 @@ public class Settings {
     private boolean banBadRandomStarterHeldItems;
 
     public enum TypesMod {
-        UNCHANGED, RANDOM_FOLLOW_EVOLUTIONS, COMPLETELY_RANDOM
+        UNCHANGED, RANDOM_FOLLOW_EVOLUTIONS, COMPLETELY_RANDOM, SCRIPTED
     }
 
     private TypesMod typesMod = TypesMod.UNCHANGED;
@@ -394,8 +394,8 @@ public class Settings {
 
         // 2: pokemon types & more general options
         out.write(makeByteSelected(typesMod == TypesMod.RANDOM_FOLLOW_EVOLUTIONS,
-                typesMod == TypesMod.COMPLETELY_RANDOM, typesMod == TypesMod.UNCHANGED, raceMode, blockBrokenMoves,
-                limitPokemon, typesFollowMegaEvolutions, dualTypeOnly));
+                typesMod == TypesMod.COMPLETELY_RANDOM, typesMod == TypesMod.UNCHANGED, typesMod == TypesMod.SCRIPTED,
+                blockBrokenMoves, limitPokemon, typesFollowMegaEvolutions, dualTypeOnly));
 
         // 3: v171: changed to the abilities byte
         out.write(makeByteSelected(abilitiesMod == AbilitiesMod.UNCHANGED, abilitiesMod == AbilitiesMod.RANDOMIZE,
@@ -611,7 +611,7 @@ public class Settings {
         out.write(eliteFourUniquePokemonNumber);
 
         // 52 extra scripting options
-        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves, standardizeEXPCurves));
+        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves, standardizeEXPCurves, raceMode));
 
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
@@ -673,9 +673,10 @@ public class Settings {
 
         settings.setTypesMod(restoreEnum(TypesMod.class, data[2], 2, // UNCHANGED
                 0, // RANDOM_FOLLOW_EVOLUTIONS
-                1 // COMPLETELY_RANDOM
+                1, // COMPLETELY_RANDOM
+                3  // SCRIPTED
         ));
-        settings.setRaceMode(restoreState(data[2], 3));
+        settings.setRaceMode(restoreState(data[52], 5));
         settings.setBlockBrokenMoves(restoreState(data[2], 4));
         settings.setLimitPokemon(restoreState(data[2], 5));
         settings.setTypesFollowMegaEvolutions(restoreState(data[2],6));

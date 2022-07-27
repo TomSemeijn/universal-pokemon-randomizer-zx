@@ -441,6 +441,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean evolutionSanity = settings.getTypesMod() == Settings.TypesMod.RANDOM_FOLLOW_EVOLUTIONS;
         boolean megaEvolutionSanity = settings.isTypesFollowMegaEvolutions();
         boolean dualTypeOnly = settings.isDualTypeOnly();
+        boolean scripted = settings.getTypesMod() == Settings.TypesMod.SCRIPTED;
 
         List<Pokemon> allPokes = this.getPokemonInclFormes();
         if (evolutionSanity) {
@@ -481,6 +482,14 @@ public abstract class AbstractRomHandler implements RomHandler {
                     }
                 }
             });
+        } //scripted types
+        else if(scripted) {
+            // Entirely random types
+            for (Pokemon pkmn : allPokes) {
+                if (pkmn != null) {
+                    settings.getScript().updateScriptedPokemonTypes(pkmn);
+                }
+            }
         } else {
             // Entirely random types
             for (Pokemon pkmn : allPokes) {
