@@ -267,16 +267,19 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean evolutionSanity = settings.isBaseStatsFollowEvolutions();
         boolean megaEvolutionSanity = settings.isBaseStatsFollowMegaEvolutions();
         boolean assignEvoStatsRandomly = settings.isAssignEvoStatsRandomly();
+        boolean scripted = settings.getBaseStatisticsMod() == Settings.BaseStatisticsMod.SCRIPTED;
 
         if (evolutionSanity) {
             if (assignEvoStatsRandomly) {
-                copyUpEvolutionsHelper(pk -> pk.randomizeStatsWithinBST(AbstractRomHandler.this.random),
+                copyUpEvolutionsHelper(
+                        scripted ? pk -> settings.getScript().updateScriptedPokemonBaseStats(pk) : pk -> pk.randomizeStatsWithinBST(AbstractRomHandler.this.random),
                         (evFrom, evTo, toMonIsFinalEvo) -> evTo.assignNewStatsForEvolution(evFrom, this.random),
                         (evFrom, evTo, toMonIsFinalEvo) -> evTo.assignNewStatsForEvolution(evFrom, this.random),
                         true
                 );
             } else {
-                copyUpEvolutionsHelper(pk -> pk.randomizeStatsWithinBST(AbstractRomHandler.this.random),
+                copyUpEvolutionsHelper(
+                        scripted ? pk -> settings.getScript().updateScriptedPokemonBaseStats(pk) : pk -> pk.randomizeStatsWithinBST(AbstractRomHandler.this.random),
                         (evFrom, evTo, toMonIsFinalEvo) -> evTo.copyRandomizedStatsUpEvolution(evFrom),
                         (evFrom, evTo, toMonIsFinalEvo) -> evTo.assignNewStatsForEvolution(evFrom, this.random),
                         true
@@ -286,7 +289,13 @@ public abstract class AbstractRomHandler implements RomHandler {
             List<Pokemon> allPokes = this.getPokemonInclFormes();
             for (Pokemon pk : allPokes) {
                 if (pk != null) {
-                    pk.randomizeStatsWithinBST(this.random);
+                    if(scripted)
+                    {
+                        settings.getScript().updateScriptedPokemonBaseStats(pk);
+                    }
+                    else{
+                        pk.randomizeStatsWithinBST(this.random);
+                    }
                 }
             }
         }

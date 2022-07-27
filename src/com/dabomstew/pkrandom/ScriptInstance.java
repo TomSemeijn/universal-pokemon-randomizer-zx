@@ -115,4 +115,22 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
         return Py.tojava(func.__call__(Py.java2py(pokemon), Py.java2py(oldMoveset)), List.class);
     }
+
+    public void updateScriptedPokemonBaseStats(Pokemon pokemon)
+    {
+        PyFunction func = (PyFunction)interp.get("setBaseStats");
+        PyDictionary result = (PyDictionary)(func.__call__(Py.java2py(pokemon)));
+        int hp = result.has_key(new PyString("hp")) ? ((PyInteger)result.get(new PyString("hp"))).asInt() : pokemon.hp;
+        int atk = result.has_key(new PyString("atk")) ? ((PyInteger)result.get(new PyString("atk"))).asInt() : pokemon.attack;
+        int def = result.has_key(new PyString("def")) ? ((PyInteger)result.get(new PyString("def"))).asInt() : pokemon.defense;
+        int spatk = result.has_key(new PyString("spatk")) ? ((PyInteger)result.get(new PyString("spatk"))).asInt() : pokemon.spatk;
+        int spdef = result.has_key(new PyString("spdef")) ? ((PyInteger)result.get(new PyString("spdef"))).asInt() : pokemon.spdef;
+        int spd = result.has_key(new PyString("spd")) ? ((PyInteger)result.get(new PyString("spd"))).asInt() : pokemon.speed;
+        pokemon.hp = hp;
+        pokemon.attack = atk;
+        pokemon.defense = def;
+        pokemon.spatk = spatk;
+        pokemon.spdef = spdef;
+        pokemon.speed = spd;
+    }
 }

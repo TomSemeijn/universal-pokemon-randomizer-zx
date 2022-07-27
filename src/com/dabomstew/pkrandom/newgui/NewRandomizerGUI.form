@@ -332,6 +332,17 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.pbsAllMediumFastRadioButton.toolTipText"/>
                     </properties>
                   </component>
+                  <component id="2f6e1" class="javax.swing.JRadioButton" binding="pbsScriptedRadioButton">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to determine each pokemon's base stats&#10;When options concerning evolutions are selected, only base pokemon will be put through the script"/>
+                    </properties>
+                  </component>
                 </children>
               </grid>
               <hspacer id="17e6a">
@@ -3943,6 +3954,7 @@
       <member id="4535b"/>
       <member id="e8460"/>
       <member id="576dd"/>
+      <member id="2f6e1"/>
     </group>
     <group name="expCurveButtonGroup">
       <member id="8625b"/>

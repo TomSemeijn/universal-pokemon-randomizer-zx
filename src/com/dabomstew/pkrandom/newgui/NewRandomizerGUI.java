@@ -39,8 +39,6 @@ import com.rememberjava.ui.LineNumbersView;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -317,6 +315,7 @@ public class NewRandomizerGUI {
     private JCheckBox pmsScriptEggCheckBox;
     private JCheckBox pmsScriptLearnAfterCheckBox;
     private JScrollPane sScriptInputScrollPane;
+    private JRadioButton pbsScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -428,6 +427,8 @@ public class NewRandomizerGUI {
         pbsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        pbsScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        pbsScriptedRadioButton.addActionListener(e -> addBaseStatsScriptFunc());
         pbsFollowMegaEvosCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pbsFollowEvolutionsCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pbsStandardizeEXPCurvesCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1397,6 +1398,7 @@ public class NewRandomizerGUI {
         tpRandomizeTrainerClassNamesCheckBox.setSelected(settings.isRandomizeTrainerClassNames());
         ptIsDualTypeCheckBox.setSelected(settings.isDualTypeOnly());
 
+        pbsScriptedRadioButton.setSelected(settings.getBaseStatisticsMod() == Settings.BaseStatisticsMod.SCRIPTED);
         pbsRandomRadioButton.setSelected(settings.getBaseStatisticsMod() == Settings.BaseStatisticsMod.RANDOM);
         pbsShuffleRadioButton.setSelected(settings.getBaseStatisticsMod() == Settings.BaseStatisticsMod.SHUFFLE);
         pbsUnchangedRadioButton.setSelected(settings.getBaseStatisticsMod() == Settings.BaseStatisticsMod.UNCHANGED);
@@ -1666,7 +1668,7 @@ public class NewRandomizerGUI {
         settings.setRandomizeTrainerClassNames(tpRandomizeTrainerClassNamesCheckBox.isSelected());
 
         settings.setBaseStatisticsMod(pbsUnchangedRadioButton.isSelected(), pbsShuffleRadioButton.isSelected(),
-                pbsRandomRadioButton.isSelected());
+                pbsRandomRadioButton.isSelected(), pbsScriptedRadioButton.isSelected());
         settings.setBaseStatsFollowEvolutions(pbsFollowEvolutionsCheckBox.isSelected());
         settings.setUpdateBaseStats(pbsUpdateBaseStatsCheckBox.isSelected() && pbsUpdateBaseStatsCheckBox.isVisible());
         settings.setUpdateBaseStatsToGeneration(pbsUpdateComboBox.getSelectedIndex() + (Math.max(6,romHandler.generationOfPokemon()+1)));
@@ -2002,6 +2004,9 @@ public class NewRandomizerGUI {
         pbsRandomRadioButton.setVisible(true);
         pbsRandomRadioButton.setEnabled(false);
         pbsRandomRadioButton.setSelected(false);
+        pbsScriptedRadioButton.setVisible(true);
+        pbsScriptedRadioButton.setEnabled(false);
+        pbsScriptedRadioButton.setSelected(false);
         pbsLegendariesSlowRadioButton.setVisible(true);
         pbsLegendariesSlowRadioButton.setEnabled(false);
         pbsLegendariesSlowRadioButton.setSelected(false);
@@ -2698,6 +2703,7 @@ public class NewRandomizerGUI {
             pbsUnchangedRadioButton.setSelected(true);
             pbsShuffleRadioButton.setEnabled(true);
             pbsRandomRadioButton.setEnabled(true);
+            pbsScriptedRadioButton.setEnabled(true);
 
             pbsStandardizeEXPCurvesCheckBox.setEnabled(true);
             pbsLegendariesSlowRadioButton.setSelected(true);
@@ -3136,7 +3142,7 @@ public class NewRandomizerGUI {
             pbsFollowMegaEvosCheckBox.setEnabled(followMegaEvolutionControlsEnabled);
         }
 
-        if (pbsRandomRadioButton.isSelected()) {
+        if (pbsRandomRadioButton.isSelected() || pbsScriptedRadioButton.isSelected()) {
             if (pbsFollowEvolutionsCheckBox.isSelected() || pbsFollowMegaEvosCheckBox.isSelected()) {
                 pbsAssignEvoStatsRandomlyCheckBox.setEnabled(true);
             } else {
@@ -4364,6 +4370,29 @@ public class NewRandomizerGUI {
         if(pmsScriptEggCheckBox.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addBaseStatsScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's base stats",
+                "#pokemon - a Pokemon object representing the pokemon whose base stats are being changed",
+                "#",
+                "#return: a dictionary of structure: { \"hp\": int, \"atk\": int, \"def\": int, \"spatk\": int, \"spdef\": int, \"spd\": int }, missing keys are ignored",
+                "#NOTE: if options for carrying base stats over to (mega-)evolutions are selected, only base pokemon will be put through this function",
+                "#NOTE: the \"Update Base Stats to Generation\" option is applied before this function is run"
+        };
+        String funcDeclaration = "def setBaseStats(pokemon):";
+        String funcBody = "\n\tresult = { \"hp\": 5, \"atk\": pokemon.attack / 2 }\n\treturn result";
+
+        if(pbsScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

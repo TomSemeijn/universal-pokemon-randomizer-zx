@@ -69,7 +69,7 @@ public class Settings {
     private boolean dualTypeOnly;
 
     public enum BaseStatisticsMod {
-        UNCHANGED, SHUFFLE, RANDOM,
+        UNCHANGED, SHUFFLE, RANDOM, SCRIPTED
     }
 
     public enum ExpCurveMod {
@@ -390,7 +390,7 @@ public class Settings {
         // 1: pokemon base stats & abilities
         out.write(makeByteSelected(baseStatsFollowEvolutions, baseStatisticsMod == BaseStatisticsMod.RANDOM,
                 baseStatisticsMod == BaseStatisticsMod.SHUFFLE, baseStatisticsMod == BaseStatisticsMod.UNCHANGED,
-                standardizeEXPCurves, updateBaseStats, baseStatsFollowMegaEvolutions, assignEvoStatsRandomly));
+                baseStatisticsMod == BaseStatisticsMod.SCRIPTED, updateBaseStats, baseStatsFollowMegaEvolutions, assignEvoStatsRandomly));
 
         // 2: pokemon types & more general options
         out.write(makeByteSelected(typesMod == TypesMod.RANDOM_FOLLOW_EVOLUTIONS,
@@ -611,7 +611,7 @@ public class Settings {
         out.write(eliteFourUniquePokemonNumber);
 
         // 52 extra scripting options
-        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves));
+        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves, standardizeEXPCurves));
 
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
@@ -662,9 +662,10 @@ public class Settings {
 
         settings.setBaseStatisticsMod(restoreEnum(BaseStatisticsMod.class, data[1], 3, // UNCHANGED
                 2, // SHUFFLE
-                1 // RANDOM
+                1, // RANDOM
+                4  // SCRIPTED
         ));
-        settings.setStandardizeEXPCurves(restoreState(data[1], 4));
+        settings.setStandardizeEXPCurves(restoreState(data[52], 4));
         settings.setBaseStatsFollowEvolutions(restoreState(data[1], 0));
         settings.setUpdateBaseStats(restoreState(data[1], 5));
         settings.setBaseStatsFollowMegaEvolutions(restoreState(data[1],6));

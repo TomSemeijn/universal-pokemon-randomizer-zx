@@ -205,6 +205,7 @@ public class Randomizer {
                 pokemonTraitsChanged = true;
                 break;
             case RANDOM:
+            case SCRIPTED:
                 romHandler.randomizePokemonStats(settings);
                 pokemonTraitsChanged = true;
                 break;
