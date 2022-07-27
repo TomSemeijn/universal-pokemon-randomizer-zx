@@ -31,7 +31,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
     private Style classStyle;
 
     private static String[] keywords = {
-            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not", "class", "self", "pass", "del", "None"
+            "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not", "class", "self", "pass", "del", "None", "is", "and", "or"
     };
 
     public JythonStyledDocument() {
