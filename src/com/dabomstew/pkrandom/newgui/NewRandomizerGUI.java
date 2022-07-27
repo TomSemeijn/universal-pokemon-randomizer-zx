@@ -1149,6 +1149,7 @@ public class NewRandomizerGUI {
         sScriptInput.setBackground(new Color(50, 50, 50));
         sScriptInput.setCaretColor(Color.white);
         sScriptInput.getDocument().addDocumentListener(new JythonDocumentListener());
+        sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput));
 
         LineNumbersView lineNumbers = new LineNumbersView(sScriptInput, 28 * 4, 25, Color.WHITE, Color.RED, new Color(37, 37, 37));
 
