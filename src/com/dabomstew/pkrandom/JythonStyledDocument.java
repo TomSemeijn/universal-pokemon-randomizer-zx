@@ -411,7 +411,7 @@ public class JythonStyledDocument extends DefaultStyledDocument {
             for(int k = nameStart; k < content.length(); k++)
             {
                 char c = content.charAt(k);
-                if(c == ' ' || c == '\t' || c == ':')
+                if(c == ' ' || c == '\t' || c == ':' || c == '(')
                 {
                     nameEnd = k;
                     break;
