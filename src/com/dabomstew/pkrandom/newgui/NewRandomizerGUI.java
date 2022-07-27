@@ -317,6 +317,7 @@ public class NewRandomizerGUI {
     private JScrollPane sScriptInputScrollPane;
     private JRadioButton pbsScriptedRadioButton;
     private JRadioButton ptScriptedRadioButton;
+    private JRadioButton paScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -435,6 +436,8 @@ public class NewRandomizerGUI {
         pbsStandardizeEXPCurvesCheckBox.addActionListener(e -> enableOrDisableSubControls());
         paUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         paRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        paScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        paScriptedRadioButton.addActionListener(e -> addPokemonAbilityScriptFunc());
         peUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         peRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         peRandomEveryLevelRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1425,6 +1428,7 @@ public class NewRandomizerGUI {
 
         paUnchangedRadioButton.setSelected(settings.getAbilitiesMod() == Settings.AbilitiesMod.UNCHANGED);
         paRandomRadioButton.setSelected(settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE);
+        paScriptedRadioButton.setSelected(settings.getAbilitiesMod() == Settings.AbilitiesMod.SCRIPTED);
         paAllowWonderGuardCheckBox.setSelected(settings.isAllowWonderGuard());
         paFollowEvolutionsCheckBox.setSelected(settings.isAbilitiesFollowEvolutions());
         paTrappingAbilitiesCheckBox.setSelected(settings.isBanTrappingAbilities());
@@ -1684,7 +1688,7 @@ public class NewRandomizerGUI {
         settings.setBaseStatsFollowMegaEvolutions(pbsFollowMegaEvosCheckBox.isSelected() && pbsFollowMegaEvosCheckBox.isVisible());
         settings.setAssignEvoStatsRandomly(pbsAssignEvoStatsRandomlyCheckBox.isSelected() && pbsAssignEvoStatsRandomlyCheckBox.isVisible());
 
-        settings.setAbilitiesMod(paUnchangedRadioButton.isSelected(), paRandomRadioButton.isSelected());
+        settings.setAbilitiesMod(paUnchangedRadioButton.isSelected(), paRandomRadioButton.isSelected(), paScriptedRadioButton.isSelected());
         settings.setAllowWonderGuard(paAllowWonderGuardCheckBox.isSelected());
         settings.setAbilitiesFollowEvolutions(paFollowEvolutionsCheckBox.isSelected());
         settings.setBanTrappingAbilities(paTrappingAbilitiesCheckBox.isSelected());
@@ -2068,6 +2072,9 @@ public class NewRandomizerGUI {
         paRandomRadioButton.setVisible(true);
         paRandomRadioButton.setEnabled(false);
         paRandomRadioButton.setSelected(false);
+        paScriptedRadioButton.setVisible(true);
+        paScriptedRadioButton.setEnabled(false);
+        paScriptedRadioButton.setSelected(false);
         paAllowWonderGuardCheckBox.setVisible(true);
         paAllowWonderGuardCheckBox.setEnabled(false);
         paAllowWonderGuardCheckBox.setSelected(false);
@@ -2739,6 +2746,7 @@ public class NewRandomizerGUI {
                 paUnchangedRadioButton.setEnabled(true);
                 paUnchangedRadioButton.setSelected(true);
                 paRandomRadioButton.setEnabled(true);
+                paScriptedRadioButton.setEnabled(true);
 
                 paAllowWonderGuardCheckBox.setEnabled(false);
                 paFollowEvolutionsCheckBox.setEnabled(false);
@@ -3199,10 +3207,10 @@ public class NewRandomizerGUI {
             ptIsDualTypeCheckBox.setSelected(false);
         }
         else{
-            ptIsDualTypeCheckBox.setEnabled(true);
+            ptIsDualTypeCheckBox.setEnabled(!ptUnchangedRadioButton.isSelected());
         }
 
-        if (paRandomRadioButton.isSelected()) {
+        if (paRandomRadioButton.isSelected() || paScriptedRadioButton.isSelected()) {
             paAllowWonderGuardCheckBox.setEnabled(true);
             paFollowEvolutionsCheckBox.setEnabled(followEvolutionControlsEnabled);
             paFollowMegaEvosCheckBox.setEnabled(followMegaEvolutionControlsEnabled);
@@ -3210,7 +3218,14 @@ public class NewRandomizerGUI {
             paNegativeAbilitiesCheckBox.setEnabled(true);
             paBadAbilitiesCheckBox.setEnabled(true);
             paWeighDuplicatesTogetherCheckBox.setEnabled(true);
-            paEnsureTwoAbilitiesCheckbox.setEnabled(true);
+            if(paScriptedRadioButton.isSelected())
+            {
+                paEnsureTwoAbilitiesCheckbox.setEnabled(false);
+                paEnsureTwoAbilitiesCheckbox.setSelected(false);
+            }
+            else{
+                paEnsureTwoAbilitiesCheckbox.setEnabled(true);
+            }
         } else {
             paAllowWonderGuardCheckBox.setEnabled(false);
             paAllowWonderGuardCheckBox.setSelected(false);
@@ -4435,6 +4450,32 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addPokemonAbilityScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's abilities",
+                "#pokemon - a Pokemon object representing the pokemon whose abilities are being changed",
+                "#maxAbilities - the maximum number of abilities to select (any extra will be ignored)",
+                "#bannedAbilities - abilities that cannot be chosen from (doing so will cause an exception)",
+                "#highestAbilityIndex - highest ability index that can be chosen from (choosing a higher index will cause an exception)",
+                "#",
+                "#return: an array of ability indices, an index fo 0 means there is no ability in the given slot, if there are no abilities at all the pokemon will get the illuminate ability",
+                "#NOTE: you can access abilities through the imported Abilities class"
+        };
+        String funcDeclaration = "def selectPokemonAbilities(pokemon, maxAbilities, bannedAbilities, highestAbilityIndex):";
+        String funcBody = "\n\tresult = [Abilities.sturdy, Abilities.speedBoost]\n\tfor index, ability in enumerate(result):\n\t\tif(ability in bannedAbilities or ability > highestAbilityIndex):\n\t\t\tresult[index] = 0\n\treturn result";
+
+        if(paScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Abilities");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

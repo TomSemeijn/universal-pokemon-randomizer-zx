@@ -87,7 +87,7 @@ public class Settings {
     private ExpCurveMod expCurveMod = ExpCurveMod.LEGENDARIES;
 
     public enum AbilitiesMod {
-        UNCHANGED, RANDOMIZE
+        UNCHANGED, RANDOMIZE, SCRIPTED
     }
 
     private AbilitiesMod abilitiesMod = AbilitiesMod.UNCHANGED;
@@ -399,8 +399,8 @@ public class Settings {
 
         // 3: v171: changed to the abilities byte
         out.write(makeByteSelected(abilitiesMod == AbilitiesMod.UNCHANGED, abilitiesMod == AbilitiesMod.RANDOMIZE,
-                allowWonderGuard, abilitiesFollowEvolutions, banTrappingAbilities, banNegativeAbilities, banBadAbilities,
-                abilitiesFollowMegaEvolutions));
+                abilitiesMod == AbilitiesMod.SCRIPTED, abilitiesFollowEvolutions, banTrappingAbilities,
+                banNegativeAbilities, banBadAbilities, abilitiesFollowMegaEvolutions));
 
         // 4: starter pokemon stuff
         out.write(makeByteSelected(startersMod == StartersMod.CUSTOM, startersMod == StartersMod.COMPLETELY_RANDOM,
@@ -611,7 +611,10 @@ public class Settings {
         out.write(eliteFourUniquePokemonNumber);
 
         // 52 extra scripting options
-        out.write(makeByteSelected(scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves, standardizeEXPCurves, raceMode));
+        out.write(makeByteSelected(
+                scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves,
+                standardizeEXPCurves, raceMode, allowWonderGuard
+        ));
 
         try {
             byte[] romName = this.romName.getBytes("US-ASCII");
@@ -682,9 +685,10 @@ public class Settings {
         settings.setTypesFollowMegaEvolutions(restoreState(data[2],6));
         settings.setDualTypeOnly(restoreState(data[2], 7));
         settings.setAbilitiesMod(restoreEnum(AbilitiesMod.class, data[3], 0, // UNCHANGED
-                1 // RANDOMIZE
+                1, // RANDOMIZE
+                2  // SCRIPTED
         ));
-        settings.setAllowWonderGuard(restoreState(data[3], 2));
+        settings.setAllowWonderGuard(restoreState(data[52], 7));
         settings.setAbilitiesFollowEvolutions(restoreState(data[3], 3));
         settings.setBanTrappingAbilities(restoreState(data[3], 4));
         settings.setBanNegativeAbilities(restoreState(data[3], 5));

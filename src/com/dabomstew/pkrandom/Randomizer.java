@@ -214,7 +214,7 @@ public class Randomizer {
         }
 
         // Abilities
-        if (settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE) {
+        if (settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE || settings.getAbilitiesMod() == Settings.AbilitiesMod.SCRIPTED) {
             romHandler.randomizeAbilities(settings);
             pokemonTraitsChanged = true;
         }

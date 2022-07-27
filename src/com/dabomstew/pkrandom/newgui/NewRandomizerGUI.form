@@ -496,7 +496,7 @@
                   </hspacer>
                   <vspacer id="2747c">
                     <constraints>
-                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.1"/>
                     </constraints>
                   </vspacer>
@@ -534,20 +534,9 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paAllowWonderGuardCheckBox.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="18744" class="javax.swing.JCheckBox" binding="paFollowEvolutionsCheckBox" default-binding="true">
-                    <constraints>
-                      <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag top="0" left="5" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowEvolutionsCheckBox.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowEvolutionsCheckBox.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="5694" class="javax.swing.JLabel">
                     <constraints>
-                      <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag top="5" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -556,7 +545,7 @@
                   </component>
                   <component id="5afb0" class="javax.swing.JCheckBox" binding="paTrappingAbilitiesCheckBox">
                     <constraints>
-                      <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag top="0" left="5" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -567,7 +556,7 @@
                   </component>
                   <component id="76ea8" class="javax.swing.JCheckBox" binding="paNegativeAbilitiesCheckBox">
                     <constraints>
-                      <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -579,7 +568,7 @@
                   </component>
                   <component id="4ac30" class="javax.swing.JCheckBox" binding="paBadAbilitiesCheckBox">
                     <constraints>
-                      <grid row="3" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="4" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -608,6 +597,28 @@
                       <enabled value="false"/>
                       <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paEnsureTwoAbilitiesCheckbox.text"/>
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paEnsureTwoAbilitiesCheckbox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="57e2" class="javax.swing.JRadioButton" binding="paScriptedRadioButton">
+                    <constraints>
+                      <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to select pokemon abilities"/>
+                    </properties>
+                  </component>
+                  <component id="18744" class="javax.swing.JCheckBox" binding="paFollowEvolutionsCheckBox" default-binding="true">
+                    <constraints>
+                      <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag top="0" left="5" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowEvolutionsCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.paFollowEvolutionsCheckBox.toolTipText"/>
                     </properties>
                   </component>
                   <component id="b3439" class="javax.swing.JCheckBox" binding="paFollowMegaEvosCheckBox">
@@ -3986,6 +3997,7 @@
     <group name="pokemonAbilityButtonGroup">
       <member id="fa40d"/>
       <member id="5bd6c"/>
+      <member id="57e2"/>
     </group>
     <group name="starterButtonGroup">
       <member id="124c"/>

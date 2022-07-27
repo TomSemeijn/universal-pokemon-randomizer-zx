@@ -543,6 +543,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean weighDuplicatesTogether = settings.isWeighDuplicateAbilitiesTogether();
         boolean ensureTwoAbilities = settings.isEnsureTwoAbilities();
         boolean doubleBattleMode = settings.isDoubleBattleMode();
+        boolean scripted = settings.getAbilitiesMod() == Settings.AbilitiesMod.SCRIPTED;
 
         // Abilities don't exist in some games...
         if (this.abilitiesPerPokemon() == 0) {
@@ -589,24 +590,40 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (pk.ability1 != Abilities.wonderGuard
                         && pk.ability2 != Abilities.wonderGuard
                         && pk.ability3 != Abilities.wonderGuard) {
-                    // Pick first ability
-                    pk.ability1 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
 
-                    // Second ability?
-                    if (ensureTwoAbilities || AbstractRomHandler.this.random.nextDouble() < 0.5) {
-                        // Yes, second ability
-                        pk.ability2 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1);
-                    } else {
-                        // Nope
-                        pk.ability2 = 0;
+                    //select abilities through scripting
+                    if(scripted)
+                    {
+                        try{
+                            settings.getScript().updateScriptedPokemonAbilities(pk, abilitiesPerPokemon(), bannedAbilities, maxAbility);
+                        }
+                        catch(Exception exception) {
+                            //TODO: Handle this
+                            System.out.println(exception);
+                        }
+                    }
+                    //select abilities like normal
+                    else{
+                        // Pick first ability
+                        pk.ability1 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
+
+                        // Second ability?
+                        if (ensureTwoAbilities || AbstractRomHandler.this.random.nextDouble() < 0.5) {
+                            // Yes, second ability
+                            pk.ability2 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1);
+                        } else {
+                            // Nope
+                            pk.ability2 = 0;
+                        }
+
+                        // Third ability?
+                        if (hasDWAbilities) {
+                            pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1, pk.ability2);
+                        }
                     }
 
-                    // Third ability?
-                    if (hasDWAbilities) {
-                        pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1, pk.ability2);
-                    }
                 }
             }, (evFrom, evTo, toMonIsFinalEvo) -> {
                 if (evTo.ability1 != Abilities.wonderGuard
@@ -628,24 +645,41 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (pk.ability1 != Abilities.wonderGuard
                         && pk.ability2 != Abilities.wonderGuard
                         && pk.ability3 != Abilities.wonderGuard) {
-                    // Pick first ability
-                    pk.ability1 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
 
-                    // Second ability?
-                    if (ensureTwoAbilities || this.random.nextDouble() < 0.5) {
-                        // Yes, second ability
-                        pk.ability2 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1);
-                    } else {
-                        // Nope
-                        pk.ability2 = 0;
+                    //select abilities through scripting
+                    if(scripted)
+                    {
+                        try{
+                            settings.getScript().updateScriptedPokemonAbilities(pk, abilitiesPerPokemon(), bannedAbilities, maxAbility);
+                        }
+                        catch(Exception exception) {
+                            //TODO: Handle this
+                            System.out.println(exception);
+                        }
+                    }
+                    //select abilities normally
+                    else
+                    {
+                        // Pick first ability
+                        pk.ability1 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether);
+
+                        // Second ability?
+                        if (ensureTwoAbilities || this.random.nextDouble() < 0.5) {
+                            // Yes, second ability
+                            pk.ability2 = this.pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1);
+                        } else {
+                            // Nope
+                            pk.ability2 = 0;
+                        }
+
+                        // Third ability?
+                        if (hasDWAbilities) {
+                            pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
+                                    pk.ability1, pk.ability2);
+                        }
                     }
 
-                    // Third ability?
-                    if (hasDWAbilities) {
-                        pk.ability3 = pickRandomAbility(maxAbility, bannedAbilities, weighDuplicatesTogether,
-                                pk.ability1, pk.ability2);
-                    }
                 }
             }
         }

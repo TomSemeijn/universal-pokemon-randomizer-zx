@@ -1,5 +1,6 @@
 package com.dabomstew.pkrandom;
 
+import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.pokemon.*;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
@@ -152,5 +153,47 @@ public class ScriptInstance {
 
         pokemon.primaryType = primary;
         pokemon.secondaryType = secondary;
+    }
+
+    public void updateScriptedPokemonAbilities(Pokemon pokemon, int maxAbilities, List<Integer> bannedAbilities, int highestAbilityIndex) throws Exception
+    {
+        PyFunction func = (PyFunction)interp.get("selectPokemonAbilities");
+        PyList result = (PyList)(func.__call__(Py.java2py(pokemon), new PyInteger(maxAbilities), Py.java2py(bannedAbilities), new PyInteger(highestAbilityIndex)));
+
+        //get and verify chosen abilities
+        int chosen[] = { 0, 0, 0 };
+        for(int k = 0; k < result.size(); k++)
+        {
+            int ability = (Integer)result.get(k);
+            if(bannedAbilities.contains(ability))
+            {
+                throw new Exception("Chose a banned ability!");
+            }
+            if(ability > highestAbilityIndex || ability < 0)
+            {
+                throw new Exception("Ability index out of given range!");
+            }
+            chosen[k] = ability;
+        }
+
+        //shift abilities when first is 0
+        for(int k = 0; k < 3; k++)
+        {
+            if(chosen[0] == 0)
+            {
+                chosen[0] = chosen[1];
+                chosen[1] = chosen[2];
+                chosen[2] = 0;
+            }
+            else{ break; }
+        }
+
+        //pick illuminate if the first ability is still 0 (in which case all abilities are)
+        if(chosen[0] == 0) { chosen[0] = Abilities.illuminate; }
+
+        //set abilities
+        pokemon.ability1 = chosen[0];
+        if(maxAbilities >= 2) { pokemon.ability2 = chosen[1]; }
+        if(maxAbilities >= 3) { pokemon.ability3 = chosen[2]; }
     }
 }
