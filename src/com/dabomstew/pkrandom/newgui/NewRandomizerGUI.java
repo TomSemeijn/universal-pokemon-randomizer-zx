@@ -35,6 +35,7 @@ import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
+import com.rememberjava.ui.LineNumbersView;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -315,6 +316,7 @@ public class NewRandomizerGUI {
     private JCheckBox pmsScriptLearntCheckBox;
     private JCheckBox pmsScriptEggCheckBox;
     private JCheckBox pmsScriptLearnAfterCheckBox;
+    private JScrollPane sScriptInputScrollPane;
 
     private static JFrame frame;
 
@@ -1147,6 +1149,11 @@ public class NewRandomizerGUI {
         sScriptInput.setBackground(new Color(50, 50, 50));
         sScriptInput.setCaretColor(Color.white);
         sScriptInput.getDocument().addDocumentListener(new JythonDocumentListener());
+
+        LineNumbersView lineNumbers = new LineNumbersView(sScriptInput, 28 * 4, 25, Color.WHITE, Color.RED, new Color(37, 37, 37));
+
+        sScriptInputScrollPane = new JScrollPane(sScriptInput);
+        sScriptInputScrollPane.setRowHeaderView(lineNumbers);
     }
 
 
