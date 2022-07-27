@@ -28,6 +28,8 @@ public class JythonStyledDocument extends DefaultStyledDocument {
 
     private Style importStyle;
 
+    private Style classStyle;
+
     private static String[] keywords = {
             "def", "import", "from", "return", "for", "in", "if", "else", "elif", "match", "case", "not", "class", "self", "pass", "del"
     };
@@ -59,6 +61,9 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         StyleConstants.setForeground(importStyle, new Color(154, 154, 154));
         StyleConstants.setItalic(importStyle, true);
         StyleConstants.setBold(importStyle, true);
+        classStyle = styleContext.addStyle("class", null);
+        StyleConstants.setForeground(classStyle, new Color(78, 201, 176));
+        StyleConstants.setBold(classStyle, true);
     }
 
     public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
@@ -91,8 +96,9 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         setStyleOf(memberStyle, findMembers(text));
 
         setStyleOf(funcStyle, findFunctions(text));
-        setStyleOf(funcStyle, findClassDefNames(text));
         setStyleOf(importStyle, findImportLines(text, commentsAndStrings[0], commentsAndStrings[1]));
+        setStyleOf(classStyle, findClasses(text, commentsAndStrings[0], commentsAndStrings[1]));
+        setStyleOf(classStyle, findImportedClasses(text, commentsAndStrings[0], commentsAndStrings[1]));
         setStyleOf(keywordStyle, findKeywords(text));
         setStyleOf(boolStyle, findBools(text));
         setStyleOf(numericLiteralStyle, findNumericLiterals(text));
@@ -381,13 +387,15 @@ public class JythonStyledDocument extends DefaultStyledDocument {
         return toReturn;
     }
 
-    private static List<HiliteWord> findClassDefNames(String content)
+    private static List<HiliteWord> findClasses(String content, List<HiliteWord> comments, List<HiliteWord> strings)
     {
-        List<HiliteWord> toReturn = new ArrayList<>();
+        List<HiliteWord> nameDefs = new ArrayList<>();
 
         List<HiliteWord> classKeywords = findWords(content, (str, i) -> str.equals("class"));
         for(HiliteWord keyword : classKeywords)
         {
+            if(intersectsCommentOrString(keyword, comments, strings)){ continue; } //skip if class is commented out
+
             int nameStart = -1;
             for(int k = keyword._position + keyword._word.length(); k < content.length(); k++)
             {
@@ -409,7 +417,37 @@ public class JythonStyledDocument extends DefaultStyledDocument {
                     break;
                 }
             }
-            toReturn.add(new HiliteWord(content.substring(nameStart, nameEnd), nameStart));
+            nameDefs.add(new HiliteWord(content.substring(nameStart, nameEnd), nameStart));
+        }
+
+        //create the result and add all class definitions to it
+        List<HiliteWord> toReturn = new ArrayList<>();
+        toReturn.addAll(nameDefs);
+
+        //find all usages of defined classes after their definitions and add them to the result
+        for(HiliteWord def : nameDefs)
+        {
+            toReturn.addAll(findWords(content, (str, i) -> str.trim().equals(def._word) && i > def._position));
+        }
+
+        return toReturn;
+    }
+
+    private static List<HiliteWord> findImportedClasses(String content, List<HiliteWord> comments, List<HiliteWord> strings)
+    {
+        List<HiliteWord> toReturn = new ArrayList<>();
+
+        List<HiliteWord> importKeywords = findWords(content, (str, i) -> str.equals("import"));
+        for(HiliteWord def : importKeywords)
+        {
+            if(intersectsCommentOrString(def, comments, strings)){ continue; } //skip if import is commented out
+
+            final int classNameStart = def._position + def._word.length() + 1;
+            int classNameEnd = classNameStart;
+            while(content.length() > classNameEnd && content.charAt(classNameEnd) != '\n'){ classNameEnd++; }
+
+            String importedClass = content.substring(classNameStart, classNameEnd).trim();
+            toReturn.addAll(findWords(content, (str, i) -> str.trim().equals(importedClass) && i >= classNameStart - 1));
         }
 
         return toReturn;
