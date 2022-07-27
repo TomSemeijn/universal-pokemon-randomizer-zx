@@ -6214,32 +6214,47 @@ public abstract class AbstractRomHandler implements RomHandler {
         ExpCurve expCurve = settings.getSelectedEXPCurve();
 
         List<Pokemon> pokes = getPokemonInclFormes();
-        switch (mod) {
-            case LEGENDARIES:
-                for (Pokemon pkmn : pokes) {
-                    if (pkmn == null) {
-                        continue;
-                    }
-                    pkmn.growthCurve = pkmn.isLegendary() ? ExpCurve.SLOW : expCurve;
+
+        //choose EXP curves through scripting
+        if(settings.isScriptEXPCurves())
+        {
+            for (Pokemon pkmn : pokes) {
+                if (pkmn == null) {
+                    continue;
                 }
-                break;
-            case STRONG_LEGENDARIES:
-                for (Pokemon pkmn : pokes) {
-                    if (pkmn == null) {
-                        continue;
-                    }
-                    pkmn.growthCurve = pkmn.isStrongLegendary() ? ExpCurve.SLOW : expCurve;
-                }
-                break;
-            case ALL:
-                for (Pokemon pkmn : pokes) {
-                    if (pkmn == null) {
-                        continue;
-                    }
-                    pkmn.growthCurve = expCurve;
-                }
-                break;
+                pkmn.growthCurve = settings.getScript().getScriptedEXPCurve(pkmn);
+            }
         }
+        //choose EXP curves normally
+        else{
+            switch (mod) {
+                case LEGENDARIES:
+                    for (Pokemon pkmn : pokes) {
+                        if (pkmn == null) {
+                            continue;
+                        }
+                        pkmn.growthCurve = pkmn.isLegendary() ? ExpCurve.SLOW : expCurve;
+                    }
+                    break;
+                case STRONG_LEGENDARIES:
+                    for (Pokemon pkmn : pokes) {
+                        if (pkmn == null) {
+                            continue;
+                        }
+                        pkmn.growthCurve = pkmn.isStrongLegendary() ? ExpCurve.SLOW : expCurve;
+                    }
+                    break;
+                case ALL:
+                    for (Pokemon pkmn : pokes) {
+                        if (pkmn == null) {
+                            continue;
+                        }
+                        pkmn.growthCurve = expCurve;
+                    }
+                    break;
+            }
+        }
+
     }
 
     /* Private methods/structs used internally by the above methods */

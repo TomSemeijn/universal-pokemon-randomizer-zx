@@ -167,7 +167,7 @@ public class Randomizer {
         }
 
         // Standardize EXP curves
-        if (settings.isStandardizeEXPCurves()) {
+        if (settings.isStandardizeEXPCurves() || settings.isScriptEXPCurves()) {
             romHandler.standardizeEXPCurves(settings);
         }
 

@@ -68,7 +68,7 @@ public class NewRandomizerGUI {
     private JRadioButton pbsLegendariesSlowRadioButton;
     private JRadioButton pbsStrongLegendariesSlowRadioButton;
     private JRadioButton pbsAllMediumFastRadioButton;
-    private JCheckBox pbsStandardizeEXPCurvesCheckBox;
+    private JRadioButton pbsStandardizeEXPCurvesRadioButton;
     private JCheckBox pbsFollowEvolutionsCheckBox;
     private JCheckBox pbsUpdateBaseStatsCheckBox;
     private JCheckBox ptIsDualTypeCheckBox;
@@ -318,6 +318,8 @@ public class NewRandomizerGUI {
     private JRadioButton pbsScriptedRadioButton;
     private JRadioButton ptScriptedRadioButton;
     private JRadioButton paScriptedRadioButton;
+    private JRadioButton pbsUnchangedEXPCurveRadioButton;
+    private JRadioButton pbsScriptedEXPCurveRadioButton;
 
     private static JFrame frame;
 
@@ -433,7 +435,10 @@ public class NewRandomizerGUI {
         pbsScriptedRadioButton.addActionListener(e -> addBaseStatsScriptFunc());
         pbsFollowMegaEvosCheckBox.addActionListener(e -> enableOrDisableSubControls());
         pbsFollowEvolutionsCheckBox.addActionListener(e -> enableOrDisableSubControls());
-        pbsStandardizeEXPCurvesCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        pbsStandardizeEXPCurvesRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        pbsUnchangedEXPCurveRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        pbsScriptedEXPCurveRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        pbsScriptedEXPCurveRadioButton.addActionListener(e -> addPokemonEXPCurveScriptFunc());
         paUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         paRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         paScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1411,7 +1416,9 @@ public class NewRandomizerGUI {
         pbsFollowEvolutionsCheckBox.setSelected(settings.isBaseStatsFollowEvolutions());
         pbsUpdateBaseStatsCheckBox.setSelected(settings.isUpdateBaseStats());
         pbsUpdateComboBox.setSelectedIndex(Math.max(0,settings.getUpdateBaseStatsToGeneration() - (Math.max(6,romHandler.generationOfPokemon()+1))));
-        pbsStandardizeEXPCurvesCheckBox.setSelected(settings.isStandardizeEXPCurves());
+        pbsStandardizeEXPCurvesRadioButton.setSelected(settings.isStandardizeEXPCurves());
+        pbsScriptedEXPCurveRadioButton.setSelected(settings.isScriptEXPCurves());
+        pbsUnchangedEXPCurveRadioButton.setSelected(!pbsStandardizeEXPCurvesRadioButton.isSelected() && !pbsScriptedEXPCurveRadioButton.isSelected());
         pbsLegendariesSlowRadioButton.setSelected(settings.getExpCurveMod() == Settings.ExpCurveMod.LEGENDARIES);
         pbsStrongLegendariesSlowRadioButton.setSelected(settings.getExpCurveMod() == Settings.ExpCurveMod.STRONG_LEGENDARIES);
         pbsAllMediumFastRadioButton.setSelected(settings.getExpCurveMod() == Settings.ExpCurveMod.ALL);
@@ -1680,7 +1687,8 @@ public class NewRandomizerGUI {
         settings.setBaseStatsFollowEvolutions(pbsFollowEvolutionsCheckBox.isSelected());
         settings.setUpdateBaseStats(pbsUpdateBaseStatsCheckBox.isSelected() && pbsUpdateBaseStatsCheckBox.isVisible());
         settings.setUpdateBaseStatsToGeneration(pbsUpdateComboBox.getSelectedIndex() + (Math.max(6,romHandler.generationOfPokemon()+1)));
-        settings.setStandardizeEXPCurves(pbsStandardizeEXPCurvesCheckBox.isSelected());
+        settings.setStandardizeEXPCurves(pbsStandardizeEXPCurvesRadioButton.isSelected());
+        settings.setScriptEXPCurves(pbsScriptedEXPCurveRadioButton.isSelected());
         settings.setExpCurveMod(pbsLegendariesSlowRadioButton.isSelected(), pbsStrongLegendariesSlowRadioButton.isSelected(),
                 pbsAllMediumFastRadioButton.isSelected());
         ExpCurve[] expCurves = getEXPCurvesForGeneration(romHandler.generationOfPokemon());
@@ -2024,9 +2032,15 @@ public class NewRandomizerGUI {
         pbsAllMediumFastRadioButton.setVisible(true);
         pbsAllMediumFastRadioButton.setEnabled(false);
         pbsAllMediumFastRadioButton.setSelected(false);
-        pbsStandardizeEXPCurvesCheckBox.setVisible(true);
-        pbsStandardizeEXPCurvesCheckBox.setEnabled(false);
-        pbsStandardizeEXPCurvesCheckBox.setSelected(false);
+        pbsUnchangedEXPCurveRadioButton.setVisible(true);
+        pbsUnchangedEXPCurveRadioButton.setEnabled(false);
+        pbsUnchangedEXPCurveRadioButton.setSelected(false);
+        pbsScriptedEXPCurveRadioButton.setVisible(true);
+        pbsScriptedEXPCurveRadioButton.setEnabled(false);
+        pbsScriptedEXPCurveRadioButton.setSelected(false);
+        pbsStandardizeEXPCurvesRadioButton.setVisible(true);
+        pbsStandardizeEXPCurvesRadioButton.setEnabled(false);
+        pbsStandardizeEXPCurvesRadioButton.setSelected(false);
         pbsEXPCurveComboBox.setVisible(true);
         pbsEXPCurveComboBox.setEnabled(false);
         pbsEXPCurveComboBox.setSelectedIndex(0);
@@ -2719,7 +2733,10 @@ public class NewRandomizerGUI {
             pbsRandomRadioButton.setEnabled(true);
             pbsScriptedRadioButton.setEnabled(true);
 
-            pbsStandardizeEXPCurvesCheckBox.setEnabled(true);
+            pbsUnchangedEXPCurveRadioButton.setEnabled(true);
+            pbsUnchangedEXPCurveRadioButton.setSelected(true);
+            pbsScriptedEXPCurveRadioButton.setEnabled(true);
+            pbsStandardizeEXPCurvesRadioButton.setEnabled(true);
             pbsLegendariesSlowRadioButton.setSelected(true);
             pbsUpdateBaseStatsCheckBox.setEnabled(pokemonGeneration < 8);
             pbsFollowMegaEvosCheckBox.setVisible(romHandler.hasMegaEvolutions());
@@ -3170,7 +3187,7 @@ public class NewRandomizerGUI {
             pbsAssignEvoStatsRandomlyCheckBox.setSelected(false);
         }
 
-        if (pbsStandardizeEXPCurvesCheckBox.isSelected()) {
+        if (pbsStandardizeEXPCurvesRadioButton.isSelected()) {
             pbsLegendariesSlowRadioButton.setEnabled(true);
             pbsStrongLegendariesSlowRadioButton.setEnabled(true);
             pbsAllMediumFastRadioButton.setEnabled(true);
@@ -4476,6 +4493,29 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Abilities");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addPokemonEXPCurveScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies a pokemon's EXP curve",
+                "#pokemon - a Pokemon object representing the pokemon whose EXP curve is being changed",
+                "#",
+                "#return: an ExpCurve object representing the new ExpCurve of the pokemon",
+                "#NOTE: you can access ExpCurves through the imported ExpCurve class"
+        };
+        String funcDeclaration = "def selectPokemonEXPCurve(pokemon):";
+        String funcBody = "\n\tif(pokemon.number % 2 == 0):\n\t\treturn ExpCurve.SLOW\n\telse:\n\t\treturn ExpCurve.FAST";
+
+        if(pbsScriptedEXPCurveRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ExpCurve");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

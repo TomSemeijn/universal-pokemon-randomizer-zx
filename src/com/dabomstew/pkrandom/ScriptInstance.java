@@ -196,4 +196,10 @@ public class ScriptInstance {
         if(maxAbilities >= 2) { pokemon.ability2 = chosen[1]; }
         if(maxAbilities >= 3) { pokemon.ability3 = chosen[2]; }
     }
+
+    public ExpCurve getScriptedEXPCurve(Pokemon pokemon)
+    {
+        PyFunction func = (PyFunction)interp.get("selectPokemonEXPCurve");
+        return Py.tojava(func.__call__(Py.java2py(pokemon)), ExpCurve.class);
+    }
 }

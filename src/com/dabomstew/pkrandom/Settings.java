@@ -336,6 +336,8 @@ public class Settings {
 
     private boolean scriptMoveData;
 
+    private boolean scriptEXPCurves;
+
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
         byte[] settings = toString().getBytes("UTF-8");
@@ -613,7 +615,7 @@ public class Settings {
         // 52 extra scripting options
         out.write(makeByteSelected(
                 scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves,
-                standardizeEXPCurves, raceMode, allowWonderGuard
+                standardizeEXPCurves, raceMode, allowWonderGuard, scriptEXPCurves
         ));
 
         try {
@@ -931,6 +933,7 @@ public class Settings {
         settings.setScriptLearntMoves(restoreState(data[52], 1));
         settings.setScriptEggMoves(restoreState(data[52], 2));
         settings.setScriptAfterLearntMoves(restoreState(data[52], 3));
+        settings.setScriptEXPCurves(restoreState(data[52], 7));
 
         int romNameLength = data[LENGTH_OF_SETTINGS_DATA] & 0xFF;
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
@@ -2445,6 +2448,15 @@ public class Settings {
         return scriptEggMoves;
     }
 
+    public void setScriptEXPCurves(boolean scriptEXPCurves)
+    {
+        this.scriptEXPCurves = scriptEXPCurves;
+    }
+
+    public boolean isScriptEXPCurves()
+    {
+        return scriptEXPCurves;
+    }
     private static int makeByteSelected(boolean... bools) {
         if (bools.length > 8) {
             throw new IllegalArgumentException("Can't set more than 8 bits in a byte!");
