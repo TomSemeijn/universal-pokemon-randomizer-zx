@@ -4479,15 +4479,14 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies a pokemon's abilities",
                 "#pokemon - a Pokemon object representing the pokemon whose abilities are being changed",
+                "#abilitypool - a List<Integer> of all available abilities",
                 "#maxAbilities - the maximum number of abilities to select (any extra will be ignored)",
-                "#bannedAbilities - abilities that cannot be chosen from (doing so will cause an exception)",
-                "#highestAbilityIndex - highest ability index that can be chosen from (choosing a higher index will cause an exception)",
                 "#",
                 "#return: an array of ability indices, an index fo 0 means there is no ability in the given slot, if there are no abilities at all the pokemon will get the illuminate ability",
                 "#NOTE: you can access abilities through the imported Abilities class"
         };
-        String funcDeclaration = "def selectPokemonAbilities(pokemon, maxAbilities, bannedAbilities, highestAbilityIndex):";
-        String funcBody = "\n\tresult = [Abilities.sturdy, Abilities.speedBoost]\n\tfor index, ability in enumerate(result):\n\t\tif(ability in bannedAbilities or ability > highestAbilityIndex):\n\t\t\tresult[index] = 0\n\treturn result";
+        String funcDeclaration = "def selectPokemonAbilities(pokemon, abilitypool, maxAbilities):";
+        String funcBody = "\n\tresult = [Abilities.sturdy, Abilities.speedBoost]\n\tfor index, ability in enumerate(result):\n\t\tif(not ability in abilitypool):\n\t\t\tresult[index] = 0\n\treturn result";
 
         if(paScriptedRadioButton.isSelected())
         {

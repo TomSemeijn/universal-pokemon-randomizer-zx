@@ -5,6 +5,8 @@ import com.dabomstew.pkrandom.pokemon.*;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -155,23 +157,41 @@ public class ScriptInstance {
         pokemon.secondaryType = secondary;
     }
 
+    //from https://stackoverflow.com/questions/271109/iterate-static-int-values-in-java
+    private static List<Integer> getAllAbilities(Class<Abilities> c) {
+        List<Integer> list  = new ArrayList<Integer>();
+        Field[] fields = c.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                if (field.getType().equals(int.class) && Modifier.isStatic(field.getModifiers())) {
+                    list.add(field.getInt(null));
+                }
+            }
+            catch (IllegalAccessException e) {
+                // Handle exception here
+            }
+        }
+        return list;
+    }
+
     public void updateScriptedPokemonAbilities(Pokemon pokemon, int maxAbilities, List<Integer> bannedAbilities, int highestAbilityIndex) throws Exception
     {
+        //create abilitypool
+        List<Integer> abilities = getAllAbilities(Abilities.class);
+        abilities.removeIf(n -> (n > highestAbilityIndex || bannedAbilities.contains(n)));
+
+        //call funciton
         PyFunction func = (PyFunction)interp.get("selectPokemonAbilities");
-        PyList result = (PyList)(func.__call__(Py.java2py(pokemon), new PyInteger(maxAbilities), Py.java2py(bannedAbilities), new PyInteger(highestAbilityIndex)));
+        PyList result = (PyList)(func.__call__(Py.java2py(pokemon), Py.java2py(abilities), new PyInteger(maxAbilities)));
 
         //get and verify chosen abilities
         int chosen[] = { 0, 0, 0 };
         for(int k = 0; k < result.size(); k++)
         {
             int ability = (Integer)result.get(k);
-            if(bannedAbilities.contains(ability))
+            if(!abilities.contains(ability) && ability != 0)
             {
-                throw new Exception("Chose a banned ability!");
-            }
-            if(ability > highestAbilityIndex || ability < 0)
-            {
-                throw new Exception("Ability index out of given range!");
+                throw new Exception("Chose unavailable ability!");
             }
             chosen[k] = ability;
         }
