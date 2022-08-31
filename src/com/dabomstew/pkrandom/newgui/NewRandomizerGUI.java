@@ -328,6 +328,7 @@ public class NewRandomizerGUI {
     private RTextScrollPane sScriptInputScrollPane;
     private JRadioButton fiScriptedRadioButton;
     private JCheckBox fiShuffleItemsCheckBox;
+    private JRadioButton puScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -521,6 +522,9 @@ public class NewRandomizerGUI {
         shRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         puUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         puRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        puScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        puScriptedRadioButton.addActionListener(e -> addPickupItemScriptFunc());
+
         websiteLinkLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -1761,6 +1765,7 @@ public class NewRandomizerGUI {
 
         puUnchangedRadioButton.setSelected(settings.getPickupItemsMod() == Settings.PickupItemsMod.UNCHANGED);
         puRandomRadioButton.setSelected(settings.getPickupItemsMod() == Settings.PickupItemsMod.RANDOM);
+        puScriptedRadioButton.setSelected(settings.getPickupItemsMod() == Settings.PickupItemsMod.SCRIPTED);
         puBanBadItemsCheckBox.setSelected(settings.isBanBadRandomPickupItems());
 
         sScriptInput.setText(settings.getScriptSource());
@@ -1969,7 +1974,7 @@ public class NewRandomizerGUI {
         settings.setGuaranteeEvolutionItems(shGuaranteeEvolutionItemsCheckBox.isSelected());
         settings.setGuaranteeXItems(shGuaranteeXItemsCheckBox.isSelected());
 
-        settings.setPickupItemsMod(puUnchangedRadioButton.isSelected(), puRandomRadioButton.isSelected());
+        settings.setPickupItemsMod(puUnchangedRadioButton.isSelected(), puRandomRadioButton.isSelected(), puScriptedRadioButton.isSelected());
         settings.setBanBadRandomPickupItems(puBanBadItemsCheckBox.isSelected());
 
         int currentMiscTweaks = 0;
@@ -2751,6 +2756,9 @@ public class NewRandomizerGUI {
         puRandomRadioButton.setVisible(true);
         puRandomRadioButton.setEnabled(false);
         puRandomRadioButton.setSelected(false);
+        puScriptedRadioButton.setVisible(true);
+        puScriptedRadioButton.setEnabled(false);
+        puScriptedRadioButton.setSelected(false);
         puBanBadItemsCheckBox.setVisible(true);
         puBanBadItemsCheckBox.setEnabled(false);
         puBanBadItemsCheckBox.setSelected(false);
@@ -3138,6 +3146,7 @@ public class NewRandomizerGUI {
             puUnchangedRadioButton.setEnabled(true);
             puUnchangedRadioButton.setSelected(true);
             puRandomRadioButton.setEnabled(true);
+            puScriptedRadioButton.setEnabled(true);
 
             sScriptInput.setEnabled(true);
 
@@ -3931,7 +3940,8 @@ public class NewRandomizerGUI {
             shGuaranteeXItemsCheckBox.setSelected(false);
         }
 
-        if (puRandomRadioButton.isSelected() && puRandomRadioButton.isVisible() && puRandomRadioButton.isEnabled()) {
+        if ((puRandomRadioButton.isSelected() && puRandomRadioButton.isVisible() && puRandomRadioButton.isEnabled()) ||
+                (puScriptedRadioButton.isSelected() && puScriptedRadioButton.isVisible() && puScriptedRadioButton.isEnabled())) {
             puBanBadItemsCheckBox.setEnabled(true);
         } else {
             puBanBadItemsCheckBox.setEnabled(false);
@@ -4671,6 +4681,30 @@ public class NewRandomizerGUI {
         String funcBody = "\n\tif(isTM):\n\t\treturn Items.tm01\n\telse:\n\t\treturn Items.potion";
 
         if(fiScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addPickupItemScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies items gained from the pickup ability",
+                "#oldItem - an Integer representing the original pickup item",
+                "#itemPool - a List<Integer> of all available items",
+                "#",
+                "#return: an integer representing the new pickup item",
+                "#NOTE: you can access items through the imported Items class",
+                "#NOTE: in some games (gen 3 & 4) TMs can be used as pickup items and they will be included in the itempool for those games"
+        };
+        String funcDeclaration = "def selectPickupItem(oldItem, itemPool):";
+        String funcBody = "\n\tif(itemPool.contains(oldItem + 1)):\n\t\treturn oldItem + 1\n\telse:\n\t\treturn oldItem";
+
+        if(puScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

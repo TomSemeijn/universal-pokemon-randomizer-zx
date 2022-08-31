@@ -678,7 +678,7 @@ public class Randomizer {
         }
 
         // Pickup Items
-        if (settings.getPickupItemsMod() == Settings.PickupItemsMod.RANDOM) {
+        if (settings.getPickupItemsMod() == Settings.PickupItemsMod.RANDOM || settings.getPickupItemsMod() == Settings.PickupItemsMod.SCRIPTED) {
             romHandler.randomizePickupItems(settings);
             logPickupItems(log);
         }

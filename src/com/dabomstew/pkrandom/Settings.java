@@ -322,7 +322,7 @@ public class Settings {
     private ScriptInstance script;
 
     public enum PickupItemsMod {
-        UNCHANGED, RANDOM
+        UNCHANGED, RANDOM, SCRIPTED
     }
 
     private PickupItemsMod pickupItemsMod = PickupItemsMod.UNCHANGED;
@@ -610,7 +610,7 @@ public class Settings {
         // 50 pickup item randomization
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
                 pickupItemsMod == PickupItemsMod.UNCHANGED, banBadRandomPickupItems,
-                banIrregularAltFormes));
+                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED));
 
         // 51 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
@@ -928,7 +928,8 @@ public class Settings {
 
         settings.setPickupItemsMod(restoreEnum(PickupItemsMod.class, data[50],
                 1, // UNCHANGED
-                0));       // RANDOMIZE
+                0,        // RANDOMIZE
+                4));      // SCRIPTED
         settings.setBanBadRandomPickupItems(restoreState(data[50], 2));
         settings.setBanIrregularAltFormes(restoreState(data[50], 3));
 

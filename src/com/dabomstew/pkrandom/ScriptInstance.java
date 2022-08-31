@@ -228,4 +228,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectFieldItem");
         return ((PyInteger)(func.__call__(new PyInteger(oldItem), Py.java2py(itempool), new PyBoolean(isTM)))).asInt();
     }
+
+    public int getScriptedPickupItem(int oldItem, List<Integer> itempool)
+    {
+        PyFunction func = (PyFunction)interp.get("selectPickupItem");
+        return ((PyInteger)(func.__call__(new PyInteger(oldItem), Py.java2py(itempool)))).asInt();
+    }
 }

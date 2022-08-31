@@ -6213,21 +6213,44 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizePickupItems(Settings settings) {
         boolean banBadItems = settings.isBanBadRandomPickupItems();
+        boolean scripted = settings.getPickupItemsMod() == Settings.PickupItemsMod.SCRIPTED;
+        // Allow TMs in Gen 3/4 since they aren't infinite (and you get TMs from Pickup in the vanilla game)
+        boolean allowTMs = this.generationOfPokemon() == 3 || this.generationOfPokemon() == 4;
 
         ItemList possibleItems = banBadItems ? this.getNonBadItems() : this.getAllowedItems();
         List<PickupItem> currentItems = this.getPickupItems();
         List<PickupItem> newItems = new ArrayList<>();
-        for (int i = 0; i < currentItems.size(); i++) {
-            int item;
-            if (this.generationOfPokemon() == 3 || this.generationOfPokemon() == 4) {
-                // Allow TMs in Gen 3/4 since they aren't infinite (and you get TMs from Pickup in the vanilla game)
-                item = possibleItems.randomItem(this.random);
-            } else {
-                item = possibleItems.randomNonTM(this.random);
+        if(scripted)
+        {
+            List<Integer> itempool = new ArrayList<>();
+            for(int i = 0; i < possibleItems.getHighestIndex(); i++)
+            {
+                if((allowTMs || !possibleItems.isTM(i)) && possibleItems.isAllowed(i))
+                {
+                    itempool.add(i);
+                }
             }
-            PickupItem pickupItem = new PickupItem(item);
-            pickupItem.probabilities = Arrays.copyOf(currentItems.get(i).probabilities, currentItems.size());
-            newItems.add(pickupItem);
+
+            for(int i = 0; i < currentItems.size(); i++)
+            {
+                int item = settings.getScript().getScriptedPickupItem(currentItems.get(i).item, itempool);
+                PickupItem pickupItem = new PickupItem(item);
+                pickupItem.probabilities = Arrays.copyOf(currentItems.get(i).probabilities, currentItems.size());
+                newItems.add(pickupItem);
+            }
+        }
+        else{
+            for (int i = 0; i < currentItems.size(); i++) {
+                int item;
+                if (allowTMs) {
+                    item = possibleItems.randomItem(this.random);
+                } else {
+                    item = possibleItems.randomNonTM(this.random);
+                }
+                PickupItem pickupItem = new PickupItem(item);
+                pickupItem.probabilities = Arrays.copyOf(currentItems.get(i).probabilities, currentItems.size());
+                newItems.add(pickupItem);
+            }
         }
 
         this.setPickupItems(newItems);
