@@ -35,7 +35,13 @@ import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
-import com.rememberjava.ui.LineNumbersView;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
+import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rtextarea.FoldIndicator;
+import org.fife.ui.rtextarea.Gutter;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -303,7 +309,7 @@ public class NewRandomizerGUI {
     private JCheckBox paEnsureTwoAbilitiesCheckbox;
 
     private JPanel scriptingPanel;
-    private JTextPane sScriptInput;
+    private RSyntaxTextArea sScriptInput;
     private JRadioButton stpScriptedRadioButton;
     private JRadioButton igtScriptedRadioButton;
     private JRadioButton wpScriptedRadioButton;
@@ -314,12 +320,12 @@ public class NewRandomizerGUI {
     private JCheckBox pmsScriptLearntCheckBox;
     private JCheckBox pmsScriptEggCheckBox;
     private JCheckBox pmsScriptLearnAfterCheckBox;
-    private JScrollPane sScriptInputScrollPane;
     private JRadioButton pbsScriptedRadioButton;
     private JRadioButton ptScriptedRadioButton;
     private JRadioButton paScriptedRadioButton;
     private JRadioButton pbsUnchangedEXPCurveRadioButton;
     private JRadioButton pbsScriptedEXPCurveRadioButton;
+    private RTextScrollPane sScriptInputScrollPane;
 
     private static JFrame frame;
 
@@ -613,6 +619,91 @@ public class NewRandomizerGUI {
                 addTrainerScriptFunc();
             }
         });
+
+        initializeScriptInput();
+    }
+
+    private class CustomFoldIcon implements Icon {
+        private boolean collapsed;
+        private int size;
+        private int offset;
+        private Color background;
+        private Color armedBackground;
+        private Color foreground;
+        private boolean paintArmed;
+
+        CustomFoldIcon(boolean collapsed, int size, int offset, Color foreground, Color background, Color armedBackground, boolean paintArmed) {
+            this.collapsed = collapsed;
+            this.size = size;
+            this.offset = offset;
+            this.foreground = foreground;
+            this.background = background;
+            this.armedBackground = armedBackground;
+            this.paintArmed = paintArmed;
+        }
+
+        public int getIconHeight() {
+            return size;
+        }
+
+        public int getIconWidth() {
+            return size;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Color bg = background;
+            if (paintArmed && armedBackground != null) {
+                bg = armedBackground;
+            }
+
+            g.setColor(bg);
+            g.fillRect(x + offset, y, size, size);
+            g.setColor(foreground);
+            g.drawRect(x + offset, y, size, size);
+            int border = size / 4;
+            int length = size / 2;
+            g.drawLine(x + border + offset, y + length, x + border + length + offset, y + length);
+            if (this.collapsed) {
+                g.drawLine(x + length + offset, y + border, x + length + offset, y + border + length);
+            }
+
+        }
+    }
+
+    private void initializeScriptInput()
+    {
+        //set highlighting style
+        sScriptInput.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+        sScriptInput.setForeground(Color.white);
+        sScriptInput.setBackground(new Color(50, 50, 50));
+        SyntaxScheme scheme = sScriptInput.getSyntaxScheme();
+        scheme.getStyle(Token.RESERVED_WORD).foreground = new Color(86, 156, 214);
+        Color numberColor = new Color(181, 206, 168);
+        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = numberColor;
+        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = numberColor;
+        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = numberColor;
+        scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = new Color(204, 120, 50);
+        scheme.getStyle(Token.LITERAL_CHAR).foreground = new Color(211, 144, 116);
+        scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = new Color(211, 144, 116);
+        scheme.getStyle(Token.OPERATOR).foreground = new Color(156, 220, 254);
+        sScriptInput.revalidate();
+
+        //enable code folding
+        sScriptInput.setCodeFoldingEnabled(true);
+        sScriptInputScrollPane.setFoldIndicatorEnabled(true);
+        sScriptInputScrollPane.setLineNumbersEnabled(true);
+        Gutter gutter = sScriptInputScrollPane.getGutter();
+        gutter.setLineNumberFont(sScriptInput.getFont());
+        final Color foldForeground = gutter.getFoldIndicatorForeground();
+        final Color foldBackground = gutter.getFoldBackground();
+        final Color foldArmed = gutter.getArmedFoldBackground();
+        final int foldSize = 32;
+        final int foldOffset = -24;
+        gutter.setFoldIcons(new CustomFoldIcon(true, foldSize, foldOffset, foldForeground, foldBackground, foldArmed, true), new CustomFoldIcon(false, foldSize, foldOffset, foldForeground, foldBackground, foldArmed, true));
+        gutter.setSpacingBetweenLineNumbersAndFoldIndicator(32);
+
+        //add custom features
+        sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput)); //full-line copying, cutting, and pasting
     }
 
     private void showInitialPopup() {
@@ -1156,17 +1247,7 @@ public class NewRandomizerGUI {
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
-        sScriptInput = new NoWrapJTextPane(new JythonStyledDocument());
-        sScriptInput.setBackground(new Color(50, 50, 50));
-        sScriptInput.setCaretColor(Color.white);
-        sScriptInput.getDocument().addDocumentListener(new JythonDocumentListener());
-        sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput));
 
-        LineNumbersView lineNumbers = new LineNumbersView(sScriptInput, 28 * 4, 25, Color.WHITE, Color.RED, new Color(37, 37, 37));
-
-        sScriptInputScrollPane = new JScrollPane(sScriptInput);
-        sScriptInputScrollPane.setRowHeaderView(lineNumbers);
     }
 
 

@@ -13,9 +13,9 @@ import java.io.IOException;
 
 public class JythonKeyListener implements KeyListener {
 
-    private JTextPane editor;
+    private JTextArea editor;
 
-    public JythonKeyListener(JTextPane editor)
+    public JythonKeyListener(JTextArea editor)
     {
         this.editor = editor;
     }
