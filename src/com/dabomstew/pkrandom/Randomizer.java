@@ -651,6 +651,7 @@ public class Randomizer {
                 break;
             case RANDOM:
             case RANDOM_EVEN:
+            case SCRIPTED:
                 romHandler.randomizeFieldItems(settings);
                 break;
             default:

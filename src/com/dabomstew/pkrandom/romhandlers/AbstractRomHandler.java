@@ -30,6 +30,7 @@ package com.dabomstew.pkrandom.romhandlers;
 
 import java.io.PrintStream;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.dabomstew.pkrandom.*;
@@ -5368,6 +5369,8 @@ public abstract class AbstractRomHandler implements RomHandler {
     public void randomizeFieldItems(Settings settings) {
         boolean banBadItems = settings.isBanBadRandomFieldItems();
         boolean distributeItemsControl = settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM_EVEN;
+        boolean scripted = settings.getFieldItemsMod() == Settings.FieldItemsMod.SCRIPTED;
+        boolean shuffleScripted = settings.isShuffleFieldItems();
         boolean uniqueItems = !settings.isBalanceShopPrices();
 
         ItemList possibleItems = banBadItems ? this.getNonBadItems().copy() : this.getAllowedItems().copy();
@@ -5387,43 +5390,78 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         // List<Integer> chosenItems = new ArrayList<Integer>(); // collecting chosenItems for later process
 
-        if (distributeItemsControl) {
-            for (int i = 0; i < fieldItemCount; i++) {
-                int chosenItem = possibleItems.randomNonTM(this.random);
-                int iterNum = 0;
-                while ((this.getItemPlacementHistory(chosenItem) > this.getItemPlacementAverage()) && iterNum < 100) {
-                    chosenItem = possibleItems.randomNonTM(this.random);
-                    iterNum +=1;
-                }
-                newItems.add(chosenItem);
-                if (uniqueItems && uniqueNoSellItems.contains(chosenItem)) {
-                    possibleItems.banSingles(chosenItem);
-                } else {
-                    this.setItemPlacementHistory(chosenItem);
-                }
-            }
-        } else {
-            for (int i = 0; i < fieldItemCount; i++) {
-                int chosenItem = possibleItems.randomNonTM(this.random);
-                newItems.add(chosenItem);
-                if (uniqueItems && uniqueNoSellItems.contains(chosenItem)) {
-                    possibleItems.banSingles(chosenItem);
-                }
-            }
-        }
+        if(scripted)
+        {
+            for(int mode = 0; mode < 2; mode++) {
+                final boolean TMs = mode == 0; //first do items, then do TMs
 
-        for (int i = reqTMCount; i < fieldTMCount; i++) {
-            while (true) {
-                int tm = this.random.nextInt(totalTMCount) + 1;
-                if (!newTMs.contains(tm)) {
-                    newTMs.add(tm);
-                    break;
+                List<Integer> itempool = new ArrayList<>();
+                for (int i = (TMs ? reqTMCount : 0); i < (TMs ? fieldTMCount : fieldItemCount); i++) {
+
+                    //set up itempool if cleared/uninitialized
+                    if (itempool.isEmpty()) {
+                        for (int k = 0; k < possibleItems.getHighestIndex(); k++) {
+                            if (((!possibleItems.isTM(k) && !TMs) || (possibleItems.isTM(k) && TMs)) && possibleItems.isAllowed(k)) {
+                                itempool.add(k);
+                            }
+                        }
+                    }
+
+                    //choose an item and add it to the list
+                    int chosenItem = settings.getScript().getScriptedFieldItem(currentItems.get(i), itempool, TMs);
+                    (TMs ? newTMs : newItems).add(chosenItem);
+
+                    //ban the item and clear the pool for it to be reset if the chosen item needs to be unique
+                    if(!TMs) {
+                        if (uniqueItems && uniqueNoSellItems.contains(chosenItem)) {
+                            possibleItems.banSingles(chosenItem);
+                            itempool.clear();
+                        }
+                    }
                 }
             }
         }
+        else {
+            if (distributeItemsControl) {
+                for (int i = 0; i < fieldItemCount; i++) {
+                    int chosenItem = possibleItems.randomNonTM(this.random);
+                    int iterNum = 0;
+                    while ((this.getItemPlacementHistory(chosenItem) > this.getItemPlacementAverage()) && iterNum < 100) {
+                        chosenItem = possibleItems.randomNonTM(this.random);
+                        iterNum += 1;
+                    }
+                    newItems.add(chosenItem);
+                    if (uniqueItems && uniqueNoSellItems.contains(chosenItem)) {
+                        possibleItems.banSingles(chosenItem);
+                    } else {
+                        this.setItemPlacementHistory(chosenItem);
+                    }
+                }
+            } else {
+                for (int i = 0; i < fieldItemCount; i++) {
+                    int chosenItem = possibleItems.randomNonTM(this.random);
+                    newItems.add(chosenItem);
+                    if (uniqueItems && uniqueNoSellItems.contains(chosenItem)) {
+                        possibleItems.banSingles(chosenItem);
+                    }
+                }
+            }
 
+            for (int i = reqTMCount; i < fieldTMCount; i++) {
+                while (true) {
+                    int tm = this.random.nextInt(totalTMCount) + 1;
+                    if (!newTMs.contains(tm)) {
+                        newTMs.add(tm);
+                        break;
+                    }
+                }
+            }
+        }
+        if(!scripted || shuffleScripted)
+        {
+            Collections.shuffle(newItems, this.random);
+        }
 
-        Collections.shuffle(newItems, this.random);
         Collections.shuffle(newTMs, this.random);
 
         this.setRegularFieldItems(newItems);

@@ -40,10 +40,8 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rtextarea.FoldIndicator;
 import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.fife.ui.rtextarea.ToolTipSupplier;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -328,6 +326,8 @@ public class NewRandomizerGUI {
     private JRadioButton pbsUnchangedEXPCurveRadioButton;
     private JRadioButton pbsScriptedEXPCurveRadioButton;
     private RTextScrollPane sScriptInputScrollPane;
+    private JRadioButton fiScriptedRadioButton;
+    private JCheckBox fiShuffleItemsCheckBox;
 
     private static JFrame frame;
 
@@ -513,6 +513,9 @@ public class NewRandomizerGUI {
         fiShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         fiRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         fiRandomEvenDistributionRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        fiScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        fiScriptedRadioButton.addActionListener(e -> addFieldItemScriptFunc());
+        fiShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         shUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         shShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         shRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -715,9 +718,6 @@ public class NewRandomizerGUI {
         ac.setAutoActivationDelay(300);
         provider.setAutoActivationRules(true, ".");
         ac.install(sScriptInput);
-
-        //add custom features
-        //sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput)); //full-line copying, cutting, and pasting
     }
 
     private CompletionProviderBase createCompletionProvider()
@@ -1744,8 +1744,10 @@ public class NewRandomizerGUI {
         fiRandomRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM);
         fiRandomEvenDistributionRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.RANDOM_EVEN);
         fiShuffleRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.SHUFFLE);
+        fiScriptedRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.SCRIPTED);
         fiUnchangedRadioButton.setSelected(settings.getFieldItemsMod() == Settings.FieldItemsMod.UNCHANGED);
         fiBanBadItemsCheckBox.setSelected(settings.isBanBadRandomFieldItems());
+        fiShuffleItemsCheckBox.setSelected(settings.isShuffleFieldItems());
 
         shRandomRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.RANDOM);
         shShuffleRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.SHUFFLE);
@@ -1955,8 +1957,9 @@ public class NewRandomizerGUI {
         settings.setRandomizeInGameTradesNicknames(igtRandomizeNicknamesCheckBox.isSelected());
         settings.setRandomizeInGameTradesOTs(igtRandomizeOTsCheckBox.isSelected());
 
-        settings.setFieldItemsMod(fiUnchangedRadioButton.isSelected(), fiShuffleRadioButton.isSelected(), fiRandomRadioButton.isSelected(), fiRandomEvenDistributionRadioButton.isSelected());
+        settings.setFieldItemsMod(fiUnchangedRadioButton.isSelected(), fiShuffleRadioButton.isSelected(), fiRandomRadioButton.isSelected(), fiRandomEvenDistributionRadioButton.isSelected(), fiScriptedRadioButton.isSelected());
         settings.setBanBadRandomFieldItems(fiBanBadItemsCheckBox.isSelected());
+        settings.setShuffleFieldItems(fiShuffleItemsCheckBox.isSelected());
 
         settings.setShopItemsMod(shUnchangedRadioButton.isSelected(), shShuffleRadioButton.isSelected(), shRandomRadioButton.isSelected());
         settings.setBanBadRandomShopItems(shBanBadItemsCheckBox.isSelected());
@@ -2706,9 +2709,15 @@ public class NewRandomizerGUI {
         fiRandomEvenDistributionRadioButton.setVisible(true);
         fiRandomEvenDistributionRadioButton.setEnabled(false);
         fiRandomEvenDistributionRadioButton.setSelected(false);
+        fiScriptedRadioButton.setVisible(true);
+        fiScriptedRadioButton.setEnabled(false);
+        fiScriptedRadioButton.setSelected(false);
         fiBanBadItemsCheckBox.setVisible(true);
         fiBanBadItemsCheckBox.setEnabled(false);
         fiBanBadItemsCheckBox.setSelected(false);
+        fiShuffleItemsCheckBox.setVisible(true);
+        fiShuffleItemsCheckBox.setEnabled(false);
+        fiShuffleItemsCheckBox.setSelected(false);
         shUnchangedRadioButton.setVisible(true);
         shUnchangedRadioButton.setEnabled(false);
         shUnchangedRadioButton.setSelected(false);
@@ -3117,6 +3126,7 @@ public class NewRandomizerGUI {
             fiShuffleRadioButton.setEnabled(true);
             fiRandomRadioButton.setEnabled(true);
             fiRandomEvenDistributionRadioButton.setEnabled(true);
+            fiScriptedRadioButton.setEnabled(true);
 
             shopItemsPanel.setVisible(romHandler.hasShopRandomization());
             shUnchangedRadioButton.setEnabled(true);
@@ -3882,9 +3892,21 @@ public class NewRandomizerGUI {
         } else if (fiRandomEvenDistributionRadioButton.isSelected() && fiRandomEvenDistributionRadioButton.isVisible()
                 && fiRandomEvenDistributionRadioButton.isEnabled()) {
             fiBanBadItemsCheckBox.setEnabled(true);
-        } else {
+        } else if (fiScriptedRadioButton.isSelected() && fiScriptedRadioButton.isVisible()
+                && fiScriptedRadioButton.isEnabled()) {
+            fiBanBadItemsCheckBox.setEnabled(true);
+        }  else {
             fiBanBadItemsCheckBox.setEnabled(false);
             fiBanBadItemsCheckBox.setSelected(false);
+        }
+
+        if (fiScriptedRadioButton.isSelected() && fiScriptedRadioButton.isVisible()
+                && fiScriptedRadioButton.isEnabled()) {
+            fiShuffleItemsCheckBox.setEnabled(true);
+        }
+        else{
+            fiShuffleItemsCheckBox.setEnabled(false);
+            fiShuffleItemsCheckBox.setSelected(false);
         }
 
         if (shRandomRadioButton.isSelected() && shRandomRadioButton.isVisible() && shRandomRadioButton.isEnabled()) {
@@ -4624,6 +4646,33 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ExpCurve");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addFieldItemScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Modifies field items found in the overworld",
+                "#oldItem - an Integer representing the original field item",
+                "#itemPool - a List<Integer> of all available items",
+                "#isTM - True if the current field item is a TM, false otherwise",
+                "#",
+                "#return: an integer representing the new field item",
+                "#NOTE: you can access items through the imported Items class",
+                "#NOTE: when isTM is true, the itemPool will only contain TMs, otherwise it will contain every other item",
+                "#NOTE: some items are considered unique and will be removed from the itempool for the next function call if selected",
+                "#NOTE: TMs will always be shuffled afer this function is called to include some required TMs. Field items will only be shuffled if the option for it is selected"
+        };
+        String funcDeclaration = "def selectFieldItem(oldItem, itemPool, isTM):";
+        String funcBody = "\n\tif(isTM):\n\t\treturn Items.tm01\n\telse:\n\t\treturn Items.potion";
+
+        if(fiScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

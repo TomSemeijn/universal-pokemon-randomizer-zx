@@ -31,12 +31,19 @@ public class ItemList {
     private boolean[] items;
     private boolean[] tms;
 
+    private int highestIndex;
+
     public ItemList(int highestIndex) {
         items = new boolean[highestIndex + 1];
         tms = new boolean[highestIndex + 1];
         for (int i = 1; i <= highestIndex; i++) {
             items[i] = true;
         }
+        this.highestIndex = highestIndex;
+    }
+
+    public int getHighestIndex(){
+        return highestIndex;
     }
 
     public boolean isTM(int index) {

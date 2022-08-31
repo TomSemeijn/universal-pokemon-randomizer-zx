@@ -299,7 +299,7 @@ public class Settings {
     private boolean randomizeInGameTradesItems;
 
     public enum FieldItemsMod {
-        UNCHANGED, SHUFFLE, RANDOM, RANDOM_EVEN
+        UNCHANGED, SHUFFLE, RANDOM, RANDOM_EVEN, SCRIPTED
     }
 
     private FieldItemsMod fieldItemsMod = FieldItemsMod.UNCHANGED;
@@ -337,6 +337,8 @@ public class Settings {
     private boolean scriptMoveData;
 
     private boolean scriptEXPCurves;
+
+    private boolean shuffleFieldItems;
 
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
@@ -495,7 +497,8 @@ public class Settings {
 
         // 25 field items
         out.write(makeByteSelected(fieldItemsMod == FieldItemsMod.RANDOM, fieldItemsMod == FieldItemsMod.SHUFFLE,
-                fieldItemsMod == FieldItemsMod.UNCHANGED, banBadRandomFieldItems, fieldItemsMod == FieldItemsMod.RANDOM_EVEN));
+                fieldItemsMod == FieldItemsMod.UNCHANGED, banBadRandomFieldItems, fieldItemsMod == FieldItemsMod.RANDOM_EVEN,
+                fieldItemsMod == FieldItemsMod.SCRIPTED, shuffleFieldItems));
 
         // 26 move randomizers
         // + static music
@@ -818,9 +821,11 @@ public class Settings {
                 2,  // UNCHANGED
                 1,  // SHUFFLE
                 0,  // RANDOM
-                4   // RANDOM_EVEN
+                4,  // RANDOM_EVEN
+                5   // SCRIPTED
         ));
         settings.setBanBadRandomFieldItems(restoreState(data[25], 3));
+        settings.setShuffleFieldItems(restoreState(data[25], 6));
 
         // new 170
         settings.setRandomizeMovePowers(restoreState(data[26], 0));
@@ -2457,6 +2462,17 @@ public class Settings {
     {
         return scriptEXPCurves;
     }
+
+    public void setShuffleFieldItems(boolean shuffleFieldItems)
+    {
+        this.shuffleFieldItems = shuffleFieldItems;
+    }
+
+    public boolean isShuffleFieldItems()
+    {
+        return shuffleFieldItems;
+    }
+
     private static int makeByteSelected(boolean... bools) {
         if (bools.length > 8) {
             throw new IllegalArgumentException("Can't set more than 8 bits in a byte!");

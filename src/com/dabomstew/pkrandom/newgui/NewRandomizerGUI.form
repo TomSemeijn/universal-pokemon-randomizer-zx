@@ -3202,7 +3202,7 @@
                   </hspacer>
                   <vspacer id="58d9c">
                     <constraints>
-                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                   </vspacer>
@@ -3260,6 +3260,28 @@
                       <enabled value="false"/>
                       <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.fiBanBadItemsCheckBox.text"/>
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.fiBanBadItemsCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="4cc28" class="javax.swing.JRadioButton" binding="fiScriptedRadioButton">
+                    <constraints>
+                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to select field items. TMs are shuffles afterwards to include required TMs, normal items won't be shuffled by default"/>
+                    </properties>
+                  </component>
+                  <component id="28ae3" class="javax.swing.JCheckBox" binding="fiShuffleItemsCheckBox">
+                    <constraints>
+                      <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Shuffle scripted items"/>
+                      <toolTipText value="Will shuffle field items after they have been selected by the script"/>
                     </properties>
                   </component>
                 </children>
@@ -3816,8 +3838,8 @@
                 </constraints>
                 <properties>
                   <font name="Consolas" size="32"/>
-                  <iconRowHeaderEnabled value="true"/>
-                  <lineNumbersEnabled value="true"/>
+                  <iconRowHeaderEnabled value="false"/>
+                  <lineNumbersEnabled value="false"/>
                 </properties>
                 <border type="none"/>
                 <children>
@@ -4102,6 +4124,7 @@
       <member id="4bc5e"/>
       <member id="74283"/>
       <member id="b0d01"/>
+      <member id="4cc28"/>
     </group>
     <group name="shopItemButtonGroup">
       <member id="85c80"/>

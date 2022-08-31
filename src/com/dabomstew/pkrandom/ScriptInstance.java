@@ -222,4 +222,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectPokemonEXPCurve");
         return Py.tojava(func.__call__(Py.java2py(pokemon)), ExpCurve.class);
     }
+
+    public int getScriptedFieldItem(int oldItem, List<Integer> itempool, boolean isTM)
+    {
+        PyFunction func = (PyFunction)interp.get("selectFieldItem");
+        return ((PyInteger)(func.__call__(new PyInteger(oldItem), Py.java2py(itempool), new PyBoolean(isTM)))).asInt();
+    }
 }
