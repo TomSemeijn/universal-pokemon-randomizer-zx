@@ -35,6 +35,7 @@ import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
+import org.fife.ui.autocomplete.*;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
@@ -42,6 +43,7 @@ import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.FoldIndicator;
 import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.ToolTipSupplier;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -702,8 +704,34 @@ public class NewRandomizerGUI {
         gutter.setFoldIcons(new CustomFoldIcon(true, foldSize, foldOffset, foldForeground, foldBackground, foldArmed, true), new CustomFoldIcon(false, foldSize, foldOffset, foldForeground, foldBackground, foldArmed, true));
         gutter.setSpacingBetweenLineNumbersAndFoldIndicator(32);
 
+        //add autocomplete
+        CompletionProviderBase provider = createCompletionProvider();
+        AutoCompletion ac = new AutoCompletion(provider);
+        ac.setListCellRenderer(new CompletionCellRenderer());
+        ac.setShowDescWindow(true);
+        ac.setParameterAssistanceEnabled(true);
+        ac.setAutoCompleteEnabled(true);
+        ac.setAutoActivationEnabled(true);
+        ac.setAutoActivationDelay(300);
+        provider.setAutoActivationRules(true, ".");
+        ac.install(sScriptInput);
+
         //add custom features
-        sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput)); //full-line copying, cutting, and pasting
+        //sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput)); //full-line copying, cutting, and pasting
+    }
+
+    private CompletionProviderBase createCompletionProvider()
+    {
+        DefaultCompletionProvider provider = new DefaultCompletionProvider();
+
+        provider.addCompletion(new BasicCompletion(provider, "def"));
+        provider.addCompletion(new BasicCompletion(provider, "class"));
+        provider.addCompletion(new BasicCompletion(provider, "import"));
+        provider.addCompletion(new BasicCompletion(provider, "from"));
+        provider.addCompletion(new BasicCompletion(provider, "True"));
+        provider.addCompletion(new BasicCompletion(provider, "False"));
+
+        return provider;
     }
 
     private void showInitialPopup() {
