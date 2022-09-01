@@ -335,7 +335,8 @@ public class Randomizer {
         // TMs
 
         if (!(settings.getMovesetsMod() == Settings.MovesetsMod.METRONOME_ONLY)
-                && settings.getTmsMod() == Settings.TMsMod.RANDOM) {
+                &&
+                (settings.getTmsMod() == Settings.TMsMod.RANDOM || settings.getTmsMod() == Settings.TMsMod.SCRIPTED)) {
             romHandler.randomizeTMMoves(settings);
             tmMovesChanged = true;
         }

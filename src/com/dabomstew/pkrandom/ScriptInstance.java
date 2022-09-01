@@ -234,4 +234,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectPickupItem");
         return ((PyInteger)(func.__call__(new PyInteger(oldItem), Py.java2py(itempool)))).asInt();
     }
+
+    public Move getScriptedTMMove(Move oldMove, List<Move> movepool, boolean forcedDamagingMove)
+    {
+        PyFunction func = (PyFunction)interp.get("selectTMMove");
+        return Py.tojava(func.__call__(Py.java2py(oldMove), Py.java2py(movepool), new PyBoolean(forcedDamagingMove)), Move.class);
+    }
 }

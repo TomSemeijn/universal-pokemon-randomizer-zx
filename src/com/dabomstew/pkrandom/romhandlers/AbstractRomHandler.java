@@ -30,7 +30,6 @@ package com.dabomstew.pkrandom.romhandlers;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.dabomstew.pkrandom.*;
@@ -4580,6 +4579,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean noBroken = settings.isBlockBrokenTMMoves();
         boolean preserveField = settings.isKeepFieldMoveTMs();
         double goodDamagingPercentage = settings.isTmsForceGoodDamaging() ? settings.getTmsGoodDamagingPercent() / 100.0 : 0;
+        boolean scripted = settings.getTmsMod() == Settings.TMsMod.SCRIPTED;
 
         // Pick some random TM moves.
         int tmCount = this.getTMCount();
@@ -4626,12 +4626,35 @@ public abstract class AbstractRomHandler implements RomHandler {
         // Force a certain amount of good damaging moves depending on the percentage
         int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * (tmCount - preservedFieldMoveCount));
 
+        int moveIterator = -1;
         for (int i = 0; i < tmCount - preservedFieldMoveCount; i++) {
             Move chosenMove;
-            if (goodDamagingLeft > 0 && usableDamagingMoves.size() > 0) {
-                chosenMove = usableDamagingMoves.get(random.nextInt(usableDamagingMoves.size()));
-            } else {
-                chosenMove = usableMoves.get(random.nextInt(usableMoves.size()));
+            final boolean forceDamaging = goodDamagingLeft > 0 && usableDamagingMoves.size() > 0;
+            List<Move> movePool = forceDamaging ? usableDamagingMoves : usableMoves;
+            if(scripted)
+            {
+                //find the replaced move index
+                do{
+                    moveIterator++;
+                }while(preserveField && fieldMoves.contains(oldTMs.get(moveIterator))); //skip over field moves if preserved
+                Integer replacedIndex = oldTMs.get(moveIterator);
+
+                //find the replaced move object
+                Move replaced = null;
+                for(Move mv : allMoves)
+                {
+                    if(mv != null && mv.number == replacedIndex)
+                    {
+                        replaced = mv;
+                        break;
+                    }
+                }
+
+                //get the new move from the script
+                chosenMove = settings.getScript().getScriptedTMMove(replaced, movePool, forceDamaging);
+            }
+            else{
+                chosenMove = movePool.get(random.nextInt(movePool.size()));
             }
             pickedMoves.add(chosenMove.number);
             usableMoves.remove(chosenMove);

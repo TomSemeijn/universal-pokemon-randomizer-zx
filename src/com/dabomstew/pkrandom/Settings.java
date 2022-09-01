@@ -252,7 +252,7 @@ public class Settings {
     private boolean allowTotemAltFormes;
 
     public enum TMsMod {
-        UNCHANGED, RANDOM
+        UNCHANGED, RANDOM, SCRIPTED
     }
 
     private TMsMod tmsMod = TMsMod.UNCHANGED;
@@ -469,11 +469,11 @@ public class Settings {
         out.write(makeByteSelected(tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.COMPLETELY_RANDOM,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.RANDOM_PREFER_TYPE,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.UNCHANGED, tmsMod == TMsMod.RANDOM,
-                tmsMod == TMsMod.UNCHANGED, tmLevelUpMoveSanity, keepFieldMoveTMs,
+                tmsMod == TMsMod.UNCHANGED, tmsMod == TMsMod.SCRIPTED, keepFieldMoveTMs,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.FULL));
 
         // 20 tms part 2
-        out.write(makeByteSelected(fullHMCompat, tmsFollowEvolutions, tutorFollowEvolutions));
+        out.write(makeByteSelected(fullHMCompat, tmsFollowEvolutions, tutorFollowEvolutions, tmLevelUpMoveSanity));
 
         // 21 tms good damaging
         out.write((tmsForceGoodDamaging ? 0x80 : 0) | tmsGoodDamagingPercent);
@@ -774,15 +774,17 @@ public class Settings {
         settings.setAllowStaticAltFormes(restoreState(data[18], 2));
         settings.setSwapStaticMegaEvos(restoreState(data[18], 3));
         
-        settings.setTmsMod(restoreEnum(TMsMod.class, data[19], 4, // UNCHANGED
-                3 // RANDOM
+        settings.setTmsMod(restoreEnum(TMsMod.class, data[19],
+                4, // UNCHANGED
+                3, // RANDOM
+                5  // SCRIPTED
         ));
         settings.setTmsHmsCompatibilityMod(restoreEnum(TMsHMsCompatibilityMod.class, data[19], 2, // UNCHANGED
                 1, // RANDOM_PREFER_TYPE
                 0, // COMPLETELY_RANDOM
                 7 // FULL
         )); 
-        settings.setTmLevelUpMoveSanity(restoreState(data[19], 5));
+        settings.setTmLevelUpMoveSanity(restoreState(data[20], 3));
         settings.setKeepFieldMoveTMs(restoreState(data[19], 6));
 
         settings.setFullHMCompat(restoreState(data[20], 0));
