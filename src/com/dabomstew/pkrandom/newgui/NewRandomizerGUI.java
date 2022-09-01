@@ -734,6 +734,11 @@ public class NewRandomizerGUI {
         ac.setAutoActivationDelay(300);
         provider.setAutoActivationRules(true, ".");
         ac.install(sScriptInput);
+
+        //add the RandomSource import
+        String scriptText = sScriptInput.getText();
+        scriptText = addImport(scriptText, "com.dabomstew.pkrandom", "RandomSource");
+        sScriptInput.setText(scriptText);
     }
 
     private CompletionProviderBase createCompletionProvider()
