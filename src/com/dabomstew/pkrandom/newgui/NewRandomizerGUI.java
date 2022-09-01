@@ -42,6 +42,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.python.google.common.primitives.Ints;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -2100,8 +2101,10 @@ public class NewRandomizerGUI {
         }
         byte[] data = Base64.getDecoder().decode(config);
 
-        int nameLength = data[Settings.LENGTH_OF_SETTINGS_DATA] & 0xFF;
-        if (data.length != Settings.LENGTH_OF_SETTINGS_DATA + 9 + nameLength) {
+        int nameLength = data[Settings.LENGTH_OF_SETTINGS_DATA] & 0xFF; //ADD LENGTH OF SCRIPT AND SUCH TO THE CHECK BELOW!!!
+        int srcLenBase = Settings.LENGTH_OF_SETTINGS_DATA + 1 + nameLength;
+        int scriptSrcLength = Ints.fromBytes(data[srcLenBase + 0], data[srcLenBase + 1], data[srcLenBase + 2], data[srcLenBase + 3]);
+        if (data.length != Settings.LENGTH_OF_SETTINGS_DATA + 9 + nameLength + 4 + scriptSrcLength) {
             return null; // not valid length
         }
         return new String(data, Settings.LENGTH_OF_SETTINGS_DATA + 1, nameLength, "US-ASCII");
