@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Base64;
 import java.util.List;
@@ -631,7 +632,7 @@ public class Settings {
 
         try{
             byte[] scriptSource = this.scriptSource.getBytes("US-ASCII");
-            out.write(scriptSource.length);
+            writeFullInt(out, scriptSource.length);
             out.write(scriptSource);
         } catch (IOException e)
         {
@@ -950,8 +951,8 @@ public class Settings {
         String romName = new String(data, LENGTH_OF_SETTINGS_DATA + 1, romNameLength, "US-ASCII");
         settings.setRomName(romName);
 
-        int scriptSourceLength = data[LENGTH_OF_SETTINGS_DATA + 1 + romNameLength] & 0xFF;
-        String scriptSource = new String(data, LENGTH_OF_SETTINGS_DATA + 1 + romNameLength + 1, scriptSourceLength, "US-ASCII");
+        int scriptSourceLength = FileFunctions.readFullIntBigEndian(data, LENGTH_OF_SETTINGS_DATA + 1 + romNameLength);
+        String scriptSource = new String(data, LENGTH_OF_SETTINGS_DATA + 1 + romNameLength + 4, scriptSourceLength, "US-ASCII");
         settings.setScriptSource(scriptSource);
 
         return settings;
