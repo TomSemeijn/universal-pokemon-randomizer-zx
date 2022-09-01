@@ -332,6 +332,7 @@ public class NewRandomizerGUI {
     private JRadioButton tmScriptedRadioButton;
     private JRadioButton thcScriptedRadioButton;
     private JRadioButton mtcScriptedRadioButton;
+    private JRadioButton mtScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -512,6 +513,8 @@ public class NewRandomizerGUI {
         thcScriptedRadioButton.addActionListener(e -> addTMCompatFunc());
         mtUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         mtRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        mtScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        mtScriptedRadioButton.addActionListener(e -> addTutorScriptFunc());
         mtForceGoodDamagingCheckBox.addActionListener(e -> enableOrDisableSubControls());
         mtcUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         mtcRandomPreferSameTypeRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1738,6 +1741,7 @@ public class NewRandomizerGUI {
         mtcUnchangedRadioButton
                 .setSelected(settings.getMoveTutorsCompatibilityMod() == Settings.MoveTutorsCompatibilityMod.UNCHANGED);
         mtRandomRadioButton.setSelected(settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.RANDOM);
+        mtScriptedRadioButton.setSelected(settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.SCRIPTED);
         mtUnchangedRadioButton.setSelected(settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.UNCHANGED);
         mtLevelupMoveSanityCheckBox.setSelected(settings.isTutorLevelUpMoveSanity());
         mtKeepFieldMoveTutorsCheckBox.setSelected(settings.isKeepFieldMoveTutors());
@@ -1960,7 +1964,7 @@ public class NewRandomizerGUI {
         settings.setBlockBrokenTMMoves(tmNoGameBreakingMovesCheckBox.isSelected());
         settings.setTmsFollowEvolutions(tmFollowEvolutionsCheckBox.isSelected());
 
-        settings.setMoveTutorMovesMod(mtUnchangedRadioButton.isSelected(), mtRandomRadioButton.isSelected());
+        settings.setMoveTutorMovesMod(mtUnchangedRadioButton.isSelected(), mtRandomRadioButton.isSelected(), mtScriptedRadioButton.isSelected());
         settings.setMoveTutorsCompatibilityMod(mtcUnchangedRadioButton.isSelected(), mtcRandomPreferSameTypeRadioButton.isSelected(),
                 mtcRandomCompletelyRadioButton.isSelected(), mtcFullCompatibilityRadioButton.isSelected(), mtcScriptedRadioButton.isSelected());
         settings.setTutorLevelUpMoveSanity(mtLevelupMoveSanityCheckBox.isSelected());
@@ -2692,6 +2696,9 @@ public class NewRandomizerGUI {
         mtRandomRadioButton.setVisible(true);
         mtRandomRadioButton.setEnabled(false);
         mtRandomRadioButton.setSelected(false);
+        mtScriptedRadioButton.setVisible(true);
+        mtScriptedRadioButton.setEnabled(false);
+        mtScriptedRadioButton.setSelected(false);
         mtNoGameBreakingMovesCheckBox.setVisible(true);
         mtNoGameBreakingMovesCheckBox.setEnabled(false);
         mtNoGameBreakingMovesCheckBox.setSelected(false);
@@ -3142,6 +3149,7 @@ public class NewRandomizerGUI {
                 mtUnchangedRadioButton.setEnabled(true);
                 mtUnchangedRadioButton.setSelected(true);
                 mtRandomRadioButton.setEnabled(true);
+                mtScriptedRadioButton.setEnabled(true);
 
                 mtcUnchangedRadioButton.setEnabled(true);
                 mtcUnchangedRadioButton.setSelected(true);
@@ -3817,6 +3825,7 @@ public class NewRandomizerGUI {
 
             mtUnchangedRadioButton.setEnabled(false);
             mtRandomRadioButton.setEnabled(false);
+            mtScriptedRadioButton.setEnabled(false);
             mtUnchangedRadioButton.setSelected(true);
 
             tmLevelupMoveSanityCheckBox.setEnabled(false);
@@ -3847,6 +3856,7 @@ public class NewRandomizerGUI {
 
             mtUnchangedRadioButton.setEnabled(true);
             mtRandomRadioButton.setEnabled(true);
+            mtScriptedRadioButton.setEnabled(true);
 
             if (!(pmsUnchangedRadioButton.isSelected()) || !(tmUnchangedRadioButton.isSelected())
                     || !(thcUnchangedRadioButton.isSelected()) || thcScriptedRadioButton.isSelected()) {
@@ -4811,6 +4821,32 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addTutorScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects a move for a move tutor",
+                "#oldMove - a Move object representing the move that is being replaced",
+                "#movepool - a List<Move> of all available moves",
+                "#forcedDamaging - True if the current move is forced to be a good damaging move",
+                "#",
+                "#return: a Move object representing the new move",
+                "#NOTE: use the imported Moves class to access move numbers by name",
+                "#NOTE: forcedDamaging is only used when \"Force % of good damaging moves\" is used, when True the movepool will only contain good damaging moves"
+        };
+        String funcDeclaration = "def selectTutorMove(oldMove, movepool, forcedDamaging):";
+        String funcBody = "\n\treturn movepool.get(movepool.size() / 2) #example";
+
+        if(mtScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

@@ -396,7 +396,8 @@ public class Randomizer {
             List<Integer> oldMtMoves = romHandler.getMoveTutorMoves();
 
             if (!(settings.getMovesetsMod() == Settings.MovesetsMod.METRONOME_ONLY)
-                    && settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.RANDOM) {
+                    && (settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.RANDOM)
+                    || settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.SCRIPTED) {
 
                 romHandler.randomizeMoveTutorMoves(settings);
                 moveTutorMovesChanged = true;

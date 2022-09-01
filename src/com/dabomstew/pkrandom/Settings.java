@@ -271,7 +271,7 @@ public class Settings {
     private TMsHMsCompatibilityMod tmsHmsCompatibilityMod = TMsHMsCompatibilityMod.UNCHANGED;
 
     public enum MoveTutorMovesMod {
-        UNCHANGED, RANDOM
+        UNCHANGED, RANDOM, SCRIPTED
     }
 
     private MoveTutorMovesMod moveTutorMovesMod = MoveTutorMovesMod.UNCHANGED;
@@ -483,7 +483,7 @@ public class Settings {
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.RANDOM_PREFER_TYPE,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.UNCHANGED,
                 moveTutorMovesMod == MoveTutorMovesMod.RANDOM, moveTutorMovesMod == MoveTutorMovesMod.UNCHANGED,
-                tutorLevelUpMoveSanity, moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.SCRIPTED,
+                moveTutorMovesMod == MoveTutorMovesMod.SCRIPTED, moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.SCRIPTED,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.FULL));
 
         // 23 tutors good damaging
@@ -607,10 +607,10 @@ public class Settings {
                 highestLevelOnlyGetsItemsForTrainerPokemon,
                 ensureTwoAbilities));
 
-        // 50 pickup item randomization (and a move tutor settings that didn't fit anywhere else)
+        // 50 pickup item randomization (and some move tutor settings that had to move and didn't fit anywhere else)
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
                 pickupItemsMod == PickupItemsMod.UNCHANGED, banBadRandomPickupItems,
-                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED, keepFieldMoveTutors));
+                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED, keepFieldMoveTutors, tutorLevelUpMoveSanity));
 
         // 51 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
@@ -796,7 +796,8 @@ public class Settings {
         settings.setTmsGoodDamagingPercent(data[21] & 0x7F);
 
         settings.setMoveTutorMovesMod(restoreEnum(MoveTutorMovesMod.class, data[22], 4, // UNCHANGED
-                3 // RANDOM
+                3, // RANDOM
+                5  // SCRIPTED
         ));
         settings.setMoveTutorsCompatibilityMod(restoreEnum(MoveTutorsCompatibilityMod.class, data[22], 2, // UNCHANGED
                 1, // RANDOM_PREFER_TYPE
@@ -804,7 +805,7 @@ public class Settings {
                 7, // FULL
                 6  // SCRIPTED
         ));
-        settings.setTutorLevelUpMoveSanity(restoreState(data[22], 5));
+        settings.setTutorLevelUpMoveSanity(restoreState(data[50], 6));
         settings.setKeepFieldMoveTutors(restoreState(data[50], 5));
 
         settings.setTutorsForceGoodDamaging(restoreState(data[23], 7));

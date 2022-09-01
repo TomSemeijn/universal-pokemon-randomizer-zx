@@ -252,4 +252,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectTutorCompatibility");
         return ((PyBoolean)(func.__call__(Py.java2py(move), Py.java2py(pokemon)))).getBooleanValue();
     }
+
+    public Move getScriptedTutorMove(Move oldMove, List<Move> movepool, boolean forcedDamagingMove)
+    {
+        PyFunction func = (PyFunction)interp.get("selectTutorMove");
+        return Py.tojava(func.__call__(Py.java2py(oldMove), Py.java2py(movepool), new PyBoolean(forcedDamagingMove)), Move.class);
+    }
 }

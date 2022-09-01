@@ -4889,6 +4889,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean noBroken = settings.isBlockBrokenTutorMoves();
         boolean preserveField = settings.isKeepFieldMoveTutors();
         double goodDamagingPercentage = settings.isTutorsForceGoodDamaging() ? settings.getTutorsGoodDamagingPercent() / 100.0 : 0;
+        final boolean scripted = settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.SCRIPTED;
 
         if (!this.hasMoveTutors()) {
             return;
@@ -4940,12 +4941,34 @@ public abstract class AbstractRomHandler implements RomHandler {
         // Force a certain amount of good damaging moves depending on the percentage
         int goodDamagingLeft = (int)Math.round(goodDamagingPercentage * (mtCount - preservedFieldMoveCount));
 
+        int moveIterator = -1;
         for (int i = 0; i < mtCount - preservedFieldMoveCount; i++) {
             Move chosenMove;
-            if (goodDamagingLeft > 0 && usableDamagingMoves.size() > 0) {
-                chosenMove = usableDamagingMoves.get(random.nextInt(usableDamagingMoves.size()));
-            } else {
-                chosenMove = usableMoves.get(random.nextInt(usableMoves.size()));
+            final boolean forcedDamaging = goodDamagingLeft > 0 && usableDamagingMoves.size() > 0;
+            List<Move> movepool = forcedDamaging ? usableDamagingMoves : usableMoves;
+            if(scripted)
+            {
+                do{
+                    moveIterator++;
+                }while(preserveField && fieldMoves.contains(oldMTs.get(moveIterator)));
+                Integer replacedIndex = oldMTs.get(moveIterator);
+
+                //find the replaced move object
+                Move replaced = null;
+                for(Move mv : allMoves)
+                {
+                    if(mv != null && mv.number == replacedIndex)
+                    {
+                        replaced = mv;
+                        break;
+                    }
+                }
+
+                //get the new move from the script
+                chosenMove = settings.getScript().getScriptedTutorMove(replaced, movepool, forcedDamaging);
+            }
+            else{
+                chosenMove = movepool.get(random.nextInt(movepool.size()));
             }
             pickedMoves.add(chosenMove.number);
             usableMoves.remove(chosenMove);
