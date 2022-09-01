@@ -331,6 +331,7 @@ public class NewRandomizerGUI {
     private JRadioButton puScriptedRadioButton;
     private JRadioButton tmScriptedRadioButton;
     private JRadioButton thcScriptedRadioButton;
+    private JRadioButton mtcScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -516,6 +517,8 @@ public class NewRandomizerGUI {
         mtcRandomPreferSameTypeRadioButton.addActionListener(e -> enableOrDisableSubControls());
         mtcRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
         mtcFullCompatibilityRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        mtcScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        mtcScriptedRadioButton.addActionListener(e -> addTutorCompatFunc());
         fiUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         fiShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         fiRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1730,6 +1733,8 @@ public class NewRandomizerGUI {
                 .setSelected(settings.getMoveTutorsCompatibilityMod() == Settings.MoveTutorsCompatibilityMod.COMPLETELY_RANDOM);
         mtcRandomPreferSameTypeRadioButton
                 .setSelected(settings.getMoveTutorsCompatibilityMod() == Settings.MoveTutorsCompatibilityMod.RANDOM_PREFER_TYPE);
+        mtcScriptedRadioButton
+                .setSelected(settings.getMoveTutorsCompatibilityMod() == Settings.MoveTutorsCompatibilityMod.SCRIPTED);
         mtcUnchangedRadioButton
                 .setSelected(settings.getMoveTutorsCompatibilityMod() == Settings.MoveTutorsCompatibilityMod.UNCHANGED);
         mtRandomRadioButton.setSelected(settings.getMoveTutorMovesMod() == Settings.MoveTutorMovesMod.RANDOM);
@@ -1957,7 +1962,7 @@ public class NewRandomizerGUI {
 
         settings.setMoveTutorMovesMod(mtUnchangedRadioButton.isSelected(), mtRandomRadioButton.isSelected());
         settings.setMoveTutorsCompatibilityMod(mtcUnchangedRadioButton.isSelected(), mtcRandomPreferSameTypeRadioButton.isSelected(),
-                mtcRandomCompletelyRadioButton.isSelected(), mtcFullCompatibilityRadioButton.isSelected());
+                mtcRandomCompletelyRadioButton.isSelected(), mtcFullCompatibilityRadioButton.isSelected(), mtcScriptedRadioButton.isSelected());
         settings.setTutorLevelUpMoveSanity(mtLevelupMoveSanityCheckBox.isSelected());
         settings.setKeepFieldMoveTutors(mtKeepFieldMoveTutorsCheckBox.isSelected());
         settings.setTutorsForceGoodDamaging(mtForceGoodDamagingCheckBox.isSelected());
@@ -2717,6 +2722,9 @@ public class NewRandomizerGUI {
         mtcFullCompatibilityRadioButton.setVisible(true);
         mtcFullCompatibilityRadioButton.setEnabled(false);
         mtcFullCompatibilityRadioButton.setSelected(false);
+        mtcScriptedRadioButton.setVisible(true);
+        mtcScriptedRadioButton.setEnabled(false);
+        mtcScriptedRadioButton.setSelected(false);
         fiUnchangedRadioButton.setVisible(true);
         fiUnchangedRadioButton.setEnabled(false);
         fiUnchangedRadioButton.setSelected(false);
@@ -3140,6 +3148,7 @@ public class NewRandomizerGUI {
                 mtcRandomPreferSameTypeRadioButton.setEnabled(true);
                 mtcRandomCompletelyRadioButton.setEnabled(true);
                 mtcFullCompatibilityRadioButton.setEnabled(true);
+                mtcScriptedRadioButton.setEnabled(true);
             } else {
                 mtMovesPanel.setVisible(false);
                 mtCompatPanel.setVisible(false);
@@ -4772,6 +4781,31 @@ public class NewRandomizerGUI {
         String funcBody = "\n\tisPrimaryType = move.type == pokemon.primaryType #example\n\tisSecondaryType = pokemon.secondaryType is not None and move.type == pokemon.secondaryType\n\treturn isPrimaryType or isSecondaryType or move.type == Type.NORMAL";
 
         if(thcScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addTutorCompatFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#returns true if the given pokemon should be able to learn the given tutor move",
+                "#move - a Move object representing the move to learn from the tutor",
+                "#pokemon - a Pokemon object representing the pokemon that would potentially be able to learn the move",
+                "#",
+                "#return: true if the pokemon should be able to learn the given move"
+        };
+        String funcDeclaration = "def selectTutorCompatibility(move, pokemon):";
+        String funcBody = "\n\tisPrimaryType = move.type == pokemon.primaryType #example\n\tisSecondaryType = pokemon.secondaryType is not None and move.type == pokemon.secondaryType\n\treturn isPrimaryType or isSecondaryType or move.type == Type.NORMAL";
+
+        if(mtcScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");

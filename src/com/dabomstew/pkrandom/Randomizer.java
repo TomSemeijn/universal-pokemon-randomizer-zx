@@ -419,6 +419,7 @@ public class Randomizer {
             switch (settings.getMoveTutorsCompatibilityMod()) {
                 case COMPLETELY_RANDOM:
                 case RANDOM_PREFER_TYPE:
+                case SCRIPTED:
                     romHandler.randomizeMoveTutorCompatibility(settings);
                     tutorCompatChanged = true;
                     break;

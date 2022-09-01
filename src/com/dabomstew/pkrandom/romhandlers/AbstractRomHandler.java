@@ -4720,14 +4720,29 @@ public abstract class AbstractRomHandler implements RomHandler {
                                                    List<Integer> moveIDs, List<Integer> prioritizedMoves,
                                                    boolean preferSameType, PokemonMoveCompatibilityType compatType) {
 
-        final boolean scripted = (compatType == PokemonMoveCompatibilityType.TM && settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.SCRIPTED);
+        final boolean scripted = (
+                compatType == PokemonMoveCompatibilityType.TM &&
+                        settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.SCRIPTED)
+                ||
+                (compatType == PokemonMoveCompatibilityType.TUTOR &&
+                        settings.getMoveTutorsCompatibilityMod() == Settings.MoveTutorsCompatibilityMod.SCRIPTED);
         List<Move> moveData = this.getMoves();
         for (int i = 1; i <= moveIDs.size(); i++) {
             int move = moveIDs.get(i - 1);
             Move mv = moveData.get(move);
             if(scripted)
             {
-                moveCompatibilityFlags[i] = settings.getScript().getScriptedTMMoveCompat(mv, pkmn);
+                boolean isCompat = false;
+                switch(compatType)
+                {
+                    case TM:
+                        isCompat = settings.getScript().getScriptedTMMoveCompat(mv, pkmn);
+                        break;
+                    case TUTOR:
+                        isCompat = settings.getScript().getScriptedTutorMoveCompat(mv, pkmn);
+                        break;
+                }
+                moveCompatibilityFlags[i] = isCompat;
             }
             else
             {

@@ -283,7 +283,7 @@ public class Settings {
     private boolean tutorFollowEvolutions;
 
     public enum MoveTutorsCompatibilityMod {
-        UNCHANGED, RANDOM_PREFER_TYPE, COMPLETELY_RANDOM, FULL
+        UNCHANGED, RANDOM_PREFER_TYPE, COMPLETELY_RANDOM, FULL, SCRIPTED
     }
 
     private MoveTutorsCompatibilityMod moveTutorsCompatibilityMod = MoveTutorsCompatibilityMod.UNCHANGED;
@@ -483,7 +483,7 @@ public class Settings {
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.RANDOM_PREFER_TYPE,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.UNCHANGED,
                 moveTutorMovesMod == MoveTutorMovesMod.RANDOM, moveTutorMovesMod == MoveTutorMovesMod.UNCHANGED,
-                tutorLevelUpMoveSanity, keepFieldMoveTutors,
+                tutorLevelUpMoveSanity, moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.SCRIPTED,
                 moveTutorsCompatibilityMod == MoveTutorsCompatibilityMod.FULL));
 
         // 23 tutors good damaging
@@ -607,10 +607,10 @@ public class Settings {
                 highestLevelOnlyGetsItemsForTrainerPokemon,
                 ensureTwoAbilities));
 
-        // 50 pickup item randomization
+        // 50 pickup item randomization (and a move tutor settings that didn't fit anywhere else)
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
                 pickupItemsMod == PickupItemsMod.UNCHANGED, banBadRandomPickupItems,
-                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED));
+                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED, keepFieldMoveTutors));
 
         // 51 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
@@ -801,10 +801,11 @@ public class Settings {
         settings.setMoveTutorsCompatibilityMod(restoreEnum(MoveTutorsCompatibilityMod.class, data[22], 2, // UNCHANGED
                 1, // RANDOM_PREFER_TYPE
                 0, // COMPLETELY_RANDOM
-                7 // FULL
+                7, // FULL
+                6  // SCRIPTED
         ));
         settings.setTutorLevelUpMoveSanity(restoreState(data[22], 5));
-        settings.setKeepFieldMoveTutors(restoreState(data[22], 6));
+        settings.setKeepFieldMoveTutors(restoreState(data[50], 5));
 
         settings.setTutorsForceGoodDamaging(restoreState(data[23], 7));
         settings.setTutorsGoodDamagingPercent(data[23] & 0x7F);
