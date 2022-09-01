@@ -4696,15 +4696,15 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         if (followEvolutions) {
             copyUpEvolutionsHelper(pk -> randomizePokemonMoveCompatibility(
-                    pk, compat.get(pk), tmHMs, requiredEarlyOn, preferSameType),
+                    settings, pk, compat.get(pk), tmHMs, requiredEarlyOn, preferSameType, PokemonMoveCompatibilityType.TM),
             (evFrom, evTo, toMonIsFinalEvo) ->  copyPokemonMoveCompatibilityUpEvolutions(
                     evFrom, evTo, compat.get(evFrom), compat.get(evTo), tmHMs, preferSameType
             ), null, true);
         }
         else {
             for (Map.Entry<Pokemon, boolean[]> compatEntry : compat.entrySet()) {
-                randomizePokemonMoveCompatibility(compatEntry.getKey(), compatEntry.getValue(), tmHMs,
-                        requiredEarlyOn, preferSameType);
+                randomizePokemonMoveCompatibility(settings, compatEntry.getKey(), compatEntry.getValue(), tmHMs,
+                        requiredEarlyOn, preferSameType, PokemonMoveCompatibilityType.TM);
             }
         }
 
@@ -4712,20 +4712,33 @@ public abstract class AbstractRomHandler implements RomHandler {
         this.setTMHMCompatibility(compat);
     }
 
-    private void randomizePokemonMoveCompatibility(Pokemon pkmn, boolean[] moveCompatibilityFlags,
+    public enum PokemonMoveCompatibilityType{
+        TUTOR, TM
+    }
+
+    private void randomizePokemonMoveCompatibility(Settings settings, Pokemon pkmn, boolean[] moveCompatibilityFlags,
                                                    List<Integer> moveIDs, List<Integer> prioritizedMoves,
-                                                   boolean preferSameType) {
+                                                   boolean preferSameType, PokemonMoveCompatibilityType compatType) {
+
+        final boolean scripted = (compatType == PokemonMoveCompatibilityType.TM && settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.SCRIPTED);
         List<Move> moveData = this.getMoves();
         for (int i = 1; i <= moveIDs.size(); i++) {
             int move = moveIDs.get(i - 1);
             Move mv = moveData.get(move);
-            double probability = getMoveCompatibilityProbability(
-                    pkmn,
-                    mv,
-                    prioritizedMoves.contains(move),
-                    preferSameType
-            );
-            moveCompatibilityFlags[i] = (this.random.nextDouble() < probability);
+            if(scripted)
+            {
+                moveCompatibilityFlags[i] = settings.getScript().getScriptedTMMoveCompat(mv, pkmn);
+            }
+            else
+            {
+                double probability = getMoveCompatibilityProbability(
+                        pkmn,
+                        mv,
+                        prioritizedMoves.contains(move),
+                        preferSameType
+                );
+                moveCompatibilityFlags[i] = (this.random.nextDouble() < probability);
+            }
         }
     }
 
@@ -4962,14 +4975,14 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         if (followEvolutions) {
             copyUpEvolutionsHelper(pk -> randomizePokemonMoveCompatibility(
-                    pk, compat.get(pk), mts, priorityTutors, preferSameType),
+                    settings, pk, compat.get(pk), mts, priorityTutors, preferSameType, PokemonMoveCompatibilityType.TUTOR),
                     (evFrom, evTo, toMonIsFinalEvo) ->  copyPokemonMoveCompatibilityUpEvolutions(
                             evFrom, evTo, compat.get(evFrom), compat.get(evTo), mts, preferSameType
                     ), null, true);
         }
         else {
             for (Map.Entry<Pokemon, boolean[]> compatEntry : compat.entrySet()) {
-                randomizePokemonMoveCompatibility(compatEntry.getKey(), compatEntry.getValue(), mts, priorityTutors, preferSameType);
+                randomizePokemonMoveCompatibility(settings, compatEntry.getKey(), compatEntry.getValue(), mts, priorityTutors, preferSameType, PokemonMoveCompatibilityType.TUTOR);
             }
         }
 

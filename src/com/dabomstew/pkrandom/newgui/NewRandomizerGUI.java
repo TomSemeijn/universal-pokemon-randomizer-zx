@@ -330,6 +330,7 @@ public class NewRandomizerGUI {
     private JCheckBox fiShuffleItemsCheckBox;
     private JRadioButton puScriptedRadioButton;
     private JRadioButton tmScriptedRadioButton;
+    private JRadioButton thcScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -506,6 +507,8 @@ public class NewRandomizerGUI {
         thcRandomPreferSameTypeRadioButton.addActionListener(e -> enableOrDisableSubControls());
         thcRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
         thcFullCompatibilityRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        thcScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        thcScriptedRadioButton.addActionListener(e -> addTMCompatFunc());
         mtUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         mtRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         mtForceGoodDamagingCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1707,6 +1710,8 @@ public class NewRandomizerGUI {
                 .setSelected(settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.COMPLETELY_RANDOM);
         thcRandomPreferSameTypeRadioButton
                 .setSelected(settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.RANDOM_PREFER_TYPE);
+        thcScriptedRadioButton
+                .setSelected(settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.SCRIPTED);
         thcUnchangedRadioButton
                 .setSelected(settings.getTmsHmsCompatibilityMod() == Settings.TMsHMsCompatibilityMod.UNCHANGED);
         tmRandomRadioButton.setSelected(settings.getTmsMod() == Settings.TMsMod.RANDOM);
@@ -1941,7 +1946,7 @@ public class NewRandomizerGUI {
         settings.setTmsMod(tmUnchangedRadioButton.isSelected(), tmRandomRadioButton.isSelected(), tmScriptedRadioButton.isSelected());
 
         settings.setTmsHmsCompatibilityMod(thcUnchangedRadioButton.isSelected(), thcRandomPreferSameTypeRadioButton.isSelected(),
-                thcRandomCompletelyRadioButton.isSelected(), thcFullCompatibilityRadioButton.isSelected());
+                thcRandomCompletelyRadioButton.isSelected(), thcFullCompatibilityRadioButton.isSelected(), thcScriptedRadioButton.isSelected());
         settings.setTmLevelUpMoveSanity(tmLevelupMoveSanityCheckBox.isSelected());
         settings.setKeepFieldMoveTMs(tmKeepFieldMoveTMsCheckBox.isSelected());
         settings.setFullHMCompat(tmFullHMCompatibilityCheckBox.isSelected() && tmFullHMCompatibilityCheckBox.isVisible());
@@ -2673,6 +2678,9 @@ public class NewRandomizerGUI {
         thcFullCompatibilityRadioButton.setVisible(true);
         thcFullCompatibilityRadioButton.setEnabled(false);
         thcFullCompatibilityRadioButton.setSelected(false);
+        thcScriptedRadioButton.setVisible(true);
+        thcScriptedRadioButton.setEnabled(false);
+        thcScriptedRadioButton.setSelected(false);
         mtUnchangedRadioButton.setVisible(true);
         mtUnchangedRadioButton.setEnabled(false);
         mtUnchangedRadioButton.setSelected(false);
@@ -3116,6 +3124,7 @@ public class NewRandomizerGUI {
             thcRandomPreferSameTypeRadioButton.setEnabled(true);
             thcRandomCompletelyRadioButton.setEnabled(true);
             thcFullCompatibilityRadioButton.setEnabled(true);
+            thcScriptedRadioButton.setEnabled(true);
 
             if (romHandler.hasMoveTutors()) {
                 mtMovesPanel.setVisible(true);
@@ -3831,7 +3840,7 @@ public class NewRandomizerGUI {
             mtRandomRadioButton.setEnabled(true);
 
             if (!(pmsUnchangedRadioButton.isSelected()) || !(tmUnchangedRadioButton.isSelected())
-                    || !(thcUnchangedRadioButton.isSelected())) {
+                    || !(thcUnchangedRadioButton.isSelected()) || thcScriptedRadioButton.isSelected()) {
                 tmLevelupMoveSanityCheckBox.setEnabled(true);
             } else {
                 tmLevelupMoveSanityCheckBox.setEnabled(false);
@@ -4743,6 +4752,31 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addTMCompatFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#returns true if the given pokemon should be able to learn the given TM move",
+                "#move - a Move object representing the move to learn from the TM",
+                "#pokemon - a Pokemon object representing the pokemon that would potentially be able to learn the move",
+                "#",
+                "#return: true if the pokemon should be able to learn the given move"
+        };
+        String funcDeclaration = "def selectTMCompatibility(move, pokemon):";
+        String funcBody = "\n\tisPrimaryType = move.type == pokemon.primaryType #example\n\tisSecondaryType = pokemon.secondaryType is not None and move.type == pokemon.secondaryType\n\treturn isPrimaryType or isSecondaryType or move.type == Type.NORMAL";
+
+        if(thcScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

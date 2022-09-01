@@ -2813,7 +2813,7 @@
                     <children>
                       <component id="eb901" class="javax.swing.JRadioButton" binding="thcUnchangedRadioButton" default-binding="true">
                         <constraints>
-                          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -2824,7 +2824,7 @@
                       </component>
                       <vspacer id="f28aa">
                         <constraints>
-                          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                          <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                       </vspacer>
@@ -2842,7 +2842,7 @@
                       </vspacer>
                       <component id="6bd5e" class="javax.swing.JRadioButton" binding="thcRandomPreferSameTypeRadioButton" default-binding="true">
                         <constraints>
-                          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -2853,7 +2853,7 @@
                       </component>
                       <component id="bdcf8" class="javax.swing.JRadioButton" binding="thcRandomCompletelyRadioButton">
                         <constraints>
-                          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -2864,7 +2864,7 @@
                       </component>
                       <component id="1bb6c" class="javax.swing.JRadioButton" binding="thcFullCompatibilityRadioButton" default-binding="true">
                         <constraints>
-                          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -2875,7 +2875,7 @@
                       </component>
                       <component id="65e15" class="javax.swing.JCheckBox" binding="tmFollowEvolutionsCheckBox">
                         <constraints>
-                          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -2886,7 +2886,7 @@
                       </component>
                       <component id="7ba73" class="javax.swing.JCheckBox" binding="tmLevelupMoveSanityCheckBox" default-binding="true">
                         <constraints>
-                          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
@@ -2897,13 +2897,24 @@
                       </component>
                       <component id="b7d85" class="javax.swing.JCheckBox" binding="tmFullHMCompatibilityCheckBox">
                         <constraints>
-                          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
                         </constraints>
                         <properties>
                           <enabled value="false"/>
                           <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.tmFullHMCompatibilityCheckBox.text"/>
                           <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.tmFullHMCompatibilityCheckBox.toolTipText"/>
+                        </properties>
+                      </component>
+                      <component id="92e6a" class="javax.swing.JRadioButton" binding="thcScriptedRadioButton">
+                        <constraints>
+                          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="false"/>
+                          <text value="Scripted"/>
+                          <toolTipText value="Use scripting to determine TM/HM compatibility"/>
                         </properties>
                       </component>
                     </children>
@@ -4131,6 +4142,7 @@
       <member id="6bd5e"/>
       <member id="bdcf8"/>
       <member id="1bb6c"/>
+      <member id="92e6a"/>
     </group>
     <group name="tutorButtonGroup">
       <member id="c71e0"/>

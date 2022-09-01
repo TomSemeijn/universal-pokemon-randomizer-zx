@@ -265,7 +265,7 @@ public class Settings {
     private boolean tmsFollowEvolutions;
 
     public enum TMsHMsCompatibilityMod {
-        UNCHANGED, RANDOM_PREFER_TYPE, COMPLETELY_RANDOM, FULL
+        UNCHANGED, RANDOM_PREFER_TYPE, COMPLETELY_RANDOM, FULL, SCRIPTED
     }
 
     private TMsHMsCompatibilityMod tmsHmsCompatibilityMod = TMsHMsCompatibilityMod.UNCHANGED;
@@ -469,11 +469,11 @@ public class Settings {
         out.write(makeByteSelected(tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.COMPLETELY_RANDOM,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.RANDOM_PREFER_TYPE,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.UNCHANGED, tmsMod == TMsMod.RANDOM,
-                tmsMod == TMsMod.UNCHANGED, tmsMod == TMsMod.SCRIPTED, keepFieldMoveTMs,
+                tmsMod == TMsMod.UNCHANGED, tmsMod == TMsMod.SCRIPTED, tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.SCRIPTED,
                 tmsHmsCompatibilityMod == TMsHMsCompatibilityMod.FULL));
 
         // 20 tms part 2
-        out.write(makeByteSelected(fullHMCompat, tmsFollowEvolutions, tutorFollowEvolutions, tmLevelUpMoveSanity));
+        out.write(makeByteSelected(fullHMCompat, tmsFollowEvolutions, tutorFollowEvolutions, tmLevelUpMoveSanity, keepFieldMoveTMs));
 
         // 21 tms good damaging
         out.write((tmsForceGoodDamaging ? 0x80 : 0) | tmsGoodDamagingPercent);
@@ -782,10 +782,11 @@ public class Settings {
         settings.setTmsHmsCompatibilityMod(restoreEnum(TMsHMsCompatibilityMod.class, data[19], 2, // UNCHANGED
                 1, // RANDOM_PREFER_TYPE
                 0, // COMPLETELY_RANDOM
-                7 // FULL
+                7, // FULL
+                6  // SCRIPTED
         )); 
         settings.setTmLevelUpMoveSanity(restoreState(data[20], 3));
-        settings.setKeepFieldMoveTMs(restoreState(data[19], 6));
+        settings.setKeepFieldMoveTMs(restoreState(data[20], 4));
 
         settings.setFullHMCompat(restoreState(data[20], 0));
         settings.setTmsFollowEvolutions(restoreState(data[20], 1));

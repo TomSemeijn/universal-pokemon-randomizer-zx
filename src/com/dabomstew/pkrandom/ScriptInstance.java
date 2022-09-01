@@ -240,4 +240,10 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectTMMove");
         return Py.tojava(func.__call__(Py.java2py(oldMove), Py.java2py(movepool), new PyBoolean(forcedDamagingMove)), Move.class);
     }
+
+    public boolean getScriptedTMMoveCompat(Move move, Pokemon pokemon)
+    {
+        PyFunction func = (PyFunction)interp.get("selectTMCompatibility");
+        return ((PyBoolean)(func.__call__(Py.java2py(move), Py.java2py(pokemon)))).getBooleanValue();
+    }
 }

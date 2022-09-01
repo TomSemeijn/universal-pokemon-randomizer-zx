@@ -359,6 +359,7 @@ public class Randomizer {
         switch (settings.getTmsHmsCompatibilityMod()) {
             case COMPLETELY_RANDOM:
             case RANDOM_PREFER_TYPE:
+            case SCRIPTED:
                 romHandler.randomizeTMHMCompatibility(settings);
                 tmsHmsCompatChanged = true;
                 break;
