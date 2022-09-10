@@ -25,11 +25,11 @@ public class ScriptInstance {
         return Py.tojava(func.__call__(Py.java2py(pokepool)), List.class);
     }
 
-    public List<Pokemon> getScriptedStarters(List<Pokemon> pokepool)
+    public List<Pokemon> getScriptedStarters(List<Pokemon> pokepool, int count)
     {
         PyFunction func = (PyFunction)interp.get("selectStarter");
         List<Pokemon> starters = new ArrayList<Pokemon>();
-        for(int k = 0; k < 3; k++)
+        for(int k = 0; k < count; k++)
         {
             PyObject pkm = func.__call__(Py.java2py(pokepool), new PyInteger(k));
             starters.add(Py.tojava(pkm, Pokemon.class));

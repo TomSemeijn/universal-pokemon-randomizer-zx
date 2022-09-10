@@ -755,7 +755,7 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         List<EncounterSet> currentEncounters = this.getEncounters(useTimeOfDay);
 
-        if (isORAS) {
+        if (isORAS && !scripted) {
             List<EncounterSet> collapsedEncounters = collapseAreasORAS(currentEncounters);
             area1to1EncountersImpl(collapsedEncounters, settings);
             enhanceRandomEncountersORAS(collapsedEncounters, settings);
@@ -4120,7 +4120,8 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeScriptedStarters(ScriptInstance script)
     {
-        pickedStarters = script.getScriptedStarters(mainPokemonList);
+        int starterCount = starterCount();
+        pickedStarters = script.getScriptedStarters(mainPokemonList, starterCount);
         setStarters(pickedStarters);
     }
     
