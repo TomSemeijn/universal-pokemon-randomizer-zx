@@ -1249,10 +1249,14 @@ public class NewRandomizerGUI {
                         }
                     });
                 } else {
+                    boolean shouldReset = resetOnFail();
                     SwingUtilities.invokeLater(() -> {
                         opDialog.setVisible(false);
-                        romHandler = null;
-                        initialState();
+                        if(shouldReset)
+                        {
+                            romHandler = null;
+                            initialState();
+                        }
                     });
                 }
             });
@@ -4339,6 +4343,39 @@ public class NewRandomizerGUI {
     {
         consoleWindow.setVisible(true);
         consoleWindow.requestFocus();
+    }
+
+    private boolean anyScripted()
+    {
+        return
+                stpScriptedRadioButton.isSelected() ||
+                igtScriptedRadioButton.isSelected() ||
+                wpScriptedRadioButton.isSelected() ||
+                tpScriptedHeldItemsCheckBox.isSelected() ||
+                limitPokemonScriptingCheckbox.isSelected() ||
+                wpScriptHeldItemsCheckBox.isSelected() ||
+                mdScriptedCheckBox.isSelected() ||
+                pmsScriptLearntCheckBox.isSelected() ||
+                pmsScriptEggCheckBox.isSelected() ||
+                pmsScriptLearnAfterCheckBox.isSelected() ||
+                pbsScriptedRadioButton.isSelected() ||
+                ptScriptedRadioButton.isSelected() ||
+                paScriptedRadioButton.isSelected() ||
+                pbsScriptedEXPCurveRadioButton.isSelected() ||
+                fiScriptedRadioButton.isSelected() ||
+                puScriptedRadioButton.isSelected() ||
+                thcScriptedRadioButton.isSelected() ||
+                tmScriptedRadioButton.isSelected() ||
+                mtcScriptedRadioButton.isSelected() ||
+                mtScriptedRadioButton.isSelected() ||
+                spScriptedRadioButton.isSelected()
+        ;
+    }
+
+    private boolean resetOnFail()
+    {
+        boolean script = anyScripted();
+        return !script;
     }
 
     private void addStarterScriptFunc()
