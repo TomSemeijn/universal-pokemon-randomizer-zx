@@ -334,6 +334,7 @@ public class NewRandomizerGUI {
     private JRadioButton thcScriptedRadioButton;
     private JRadioButton mtcScriptedRadioButton;
     private JRadioButton mtScriptedRadioButton;
+    private JButton ConsoleButton;
 
     private static JFrame frame;
 
@@ -376,6 +377,9 @@ public class NewRandomizerGUI {
     private List<String> trainerSettingToolTips = new ArrayList<>();
     private final int TRAINER_UNCHANGED = 0, TRAINER_RANDOM = 1, TRAINER_RANDOM_EVEN = 2, TRAINER_RANDOM_EVEN_MAIN = 3,
                         TRAINER_TYPE_THEMED = 4, TRAINER_TYPE_THEMED_ELITE4_GYMS = 5, TRAINER_SCRIPTED = 6;
+
+    private JFrame consoleWindow;
+    private JTextArea consoleText;
 
     public NewRandomizerGUI() {
         ToolTipManager.sharedInstance().setInitialDelay(400);
@@ -441,7 +445,41 @@ public class NewRandomizerGUI {
 
         frame.setTitle(String.format(bundle.getString("GUI.windowTitle"),Version.VERSION_STRING));
 
+        {
+            consoleWindow = new JFrame("Console");
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setOpaque(true);
+
+            JPanel inputPanel = new JPanel();
+            inputPanel.setLayout(new FlowLayout());
+            JButton button = new JButton("Clear");
+            button.addActionListener(e -> consoleText.setText(""));
+
+            consoleText = new JTextArea(20, 100);
+            consoleText.setWrapStyleWord(false);
+            consoleText.setEditable(false);
+            consoleText.setFont(sScriptInput.getFont());
+
+            JScrollPane scroller = new JScrollPane(consoleText);
+            scroller.setOpaque(true);
+
+            inputPanel.add(button);
+            panel.add(inputPanel);
+            panel.add(scroller);
+            consoleWindow.getContentPane().add(BorderLayout.CENTER, panel);
+            consoleWindow.pack();
+            consoleWindow.setLocationByPlatform(true);
+            consoleWindow.setResizable(true);
+
+            PrintStream con=new PrintStream(new TextAreaOutputStream(consoleText));
+            System.setOut(con);
+            System.setErr(con);
+        }
+
         openROMButton.addActionListener(e -> loadROM());
+        ConsoleButton.addActionListener(e -> openConsoleWindow());
         pbsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -4295,6 +4333,12 @@ public class NewRandomizerGUI {
             sourceStr += "\n" + exampleFunc;
         }
         return sourceStr;
+    }
+
+    private void openConsoleWindow()
+    {
+        consoleWindow.setVisible(true);
+        consoleWindow.requestFocus();
     }
 
     private void addStarterScriptFunc()
