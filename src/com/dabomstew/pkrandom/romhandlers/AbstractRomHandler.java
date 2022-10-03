@@ -5475,23 +5475,42 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                     //set up itempool if cleared/uninitialized
                     if (itempool.isEmpty()) {
-                        for (int k = 0; k < possibleItems.getHighestIndex(); k++) {
-                            if (((!possibleItems.isTM(k) && !TMs) || (possibleItems.isTM(k) && TMs)) && possibleItems.isAllowed(k)) {
-                                itempool.add(k);
+                        if(TMs)
+                        {
+                            for(int k = 0; k < totalTMCount; k++)
+                            {
+                                int id = k + 1 + Items.tm01;
+                                if(!newTMs.contains(id))
+                                {
+                                    itempool.add(id);
+                                }
+                            }
+                        }
+                        else{
+                            for (int k = 0; k < possibleItems.getHighestIndex(); k++) {
+                                if (!possibleItems.isTM(k) && possibleItems.isAllowed(k)) {
+                                    itempool.add(k);
+                                }
                             }
                         }
                     }
 
                     //choose an item and add it to the list
                     int chosenItem = settings.getScript().getScriptedFieldItem(currentItems.get(i), itempool, TMs);
+                    if(TMs)
+                    {
+                        chosenItem -= Items.tm01;
+                    }
                     (TMs ? newTMs : newItems).add(chosenItem);
 
                     //ban the item and clear the pool for it to be reset if the chosen item needs to be unique
-                    if(!TMs) {
-                        if (uniqueItems && uniqueNoSellItems.contains(chosenItem)) {
-                            possibleItems.banSingles(chosenItem);
-                            itempool.clear();
-                        }
+                    if (!TMs && (uniqueItems && uniqueNoSellItems.contains(chosenItem))) {
+                        possibleItems.banSingles(chosenItem);
+                        itempool.clear();
+                    }
+                    else if(TMs)
+                    {
+                        itempool.clear();
                     }
                 }
             }
