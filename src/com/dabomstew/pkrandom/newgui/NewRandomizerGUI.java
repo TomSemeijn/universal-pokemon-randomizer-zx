@@ -763,7 +763,7 @@ public class NewRandomizerGUI {
         gutter.setSpacingBetweenLineNumbersAndFoldIndicator(32);
 
         //add autocomplete
-        CompletionProviderBase provider = createCompletionProvider();
+        /*CompletionProviderBase provider = createCompletionProvider();
         AutoCompletion ac = new AutoCompletion(provider);
         ac.setListCellRenderer(new CompletionCellRenderer());
         ac.setShowDescWindow(true);
@@ -772,7 +772,7 @@ public class NewRandomizerGUI {
         ac.setAutoActivationEnabled(true);
         ac.setAutoActivationDelay(300);
         provider.setAutoActivationRules(true, ".");
-        ac.install(sScriptInput);
+        ac.install(sScriptInput);*/
 
         //add the RandomSource import
         String scriptText = sScriptInput.getText();
