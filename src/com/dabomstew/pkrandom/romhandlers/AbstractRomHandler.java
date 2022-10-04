@@ -5479,7 +5479,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                         {
                             for(int k = 0; k < totalTMCount; k++)
                             {
-                                int id = k + 1 + Items.tm01;
+                                int id = k + Items.tm01; //convert to item ID
                                 if(!newTMs.contains(id))
                                 {
                                     itempool.add(id);
@@ -5500,6 +5500,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                     if(TMs)
                     {
                         chosenItem -= Items.tm01;
+                        chosenItem += 1; //convert to TM index
                     }
                     (TMs ? newTMs : newItems).add(chosenItem);
 
