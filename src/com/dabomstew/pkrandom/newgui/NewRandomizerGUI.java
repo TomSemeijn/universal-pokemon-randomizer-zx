@@ -2092,26 +2092,34 @@ public class NewRandomizerGUI {
                 ps.println("Settings String: " + Version.VERSION + settingsString);
             }
             ps.println("Java Version: " + System.getProperty("java.version") + ", " + System.getProperty("java.vm.name"));
+
             PrintStream e1 = System.err;
-            System.setErr(ps);
+            ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
+            PrintStream tempPrint = new PrintStream(tempStream);
+            System.setErr(tempPrint);
+
             if (this.romHandler != null) {
                 try {
-                    ps.println("ROM: " + romHandler.getROMName());
-                    ps.println("Code: " + romHandler.getROMCode());
-                    ps.println("Reported Support Level: " + romHandler.getSupportLevel());
-                    ps.println();
+                    tempPrint.println("ROM: " + romHandler.getROMName());
+                    tempPrint.println("Code: " + romHandler.getROMCode());
+                    tempPrint.println("Reported Support Level: " + romHandler.getSupportLevel());
+                    tempPrint.println();
                 } catch (Exception ex2) {
                     // Do nothing, just don't fail
                 }
             }
             ex.printStackTrace();
-            ps.println();
-            ps.println("--ROM Diagnostics--");
+            tempPrint.println();
+            tempPrint.println("--ROM Diagnostics--");
             if (!romHandler.isRomValid()) {
-                ps.println(bundle.getString("Log.InvalidRomLoaded"));
+                tempPrint.println(bundle.getString("Log.InvalidRomLoaded"));
             }
             romHandler.printRomDiagnostics(ps);
+            System.setErr(ps);
+            String printed = tempStream.toString();
+            ps.print(printed);
             System.setErr(e1);
+            e1.print(printed);
             ps.close();
             if (showMessage) {
                 JOptionPane.showMessageDialog(mainPanel,
