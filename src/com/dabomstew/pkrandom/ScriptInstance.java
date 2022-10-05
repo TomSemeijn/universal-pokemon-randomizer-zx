@@ -23,7 +23,7 @@ public class ScriptInstance {
     public List<Pokemon> getLimitedPokepool(List<Pokemon> pokepool)
     {
         PyFunction func = (PyFunction)interp.get("limitPokemon");
-        return toJavaList((PyArray) func.__call__(pyPokePool(pokepool)), poke -> Py.tojava(poke, Pokemon.class));
+        return toJavaList((PySequence) func.__call__(pyPokePool(pokepool)), poke -> Py.tojava(poke, Pokemon.class));
     }
 
     public List<Pokemon> getScriptedStarters(List<Pokemon> pokepool, int count)
@@ -107,7 +107,7 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("setLearntMoveset");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
-        List<MoveLearnt> result = toJavaList((PyArray) func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        List<MoveLearnt> result = toJavaList((PySequence) func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
         return result;
     }
 
@@ -115,14 +115,14 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("setLearntMovesetPost");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
-        return toJavaList((PyArray)func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        return toJavaList((PySequence)func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
     }
 
     public List<Integer> getScriptedEggMoveset(Pokemon pokemon, List<Integer> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyInteger.class, i -> new PyInteger(i));
-        return toJavaList((PyArray)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
+        return toJavaList((PySequence)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
     }
 
     public void updateScriptedPokemonBaseStats(Pokemon pokemon)
@@ -284,7 +284,7 @@ public class ScriptInstance {
         return arr;
     }
 
-    private <T, PyT extends PyObject> List<T> toJavaList(PyArray arr, ConvertOperator<PyT, T> convertFunc)
+    private <T, PyT extends PyObject> List<T> toJavaList(PySequence arr, ConvertOperator<PyT, T> convertFunc)
     {
         List<T> result = new ArrayList<T>();
         for(int k = 0; k < arr.__len__(); k++)
