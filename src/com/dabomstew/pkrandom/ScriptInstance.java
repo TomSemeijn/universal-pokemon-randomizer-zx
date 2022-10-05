@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ScriptInstance {
     private PythonInterpreter interp;
@@ -22,7 +23,7 @@ public class ScriptInstance {
     public List<Pokemon> getLimitedPokepool(List<Pokemon> pokepool)
     {
         PyFunction func = (PyFunction)interp.get("limitPokemon");
-        return Py.tojava(func.__call__(Py.java2py(pokepool)), List.class);
+        return toJavaList((PyArray) func.__call__(pyPokePool(pokepool)), poke -> Py.tojava(poke, Pokemon.class));
     }
 
     public List<Pokemon> getScriptedStarters(List<Pokemon> pokepool, int count)
@@ -31,7 +32,7 @@ public class ScriptInstance {
         List<Pokemon> starters = new ArrayList<Pokemon>();
         for(int k = 0; k < count; k++)
         {
-            PyObject pkm = func.__call__(Py.java2py(pokepool), new PyInteger(k));
+            PyObject pkm = func.__call__(pyPokePool(pokepool), new PyInteger(k));
             starters.add(Py.tojava(pkm, Pokemon.class));
         }
         return starters;
@@ -40,31 +41,32 @@ public class ScriptInstance {
     public StaticEncounter getScriptedStatic(List<Pokemon> pokepool, StaticEncounter oldEncounter, boolean megaSwap)
     {
         PyFunction func = (PyFunction)interp.get("selectStaticPokemon");
-        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
+        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
     }
 
     public IngameTrade getScriptedInGameTrade(List<Pokemon> pokepool, IngameTrade oldTrade)
     {
         PyFunction func = (PyFunction)interp.get("selectInGameTradePokemon");
-        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
+        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
     }
 
     public EncounterSet getScriptedWildEncounterSet(List<Pokemon> pokepool, EncounterSet oldArea)
     {
         PyFunction func = (PyFunction)interp.get("selectWildEncountersForArea");
-        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(oldArea)), EncounterSet.class);
+        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldArea)), EncounterSet.class);
     }
 
     public TrainerPokemon getScriptedTrainerPokemon(List<Pokemon> pokepool, Trainer trainer, TrainerPokemon oldPokemon, boolean megaSwap)
     {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemon");
-        return Py.tojava(func.__call__(Py.java2py(pokepool), Py.java2py(trainer), Py.java2py(oldPokemon), new PyBoolean(megaSwap)), TrainerPokemon.class);
+        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(trainer), Py.java2py(oldPokemon), new PyBoolean(megaSwap)), TrainerPokemon.class);
     }
 
     public Integer getScriptedTrainerPokemonHeldItem(List<Integer> itempool, Trainer trainer, TrainerPokemon pokemon)
     {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemonItem");
-        return Py.tojava(func.__call__(Py.java2py(itempool), Py.java2py(trainer), Py.java2py(pokemon)), Integer.class);
+        PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
+        return Py.tojava(func.__call__(pyItempool, Py.java2py(trainer), Py.java2py(pokemon)), Integer.class);
     }
 
     public Pokemon getScriptedWildHeldItemPokemon(ItemList itempool, Pokemon pokemon, boolean supportCommon, boolean supportRare, boolean supportGuaranteed, boolean supportDarkGrass)
@@ -104,19 +106,23 @@ public class ScriptInstance {
     public List<MoveLearnt> getScriptedLearntMoveset(Pokemon pokemon, List<MoveLearnt> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setLearntMoveset");
-        return Py.tojava(func.__call__(Py.java2py(pokemon), Py.java2py(oldMoveset)), List.class);
+        PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
+        List<MoveLearnt> result = toJavaList((PyArray) func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        return result;
     }
 
     public List<MoveLearnt> getPostScriptedLearntMoveset(Pokemon pokemon, List<MoveLearnt> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setLearntMovesetPost");
-        return Py.tojava(func.__call__(Py.java2py(pokemon), Py.java2py(oldMoveset)), List.class);
+        PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
+        return toJavaList((PyArray)func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
     }
 
     public List<Integer> getScriptedEggMoveset(Pokemon pokemon, List<Integer> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
-        return Py.tojava(func.__call__(Py.java2py(pokemon), Py.java2py(oldMoveset)), List.class);
+        PyArray pyMoveset = toPythonArray(oldMoveset, PyInteger.class, i -> new PyInteger(i));
+        return toJavaList((PyArray)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
     }
 
     public void updateScriptedPokemonBaseStats(Pokemon pokemon)
@@ -182,7 +188,8 @@ public class ScriptInstance {
 
         //call funciton
         PyFunction func = (PyFunction)interp.get("selectPokemonAbilities");
-        PyList result = (PyList)(func.__call__(Py.java2py(pokemon), Py.java2py(abilities), new PyInteger(maxAbilities)));
+        PyArray pyAbilities = toPythonArray(abilities, PyInteger.class, i -> new PyInteger(i));
+        PyList result = (PyList)(func.__call__(Py.java2py(pokemon), pyAbilities, new PyInteger(maxAbilities)));
 
         //get and verify chosen abilities
         int chosen[] = { 0, 0, 0 };
@@ -226,19 +233,22 @@ public class ScriptInstance {
     public int getScriptedFieldItem(int oldItem, List<Integer> itempool, boolean isTM)
     {
         PyFunction func = (PyFunction)interp.get("selectFieldItem");
-        return ((PyInteger)(func.__call__(new PyInteger(oldItem), Py.java2py(itempool), new PyBoolean(isTM)))).asInt();
+        PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
+        return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool, new PyBoolean(isTM)))).asInt();
     }
 
     public int getScriptedPickupItem(int oldItem, List<Integer> itempool)
     {
         PyFunction func = (PyFunction)interp.get("selectPickupItem");
-        return ((PyInteger)(func.__call__(new PyInteger(oldItem), Py.java2py(itempool)))).asInt();
+        PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
+        return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool))).asInt();
     }
 
     public Move getScriptedTMMove(Move oldMove, List<Move> movepool, boolean forcedDamagingMove)
     {
         PyFunction func = (PyFunction)interp.get("selectTMMove");
-        return Py.tojava(func.__call__(Py.java2py(oldMove), Py.java2py(movepool), new PyBoolean(forcedDamagingMove)), Move.class);
+        PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
+        return Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
     }
 
     public boolean getScriptedTMMoveCompat(Move move, Pokemon pokemon)
@@ -256,6 +266,36 @@ public class ScriptInstance {
     public Move getScriptedTutorMove(Move oldMove, List<Move> movepool, boolean forcedDamagingMove)
     {
         PyFunction func = (PyFunction)interp.get("selectTutorMove");
-        return Py.tojava(func.__call__(Py.java2py(oldMove), Py.java2py(movepool), new PyBoolean(forcedDamagingMove)), Move.class);
+        PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
+        return Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
+    }
+
+    private interface ConvertOperator<T1, T2>
+    {
+        public T2 op(T1 source);
+    }
+    private <T, PyT extends PyObject> PyArray toPythonArray(List<T> list, Class<PyT> classType, ConvertOperator<T, PyT> convertFunc)
+    {
+        PyArray arr = new PyArray(classType, null);
+        for(T current : list)
+        {
+            arr.append(convertFunc.op(current));
+        }
+        return arr;
+    }
+
+    private <T, PyT extends PyObject> List<T> toJavaList(PyArray arr, ConvertOperator<PyT, T> convertFunc)
+    {
+        List<T> result = new ArrayList<T>();
+        for(int k = 0; k < arr.__len__(); k++)
+        {
+            result.add(convertFunc.op((PyT)arr.__getitem__(k)));
+        }
+        return result;
+    }
+
+    private PyArray pyPokePool(List<Pokemon> pokepool)
+    {
+        return toPythonArray(pokepool, PyObject.class, poke -> Py.java2py(poke));
     }
 }

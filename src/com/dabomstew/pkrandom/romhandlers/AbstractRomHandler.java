@@ -3645,6 +3645,9 @@ public abstract class AbstractRomHandler implements RomHandler {
             {
                 moves = settings.getScript().getPostScriptedLearntMoveset(pkmn, moves);
             }
+
+            //put into movesets map
+            movesets.put(pkmnNum, moves);
         }
         // Done, save
         this.setMovesLearnt(movesets);
@@ -3776,6 +3779,9 @@ public abstract class AbstractRomHandler implements RomHandler {
             {
                 moves = settings.getScript().getScriptedEggMoveset(pkmn, moves);
             }
+
+            //update map with updated moveset
+            movesets.put(pkmnNum, moves);
 
         }
         // Done, save

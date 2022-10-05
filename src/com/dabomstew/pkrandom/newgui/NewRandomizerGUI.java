@@ -4383,7 +4383,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#selects starter pokemon",
-                "#  pokepool - a List<Pokemon> object of all available pokemon",
+                "#  pokepool - an array of Pokemon objects representing all available pokemon",
                 "#  starterIndex - The index of the current starter [0 - 2]",
                 "#",
                 "#  return: a Pokemon object that is present in pokepool"
@@ -4406,7 +4406,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#selects all static pokemon settings",
-                "#pokepool - a List<Pokemon> of all available pokemon",
+                "#pokepool - an array of Pokemon objects representing all available pokemon",
                 "#           (some encounters might have a different restricted pool)",
                 "#oldEncounter - a StaticEncounter object representing the original encounter",
                 "#megaSwap - true if the current request is for swapping a mega-evolvable pokemon",
@@ -4434,7 +4434,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#selects given and/or received pokemon in in-game trades",
-                "#pokepool - a List<Pokemon> of all available pokemon",
+                "#pokepool - an array of Pokemon objects representing all available pokemon",
                 "#oldTrade - an IngameTrade object representing the original trade",
                 "#",
                 "#return: an IngameTrade object representing the modified trade",
@@ -4459,7 +4459,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#selects wild pokemon encounters per-area",
-                "#pokepool - a List<Pokemon> of all available pokemon in this current area",
+                "#pokepool - an array of Pokemon objects representing all available pokemon in this current area",
                 "#oldArea - an EncounterSet object representing the original area of wild pokemon",
                 "#",
                 "#return: an EncounterSet object representing the modified area of wild pokemon"
@@ -4484,7 +4484,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#selects the pokemon of the given trainer",
-                "#pokepool - a List<Pokemon> of all available pokemon in this current area",
+                "#pokepool - an array of Pokemon objects representing all available pokemon in this current area",
                 "#trainer - a Trainer object representing the trainer that owns the pokemon",
                 "#oldPokemon - a TrainerPokemon object representing the original pokemon",
                 "#megaSwap - true if the current request is for swapping a mega-evolvable pokemon",
@@ -4515,7 +4515,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#selects the held item for the given trainer pokemon",
-                "#itempool - a List<int> of available held item indices",
+                "#itempool - an array of integers representing all available held items",
                 "#           (this is affected by the \"Consumable only\" and \"Sensible items\" settings)",
                 "#trainer - a Trainer object representing the trainer that owns the pokemon to give an item to",
                 "#pokemon - a TrainerPokemon object representing the pokemon to give an item to",
@@ -4544,10 +4544,10 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#filters the given list of pokemon to limit the pokemon available in-game (this affects all options where pokemon are selected)",
-                "#pokepool - a List<Pokemon> of available pokemon before this function is called",
+                "#pokepool - an array of Pokemon objects representing all available pokemon before this function is called",
                 "#           (this is affected by the usual pokemon limiting options)",
                 "#",
-                "#return: a List<Pokemon> of all available pokemon"
+                "#return: an array of Pokemon objects representing all available pokemon"
         };
         String funcDeclaration = "def limitPokemon(pokepool):";
         String funcBody = "\n\ttoRemove = [] #example\n\tfor poke in pokepool:\n\t\tif('B' in poke.name):\n\t\t\ttoRemove.append(poke)\n\tfor poke in toRemove:\n\t\tpokepool.remove(pokepool.indexOf(poke))\n\treturn pokepool";
@@ -4626,9 +4626,9 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies a pokemon's learnt moves BEFORE other options are run on it",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
-                "#oldMoveset - a List<MoveLearnt> object representing the original set of moves learned by leveling up",
+                "#oldMoveset - an array of MoveLearnt objects representing the original set of moves learned by leveling up",
                 "#",
-                "#return: a List<MoveLearnt> object representing the modified set of moves learned by leveling up",
+                "#return: an array of MoveLearnt objects representing the modified set of moves learned by leveling up",
                 "#NOTE: use the imported Move class to access moves by variable name",
                 "#NOTE: the result of this function will still be affected by other selected moveset options"
         };
@@ -4651,9 +4651,9 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies a pokemon's learnt moves AFTER other options are run on it",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
-                "#oldMoveset - a List<MoveLearnt> object representing the original set of moves learned by leveling up",
+                "#oldMoveset - an array of MoveLearnt objects representing the original set of moves learned by leveling up",
                 "#",
-                "#return: a List<MoveLearnt> object representing the modified set of moves learned by leveling up",
+                "#return: an array of MoveLearnt objects representing the modified set of moves learned by leveling up",
                 "#NOTE: use the imported Move class to access moves by variable name",
                 "#NOTE: the result of this function will not be affected by other moveset options because they have been applied beforehand"
         };
@@ -4676,9 +4676,9 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies a pokemon's egg moves AFTER other options are run on it",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
-                "#oldMoveset - a List<Integer> object representing the original set of egg moves",
+                "#oldMoveset - an array of integers representing the original set of egg moves",
                 "#",
-                "#return: a List<Integer> object representing the modified set of egg moves",
+                "#return: an array of Integer objects representing the modified set of egg moves",
                 "#NOTE: use the imported Move class to access moves by variable name",
                 "#NOTE: the result of this function will still be affected by other selected moveset options",
                 "#WARNING: you CANNOT change the number of egg moves a pokemon has, you can only change what moves they are"
@@ -4747,7 +4747,7 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies a pokemon's abilities",
                 "#pokemon - a Pokemon object representing the pokemon whose abilities are being changed",
-                "#abilitypool - a List<Integer> of all available abilities",
+                "#abilitypool - an array of integers representing all available abilities",
                 "#maxAbilities - the maximum number of abilities to select (any extra will be ignored)",
                 "#",
                 "#return: an array of ability indices, an index fo 0 means there is no ability in the given slot, if there are no abilities at all the pokemon will get the illuminate ability",
@@ -4795,7 +4795,7 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies field items found in the overworld",
                 "#oldItem - an Integer representing the original field item",
-                "#itemPool - a List<Integer> of all available items",
+                "#itemPool - an array of integers representing all available items",
                 "#isTM - True if the current field item is a TM, false otherwise",
                 "#",
                 "#return: an integer representing the new field item",
@@ -4822,7 +4822,7 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#Modifies items gained from the pickup ability",
                 "#oldItem - an Integer representing the original pickup item",
-                "#itemPool - a List<Integer> of all available items",
+                "#itemPool - an array of integers representing all available items",
                 "#",
                 "#return: an integer representing the new pickup item",
                 "#NOTE: you can access items through the imported Items class",
@@ -4846,7 +4846,7 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#selects a move for a TM",
                 "#oldMove - a Move object representing the move that is being replaced",
-                "#movepool - a List<Move> of all available moves",
+                "#movepool - an array of Move objects representing all available moves",
                 "#forcedDamaging - True if the current move is forced to be a good damaging move",
                 "#",
                 "#return: a Move object representing the new move",
@@ -4922,7 +4922,7 @@ public class NewRandomizerGUI {
         String[] funcComments = {
                 "#selects a move for a move tutor",
                 "#oldMove - a Move object representing the move that is being replaced",
-                "#movepool - a List<Move> of all available moves",
+                "#movepool - an array of Move objects representing all available moves",
                 "#forcedDamaging - True if the current move is forced to be a good damaging move",
                 "#",
                 "#return: a Move object representing the new move",
