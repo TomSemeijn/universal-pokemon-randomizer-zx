@@ -4388,13 +4388,12 @@ public class NewRandomizerGUI {
                 "#",
                 "#  return: a Pokemon object that is present in pokepool"
         };
-        String funcBody = "\n\treturn pokepool.get(starterIndex) #example";
+        String funcBody = "\n\treturn pokepool[starterIndex] #example";
         String funcDeclaration = "def selectStarter(pokepool, starterIndex):";
 
         if(spScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4422,7 +4421,6 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "StaticEncounter");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4441,13 +4439,12 @@ public class NewRandomizerGUI {
                 "#NOTE: Nicknames, OTs, IVs, and items can be set here, but will be overridden by the unscripted options if their checkboxes are selected"
         };
         String funcDeclaration = "def selectInGameTradePokemon(pokepool, oldTrade):";
-        String funcBody = "\n\toldTrade.givenPokemon = pokepool.get(0) #example\n\toldTrade.nickname = \"Dippy\"\n\treturn oldTrade";
+        String funcBody = "\n\toldTrade.givenPokemon = pokepool[0] #example\n\toldTrade.nickname = \"Dippy\"\n\treturn oldTrade";
 
         if(igtScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "IngameTrade");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4465,14 +4462,13 @@ public class NewRandomizerGUI {
                 "#return: an EncounterSet object representing the modified area of wild pokemon"
         };
         String funcDeclaration = "def selectWildEncountersForArea(pokepool, oldArea):";
-        String funcBody = "\n\tfor enc in oldArea.encounters:\n\t\tenc.pokemon = pokepool.get(min(enc.level, pokepool.size() - 1))\n\treturn oldArea";
+        String funcBody = "\n\tfor enc in oldArea.encounters: #example\n\t\tenc.pokemon = pokepool[min(enc.level, len(pokepool) - 1)]\n\treturn oldArea";
 
         if(wpScriptedRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "EncounterSet");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Encounter");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4496,14 +4492,13 @@ public class NewRandomizerGUI {
                 "#NOTE: the additional pokemon option will already be applied, so those pokemon are selected here as well"
         };
         String funcDeclaration = "def selectTrainerPokemon(pokepool, trainer, oldPokemon, megaSwap):";
-        String funcBody = "\n\toldPokemon.pokemon = pokepool.get(min(oldPokemon.level, pokepool.size() - 1)) #example\n\treturn oldPokemon";
+        String funcBody = "\n\toldPokemon.pokemon = pokepool[min(oldPokemon.level, len(pokepool) - 1)] #example\n\treturn oldPokemon";
 
         if(isTrainerSetting(TRAINER_SCRIPTED))
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Trainer");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TrainerPokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4524,7 +4519,7 @@ public class NewRandomizerGUI {
                 "#NOTE: use the imported Item class to access held items by variable name"
         };
         String funcDeclaration = "def selectTrainerPokemonItem(itempool, trainer, pokemon):";
-        String funcBody = "\n\tif(itempool.contains(Items.oranBerry)): #example\n\t\treturn Items.oranBerry\n\treturn 0";
+        String funcBody = "\n\tif(Items.oranBerry in itempool): #example\n\t\treturn Items.oranBerry\n\treturn 0";
 
         if(tpScriptedHeldItemsCheckBox.isSelected())
         {
@@ -4532,7 +4527,6 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Trainer");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TrainerPokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4550,12 +4544,11 @@ public class NewRandomizerGUI {
                 "#return: an array of Pokemon objects representing all available pokemon"
         };
         String funcDeclaration = "def limitPokemon(pokepool):";
-        String funcBody = "\n\ttoRemove = [] #example\n\tfor poke in pokepool:\n\t\tif('B' in poke.name):\n\t\t\ttoRemove.append(poke)\n\tfor poke in toRemove:\n\t\tpokepool.remove(pokepool.indexOf(poke))\n\treturn pokepool";
+        String funcBody = "\n\tpokepool = [poke for poke in pokepool if 'B' in poke.name] #example\n\treturn pokepool";
 
         if(limitPokemonScriptingCheckbox.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4587,7 +4580,6 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ItemList");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
-            scriptText = addImport(scriptText, "java.util", "List");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);
@@ -4633,7 +4625,7 @@ public class NewRandomizerGUI {
                 "#NOTE: the result of this function will still be affected by other selected moveset options"
         };
         String funcDeclaration = "def setLearntMoveset(pokemon, oldMoveset):";
-        String funcBody = "\n\tnewMove = MoveLearnt()\n\tnewMove.move = Moves.splash\n\tnewMove.level = 100\n\toldMoveset.add(newMove)\n\treturn oldMoveset";
+        String funcBody = "\n\tnewMove = MoveLearnt() #example\n\tnewMove.move = Moves.splash\n\tnewMove.level = 100\n\toldMoveset.append(newMove)\n\treturn oldMoveset";
 
         if(pmsScriptLearntCheckBox.isSelected())
         {
@@ -4684,7 +4676,7 @@ public class NewRandomizerGUI {
                 "#WARNING: you CANNOT change the number of egg moves a pokemon has, you can only change what moves they are"
         };
         String funcDeclaration = "def setEggMoveset(pokemon, oldMoveset):";
-        String funcBody = "\n\tif(oldMoveset.size() > 0):\n\t\toldMoveset.set(0, Moves.splash)\n\treturn oldMoveset";
+        String funcBody = "\n\tif(len(oldMoveset) > 0): #example\n\t\toldMoveset[0] = Moves.splash\n\treturn oldMoveset";
 
         if(pmsScriptEggCheckBox.isSelected())
         {
@@ -4754,7 +4746,7 @@ public class NewRandomizerGUI {
                 "#NOTE: you can access abilities through the imported Abilities class"
         };
         String funcDeclaration = "def selectPokemonAbilities(pokemon, abilitypool, maxAbilities):";
-        String funcBody = "\n\tresult = [Abilities.sturdy, Abilities.speedBoost]\n\tfor index, ability in enumerate(result):\n\t\tif(not ability in abilitypool):\n\t\t\tresult[index] = 0\n\treturn result";
+        String funcBody = "\n\tresult = [Abilities.sturdy, Abilities.speedBoost] #example\n\tfor index, ability in enumerate(result):\n\t\tif(not ability in abilitypool):\n\t\t\tresult[index] = 0\n\treturn result";
 
         if(paScriptedRadioButton.isSelected())
         {
@@ -4805,7 +4797,7 @@ public class NewRandomizerGUI {
                 "#NOTE: TMs will always be shuffled afer this function is called to include some required TMs. Field items will only be shuffled if the option for it is selected"
         };
         String funcDeclaration = "def selectFieldItem(oldItem, itemPool, isTM):";
-        String funcBody = "\n\tif(isTM):\n\t\treturn Items.tm01\n\telse:\n\t\treturn Items.potion";
+        String funcBody = "\n\tif(isTM): #example\n\t\treturn Items.tm01\n\telse:\n\t\treturn Items.potion";
 
         if(fiScriptedRadioButton.isSelected())
         {
@@ -4829,7 +4821,7 @@ public class NewRandomizerGUI {
                 "#NOTE: in some games (gen 3 & 4) TMs can be used as pickup items and they will be included in the itempool for those games"
         };
         String funcDeclaration = "def selectPickupItem(oldItem, itemPool):";
-        String funcBody = "\n\tif(itemPool.contains(oldItem + 1)):\n\t\treturn oldItem + 1\n\telse:\n\t\treturn oldItem";
+        String funcBody = "\n\tif(oldItem + 1 in itemPool): #example\n\t\treturn oldItem + 1\n\telse:\n\t\treturn oldItem";
 
         if(puScriptedRadioButton.isSelected())
         {
@@ -4854,7 +4846,7 @@ public class NewRandomizerGUI {
                 "#NOTE: forcedDamaging is only used when \"Force % of good damaging moves\" is used, when True the movepool will only contain good damaging moves"
         };
         String funcDeclaration = "def selectTMMove(oldMove, movepool, forcedDamaging):";
-        String funcBody = "\n\treturn movepool.get(movepool.size() / 2) #example";
+        String funcBody = "\n\treturn movepool[len(movepool) / 2] #example";
 
         if(tmScriptedRadioButton.isSelected())
         {
@@ -4930,7 +4922,7 @@ public class NewRandomizerGUI {
                 "#NOTE: forcedDamaging is only used when \"Force % of good damaging moves\" is used, when True the movepool will only contain good damaging moves"
         };
         String funcDeclaration = "def selectTutorMove(oldMove, movepool, forcedDamaging):";
-        String funcBody = "\n\treturn movepool.get(movepool.size() / 2) #example";
+        String funcBody = "\n\treturn movepool[len(movepool) / 2] #example";
 
         if(mtScriptedRadioButton.isSelected())
         {
