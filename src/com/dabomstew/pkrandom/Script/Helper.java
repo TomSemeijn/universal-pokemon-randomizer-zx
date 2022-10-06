@@ -1,5 +1,7 @@
 package com.dabomstew.pkrandom.Script;
 
+import com.dabomstew.pkrandom.pokemon.Pokemon;
+import com.dabomstew.pkrandom.pokemon.Type;
 import org.python.core.*;
 
 import java.util.List;
@@ -33,6 +35,11 @@ public class Helper {
             result.append(Py.java2py(item));
         }
         return result;
+    }
+
+    public static boolean HasType(Pokemon poke, Type theType)
+    {
+        return poke.primaryType == theType || poke.secondaryType == theType;
     }
 
 }
