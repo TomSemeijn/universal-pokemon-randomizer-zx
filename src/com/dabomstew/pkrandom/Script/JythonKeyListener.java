@@ -1,4 +1,4 @@
-package com.dabomstew.pkrandom;
+package com.dabomstew.pkrandom.Script;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;

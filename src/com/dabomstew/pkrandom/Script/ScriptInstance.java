@@ -1,4 +1,4 @@
-package com.dabomstew.pkrandom;
+package com.dabomstew.pkrandom.Script;
 
 import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.pokemon.*;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class ScriptInstance {
     private PythonInterpreter interp;
 
-    ScriptInstance(String source)
+    public ScriptInstance(String source)
     {
         interp = new PythonInterpreter();
         interp.exec(source);
@@ -298,4 +298,5 @@ public class ScriptInstance {
     {
         return toPythonArray(pokepool, PyObject.class, poke -> Py.java2py(poke));
     }
+
 }

@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.dabomstew.pkrandom.*;
+import com.dabomstew.pkrandom.Script.ScriptInstance;
 import com.dabomstew.pkrandom.constants.*;
 import com.dabomstew.pkrandom.exceptions.RandomizationException;
 import com.dabomstew.pkrandom.pokemon.*;

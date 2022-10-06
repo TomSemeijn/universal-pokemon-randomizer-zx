@@ -33,7 +33,7 @@ import java.util.Random;
 import java.util.Set;
 
 import com.dabomstew.pkrandom.MiscTweak;
-import com.dabomstew.pkrandom.ScriptInstance;
+import com.dabomstew.pkrandom.Script.ScriptInstance;
 import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.pokemon.*;
 
