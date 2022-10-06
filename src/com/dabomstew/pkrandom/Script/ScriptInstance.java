@@ -193,6 +193,7 @@ public class ScriptInstance {
 
         //get and verify chosen abilities
         int chosen[] = { 0, 0, 0 };
+        int chosenIter = 0;
         for(int k = 0; k < result.size(); k++)
         {
             int ability = (Integer)result.get(k);
@@ -200,23 +201,14 @@ public class ScriptInstance {
             {
                 throw new Exception("Chose unavailable ability!");
             }
-            chosen[k] = ability;
+            chosen[chosenIter++] = ability;
         }
 
-        //shift abilities when first is 0
-        for(int k = 0; k < 3; k++)
+        //throw exception if not even the first ability is 0
+        if(chosen[0] <= 0)
         {
-            if(chosen[0] == 0)
-            {
-                chosen[0] = chosen[1];
-                chosen[1] = chosen[2];
-                chosen[2] = 0;
-            }
-            else{ break; }
+            throw new Exception("No ability given to pokemon "+pokemon.name+"!");
         }
-
-        //pick illuminate if the first ability is still 0 (in which case all abilities are)
-        if(chosen[0] == 0) { chosen[0] = Abilities.illuminate; }
 
         //set abilities
         pokemon.ability1 = chosen[0];

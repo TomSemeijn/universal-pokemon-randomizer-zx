@@ -4751,7 +4751,7 @@ public class NewRandomizerGUI {
                 "#abilitypool - an array of integers representing all available abilities",
                 "#maxAbilities - the maximum number of abilities to select (any extra will be ignored)",
                 "#",
-                "#return: an array of ability indices, an index fo 0 means there is no ability in the given slot, if there are no abilities at all the pokemon will get the illuminate ability",
+                "#return: an array of ability indices, an index fo 0 means there is no ability in the given slot, the pokemon should get at least 1 ability",
                 "#NOTE: you can access abilities through the imported Abilities class"
         };
         String funcDeclaration = "def selectPokemonAbilities(pokemon, abilitypool, maxAbilities):";
