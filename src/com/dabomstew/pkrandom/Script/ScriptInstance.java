@@ -269,11 +269,11 @@ public class ScriptInstance {
         return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool))).asInt();
     }
 
-    private interface ConvertOperator<T1, T2>
+    public interface ConvertOperator<T1, T2>
     {
         public T2 op(T1 source);
     }
-    private <T, PyT extends PyObject> PyArray toPythonArray(List<T> list, Class<PyT> classType, ConvertOperator<T, PyT> convertFunc)
+    public static <T, PyT extends PyObject> PyArray toPythonArray(List<T> list, Class<PyT> classType, ConvertOperator<T, PyT> convertFunc)
     {
         PyArray arr = new PyArray(classType, null);
         for(T current : list)
@@ -283,7 +283,7 @@ public class ScriptInstance {
         return arr;
     }
 
-    private <T, PyT extends PyObject> List<T> toJavaList(PySequence arr, ConvertOperator<PyT, T> convertFunc)
+    public static <T, PyT extends PyObject> List<T> toJavaList(PySequence arr, ConvertOperator<PyT, T> convertFunc)
     {
         List<T> result = new ArrayList<T>();
         for(int k = 0; k < arr.__len__(); k++)

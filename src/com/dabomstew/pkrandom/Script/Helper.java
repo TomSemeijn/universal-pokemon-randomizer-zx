@@ -7,9 +7,12 @@ import com.dabomstew.pkrandom.constants.Species;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.Type;
 import org.python.core.*;
+import sun.font.Script;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Helper {
 
@@ -99,6 +102,37 @@ public class Helper {
             }
         }
         return null;
+    }
+
+    public static PySequence SimilarStrength(PySequence pyPokepool, Pokemon poke)
+    {
+        return SimilarStrength(pyPokepool, poke, 3);
+    }
+
+    public static PySequence SimilarStrength(PySequence pyPokepool, Pokemon poke, int targetSize)
+    {
+        List<Pokemon> pokepool = ScriptInstance.toJavaList(pyPokepool, pkmn -> Py.tojava(pkmn, Pokemon.class));
+
+        // start with within 10% and add 5% either direction till we find
+        // something
+        int currentBST = poke.bstForPowerLevels();
+        int minTarget = currentBST - currentBST / 10;
+        int maxTarget = currentBST + currentBST / 10;
+        List<Pokemon> canPick = new ArrayList<>();
+        int expandRounds = 0;
+        while (canPick.isEmpty() || (canPick.size() < targetSize && expandRounds < 2)) {
+            for (Pokemon pk : pokepool) {
+                if (pk.bstForPowerLevels() >= minTarget
+                        && pk.bstForPowerLevels() <= maxTarget) {
+                    canPick.add(pk);
+                }
+            }
+            minTarget -= currentBST / 20;
+            maxTarget += currentBST / 20;
+            expandRounds++;
+        }
+
+        return ScriptInstance.toPythonArray(canPick, PyObject.class, pkmn -> Py.java2py(pkmn));
     }
 
 }
