@@ -104,7 +104,7 @@ public class Helper {
 
     public static PySequence similarStrength(PySequence pyPokepool, Pokemon poke)
     {
-        return SimilarStrength(pyPokepool, poke, 3);
+        return similarStrength(pyPokepool, poke, 3);
     }
 
     public static PySequence similarStrength(PySequence pyPokepool, Pokemon poke, int targetSize)
