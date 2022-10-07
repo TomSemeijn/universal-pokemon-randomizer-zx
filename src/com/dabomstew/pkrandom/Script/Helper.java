@@ -15,7 +15,7 @@ import java.util.List;
 public class Helper {
 
     //turns a java string into a (sanitized) python string
-    public static PyString Str(String value)
+    public static PyString str(String value)
     {
         //clean string by filtering out all non-ascii characters
         String cleaned = "";
@@ -33,7 +33,7 @@ public class Helper {
     }
 
     //turns a java list into a python list
-    public static <T> PyList Seq(List<T> list)
+    public static <T> PyList seq(List<T> list)
     {
         PyList result = new PyList();
         for(T item : list)
@@ -43,12 +43,12 @@ public class Helper {
         return result;
     }
 
-    public static boolean HasType(Pokemon poke, Type theType)
+    public static boolean hasType(Pokemon poke, Type theType)
     {
         return poke.primaryType == theType || poke.secondaryType == theType;
     }
 
-    public static PyString Str(Enum val)
+    public static PyString str(Enum val)
     {
         return new PyString(val.name());
     }
@@ -56,7 +56,7 @@ public class Helper {
     public enum Index{
         ABILITY, ITEM, MOVE, POKEMON
     }
-    public static PyString Str(int val, Index valType)throws IllegalAccessException, Exception
+    public static PyString str(int val, Index valType)throws IllegalAccessException, Exception
     {
         Field[] fields = null;
         switch(valType)
@@ -90,7 +90,7 @@ public class Helper {
         throw new Exception("Name of "+valType.name()+" not found!");
     }
 
-    public static PyObject Find(PySequence seq, int number)
+    public static PyObject find(PySequence seq, int number)
     {
         for(int k = 0; k < seq.__len__(); k++)
         {
@@ -102,12 +102,12 @@ public class Helper {
         return null;
     }
 
-    public static PySequence SimilarStrength(PySequence pyPokepool, Pokemon poke)
+    public static PySequence similarStrength(PySequence pyPokepool, Pokemon poke)
     {
         return SimilarStrength(pyPokepool, poke, 3);
     }
 
-    public static PySequence SimilarStrength(PySequence pyPokepool, Pokemon poke, int targetSize)
+    public static PySequence similarStrength(PySequence pyPokepool, Pokemon poke, int targetSize)
     {
         List<Pokemon> pokepool = ScriptInstance.toJavaList(pyPokepool, pkmn -> Py.tojava(pkmn, Pokemon.class));
 
