@@ -89,4 +89,16 @@ public class Helper {
         throw new Exception("Name of "+valType.name()+" not found!");
     }
 
+    public static PyObject Find(PySequence seq, int number)
+    {
+        for(int k = 0; k < seq.__len__(); k++)
+        {
+            if(Py.tojava(seq.__getitem__(k), Pokemon.class).number == number)
+            {
+                return seq.__getitem__(k);
+            }
+        }
+        return null;
+    }
+
 }
