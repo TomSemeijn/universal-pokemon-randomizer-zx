@@ -111,6 +111,8 @@ public class Settings {
     // offset from the dropdown index from RandomizerGUI by 1
     private int[] customStarters = new int[3];
     private boolean randomizeStartersHeldItems;
+    private boolean scriptStartersHeldItems;
+
     private boolean limitMainGameLegendaries;
     private boolean limit600;
     private boolean banBadRandomStarterHeldItems;
@@ -607,10 +609,10 @@ public class Settings {
                 highestLevelOnlyGetsItemsForTrainerPokemon,
                 ensureTwoAbilities));
 
-        // 50 pickup item randomization (and some move tutor settings that had to move and didn't fit anywhere else)
+        // 50 pickup item randomization (and some other settings that had to move and didn't fit anywhere else)
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
                 pickupItemsMod == PickupItemsMod.UNCHANGED, banBadRandomPickupItems,
-                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED, keepFieldMoveTutors, tutorLevelUpMoveSanity));
+                banIrregularAltFormes, pickupItemsMod == PickupItemsMod.SCRIPTED, keepFieldMoveTutors, tutorLevelUpMoveSanity, scriptStartersHeldItems));
 
         // 51 elite four unique pokemon (3 bits)
         out.write(eliteFourUniquePokemonNumber);
@@ -937,6 +939,7 @@ public class Settings {
                 4));      // SCRIPTED
         settings.setBanBadRandomPickupItems(restoreState(data[50], 2));
         settings.setBanIrregularAltFormes(restoreState(data[50], 3));
+        settings.setScriptStarterHeldItems(restoreState(data[50], 7));
 
         settings.setEliteFourUniquePokemonNumber(data[51] & 0x7);
 
@@ -1037,6 +1040,7 @@ public class Settings {
         if (!(rh instanceof Gen2RomHandler || rh instanceof Gen3RomHandler)) {
             // starter held items don't exist
             this.setRandomizeStartersHeldItems(false);
+            this.setScriptStarterHeldItems(false);
             this.setBanBadRandomStarterHeldItems(false);
         }
 
@@ -1420,6 +1424,14 @@ public class Settings {
 
     public void setRandomizeStartersHeldItems(boolean randomizeStartersHeldItems) {
         this.randomizeStartersHeldItems = randomizeStartersHeldItems;
+    }
+
+    public boolean isScriptStarterHeldItems() {
+        return scriptStartersHeldItems;
+    }
+
+    public void setScriptStarterHeldItems(boolean scriptStartersHeldItems) {
+        this.scriptStartersHeldItems = scriptStartersHeldItems;
     }
 
     public boolean isBanBadRandomStarterHeldItems() {

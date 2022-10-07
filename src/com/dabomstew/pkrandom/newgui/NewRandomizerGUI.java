@@ -107,7 +107,7 @@ public class NewRandomizerGUI {
     private JComboBox<String> spComboBox1;
     private JComboBox<String> spComboBox2;
     private JComboBox<String> spComboBox3;
-    private JCheckBox spRandomizeStarterHeldItemsCheckBox;
+    private JRadioButton spRandomizeStarterHeldItemsRadioButton;
     private JCheckBox spBanBadItemsCheckBox;
     private JRadioButton stpUnchangedRadioButton;
     private JRadioButton stpSwapLegendariesSwapStandardsRadioButton;
@@ -335,6 +335,8 @@ public class NewRandomizerGUI {
     private JRadioButton mtcScriptedRadioButton;
     private JRadioButton mtScriptedRadioButton;
     private JButton ConsoleButton;
+    private JRadioButton spUnchangedStarterHeldItemsRadioButton;
+    private JRadioButton spScriptedStarterHeldItemsRadioButton;
 
     private static JFrame frame;
 
@@ -668,7 +670,10 @@ public class NewRandomizerGUI {
         ptRandomCompletelyRadioButton.addActionListener(e -> enableOrDisableSubControls());
         ptScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         ptScriptedRadioButton.addActionListener(e -> addPokemonTypeScriptFunc());
-        spRandomizeStarterHeldItemsCheckBox.addActionListener(e -> enableOrDisableSubControls());
+        spUnchangedStarterHeldItemsRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        spRandomizeStarterHeldItemsRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        spScriptedStarterHeldItemsRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        spScriptedStarterHeldItemsRadioButton.addActionListener(e -> addStarterHeldItemScriptFunc());
         tmLevelupMoveSanityCheckBox.addActionListener(e -> enableOrDisableSubControls());
         mtLevelupMoveSanityCheckBox.addActionListener(e -> enableOrDisableSubControls());
         noIrregularAltFormesCheckBox.addActionListener(e -> enableOrDisableSubControls());
@@ -1634,7 +1639,9 @@ public class NewRandomizerGUI {
         spUnchangedRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.UNCHANGED);
         spRandomTwoEvosRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.RANDOM_WITH_TWO_EVOLUTIONS);
         spScriptedRadioButton.setSelected(settings.getStartersMod() == Settings.StartersMod.SCRIPTED);
-        spRandomizeStarterHeldItemsCheckBox.setSelected(settings.isRandomizeStartersHeldItems());
+        spUnchangedStarterHeldItemsRadioButton.setSelected(!settings.isRandomizeStartersHeldItems() && !settings.isScriptStarterHeldItems());
+        spRandomizeStarterHeldItemsRadioButton.setSelected(settings.isRandomizeStartersHeldItems());
+        spScriptedStarterHeldItemsRadioButton.setSelected(settings.isScriptStarterHeldItems());
         spBanBadItemsCheckBox.setSelected(settings.isBanBadRandomStarterHeldItems());
         spAllowAltFormesCheckBox.setSelected(settings.isAllowStarterAltFormes());
 
@@ -1900,7 +1907,8 @@ public class NewRandomizerGUI {
 
         settings.setStartersMod(spUnchangedRadioButton.isSelected(), spCustomRadioButton.isSelected(), spRandomCompletelyRadioButton.isSelected(),
                 spRandomTwoEvosRadioButton.isSelected(), spScriptedRadioButton.isSelected());
-        settings.setRandomizeStartersHeldItems(spRandomizeStarterHeldItemsCheckBox.isSelected() && spRandomizeStarterHeldItemsCheckBox.isVisible());
+        settings.setRandomizeStartersHeldItems(spRandomizeStarterHeldItemsRadioButton.isSelected() && spRandomizeStarterHeldItemsRadioButton.isVisible());
+        settings.setScriptStarterHeldItems(spScriptedStarterHeldItemsRadioButton.isSelected() && spScriptedStarterHeldItemsRadioButton.isVisible());
         settings.setBanBadRandomStarterHeldItems(spBanBadItemsCheckBox.isSelected() && spBanBadItemsCheckBox.isVisible());
         settings.setAllowStarterAltFormes(spAllowAltFormesCheckBox.isSelected() && spAllowAltFormesCheckBox.isVisible());
 
@@ -2367,9 +2375,15 @@ public class NewRandomizerGUI {
         spComboBox3.setEnabled(false);
         spComboBox3.setSelectedIndex(0);
         spComboBox3.setModel(new DefaultComboBoxModel<>(new String[] { "--" }));
-        spRandomizeStarterHeldItemsCheckBox.setVisible(true);
-        spRandomizeStarterHeldItemsCheckBox.setEnabled(false);
-        spRandomizeStarterHeldItemsCheckBox.setSelected(false);
+        spUnchangedStarterHeldItemsRadioButton.setVisible(true);
+        spUnchangedStarterHeldItemsRadioButton.setEnabled(false);
+        spUnchangedStarterHeldItemsRadioButton.setSelected(true);
+        spRandomizeStarterHeldItemsRadioButton.setVisible(true);
+        spRandomizeStarterHeldItemsRadioButton.setEnabled(false);
+        spRandomizeStarterHeldItemsRadioButton.setSelected(false);
+        spScriptedStarterHeldItemsRadioButton.setVisible(true);
+        spScriptedStarterHeldItemsRadioButton.setEnabled(false);
+        spScriptedStarterHeldItemsRadioButton.setSelected(false);
         spBanBadItemsCheckBox.setVisible(true);
         spBanBadItemsCheckBox.setEnabled(false);
         spBanBadItemsCheckBox.setSelected(false);
@@ -3020,8 +3034,12 @@ public class NewRandomizerGUI {
             populateDropdowns();
 
             boolean hasStarterHeldItems = (pokemonGeneration == 2 || pokemonGeneration == 3);
-            spRandomizeStarterHeldItemsCheckBox.setEnabled(hasStarterHeldItems);
-            spRandomizeStarterHeldItemsCheckBox.setVisible(hasStarterHeldItems);
+            spUnchangedStarterHeldItemsRadioButton.setEnabled(hasStarterHeldItems);
+            spUnchangedStarterHeldItemsRadioButton.setVisible(hasStarterHeldItems);
+            spRandomizeStarterHeldItemsRadioButton.setEnabled(hasStarterHeldItems);
+            spRandomizeStarterHeldItemsRadioButton.setVisible(hasStarterHeldItems);
+            spScriptedStarterHeldItemsRadioButton.setEnabled(hasStarterHeldItems);
+            spScriptedStarterHeldItemsRadioButton.setVisible(hasStarterHeldItems);
             spBanBadItemsCheckBox.setEnabled(false);
             spBanBadItemsCheckBox.setVisible(hasStarterHeldItems);
 
@@ -3522,7 +3540,7 @@ public class NewRandomizerGUI {
             spAllowAltFormesCheckBox.setEnabled(true);
         }
 
-        if (spRandomizeStarterHeldItemsCheckBox.isSelected()) {
+        if (spRandomizeStarterHeldItemsRadioButton.isSelected() || spScriptedStarterHeldItemsRadioButton.isSelected()) {
             spBanBadItemsCheckBox.setEnabled(true);
         } else {
             spBanBadItemsCheckBox.setEnabled(false);
@@ -4833,6 +4851,29 @@ public class NewRandomizerGUI {
         String funcBody = "\n\tif(oldItem + 1 in itemPool): #example\n\t\treturn oldItem + 1\n\telse:\n\t\treturn oldItem";
 
         if(puScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addStarterHeldItemScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Selects held items given to starters",
+                "#oldItem - an int representing the original starter held item",
+                "#itemPool - an array of integers representing all available items",
+                "#",
+                "#return: an int representing the new starter held item",
+                "#NOTE: you can access items through the imported Items class"
+        };
+        String funcDeclaration = "def selectStarterHeldItem(oldItem, itemPool):";
+        String funcBody = "\n\tif(oldItem + 1 in itemPool): #example\n\t\treturn oldItem + 1\n\treturn oldItem";
+
+        if(spScriptedStarterHeldItemsRadioButton.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);

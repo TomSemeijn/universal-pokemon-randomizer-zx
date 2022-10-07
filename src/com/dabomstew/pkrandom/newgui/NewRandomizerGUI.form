@@ -896,17 +896,6 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomCompletelyRadioButton.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="12184" class="javax.swing.JRadioButton" binding="spRandomTwoEvosRadioButton">
-                    <constraints>
-                      <grid row="4" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomTwoEvosRadioButton.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomTwoEvosRadioButton.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="83a64" class="javax.swing.JComboBox" binding="spComboBox1">
                     <constraints>
                       <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -943,17 +932,6 @@
                       </model>
                     </properties>
                   </component>
-                  <component id="9ddd3" class="javax.swing.JCheckBox" binding="spRandomizeStarterHeldItemsCheckBox">
-                    <constraints>
-                      <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                      <gridbag weightx="0.0" weighty="0.0"/>
-                    </constraints>
-                    <properties>
-                      <enabled value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomizeStarterHeldItemsCheckBox.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomizeStarterHeldItemsCheckBox.toolTipText"/>
-                    </properties>
-                  </component>
                   <component id="a1ea2" class="javax.swing.JCheckBox" binding="spBanBadItemsCheckBox" default-binding="true">
                     <constraints>
                       <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -963,6 +941,37 @@
                       <enabled value="false"/>
                       <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spBanBadItemsCheckBox.text"/>
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spBanBadItemsCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="9b043" class="javax.swing.JRadioButton" binding="spUnchangedStarterHeldItemsRadioButton">
+                    <constraints>
+                      <grid row="3" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Unchanged Starter Held Items"/>
+                    </properties>
+                  </component>
+                  <component id="12184" class="javax.swing.JRadioButton" binding="spRandomTwoEvosRadioButton">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="4" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomTwoEvosRadioButton.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomTwoEvosRadioButton.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="89ff2" class="javax.swing.JRadioButton" binding="spScriptedRadioButton">
+                    <constraints>
+                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
                     </properties>
                   </component>
                   <component id="cad77" class="javax.swing.JCheckBox" binding="spAllowAltFormesCheckBox">
@@ -976,14 +985,25 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spAllowAltFormesCheckBox.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="89ff2" class="javax.swing.JRadioButton" binding="spScriptedRadioButton">
+                  <component id="cb1f7" class="javax.swing.JRadioButton" binding="spRandomizeStarterHeldItemsRadioButton">
                     <constraints>
-                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="4" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
                       <enabled value="false"/>
-                      <text value="Scripted"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomizeStarterHeldItemsCheckBox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.spRandomizeStarterHeldItemsCheckBox.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="fb571" class="javax.swing.JRadioButton" binding="spScriptedStarterHeldItemsRadioButton">
+                    <constraints>
+                      <grid row="5" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted Starter Held Items"/>
                     </properties>
                   </component>
                 </children>
@@ -4223,6 +4243,11 @@
       <member id="61e59"/>
       <member id="1a080"/>
       <member id="2aaaa"/>
+    </group>
+    <group name="starterHeldItemButtonGroup">
+      <member id="cb1f7"/>
+      <member id="9b043"/>
+      <member id="fb571"/>
     </group>
   </buttonGroups>
   <inspectionSuppressions>

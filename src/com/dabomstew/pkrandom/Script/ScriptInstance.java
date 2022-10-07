@@ -262,6 +262,13 @@ public class ScriptInstance {
         return Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
     }
 
+    public int getScriptedStarterHeldItem(int oldItem, List<Integer> itempool)
+    {
+        PyFunction func = (PyFunction)interp.get("selectStarterHeldItem");
+        PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
+        return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool))).asInt();
+    }
+
     private interface ConvertOperator<T1, T2>
     {
         public T2 op(T1 source);

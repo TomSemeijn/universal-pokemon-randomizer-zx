@@ -287,7 +287,7 @@ public class Randomizer {
             default:
                 break;
         }
-        if (settings.isRandomizeStartersHeldItems() && !(romHandler instanceof Gen1RomHandler)) {
+        if ((settings.isRandomizeStartersHeldItems() || settings.isScriptStarterHeldItems()) && !(romHandler instanceof Gen1RomHandler)) {
             romHandler.randomizeStarterHeldItems(settings);
         }
 

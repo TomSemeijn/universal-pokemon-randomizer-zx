@@ -5425,13 +5425,24 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeStarterHeldItems(Settings settings) {
         boolean banBadItems = settings.isBanBadRandomStarterHeldItems();
+        final boolean scripted = settings.isScriptStarterHeldItems();
 
         List<Integer> oldHeldItems = this.getStarterHeldItems();
         List<Integer> newHeldItems = new ArrayList<>();
         ItemList possibleItems = banBadItems ? this.getNonBadItems() : this.getAllowedItems();
-        for (int i = 0; i < oldHeldItems.size(); i++) {
-            newHeldItems.add(possibleItems.randomItem(this.random));
+
+        List<Integer> itempool = new ArrayList<>();
+        for (int k = 0; k < possibleItems.getHighestIndex(); k++) {
+            if (possibleItems.isAllowed(k)) {
+                itempool.add(k);
+            }
         }
+
+        for (int i = 0; i < oldHeldItems.size(); i++) {
+            int item = scripted ? settings.getScript().getScriptedStarterHeldItem(oldHeldItems.get(i), itempool) : possibleItems.randomItem(this.random);
+            newHeldItems.add(item);
+        }
+
         this.setStarterHeldItems(newHeldItems);
     }
 
