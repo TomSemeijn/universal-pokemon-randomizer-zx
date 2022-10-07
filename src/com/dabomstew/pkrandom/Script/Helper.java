@@ -7,12 +7,10 @@ import com.dabomstew.pkrandom.constants.Species;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.Type;
 import org.python.core.*;
-import sun.font.Script;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Helper {
 
