@@ -5756,7 +5756,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean forceChange = settings.isEvosForceChange();
         boolean allowAltFormes = settings.isEvosAllowAltFormes();
         boolean banIrregularAltFormes = settings.isBanIrregularAltFormes();
-        boolean abilitiesAreRandomized = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE;
+        boolean abilitiesAreChanged = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE || settings.getAbilitiesMod() == Settings.AbilitiesMod.SCRIPTED;
 
         checkPokemonRestrictions();
         List<Pokemon> pokemonPool;
@@ -5769,7 +5769,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         int stageLimit = limitToThreeStages ? 3 : 10;
 
         List<Pokemon> banned = this.getBannedFormesForPlayerPokemon();
-        if (!abilitiesAreRandomized) {
+        if (!abilitiesAreChanged) {
             List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
             banned.addAll(abilityDependentFormes);
         }
@@ -6000,7 +6000,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean sameType = settings.isEvosSameTyping();
         boolean forceChange = settings.isEvosForceChange();
         boolean allowAltFormes = settings.isEvosAllowAltFormes();
-        boolean abilitiesAreRandomized = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE;
+        boolean abilitiesAreChanged = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE || settings.getAbilitiesMod() == Settings.AbilitiesMod.SCRIPTED;
 
         checkPokemonRestrictions();
         List<Pokemon> pokemonPool;
@@ -6012,7 +6012,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         List<Pokemon> actuallyCosmeticPokemonPool = new ArrayList<>();
 
         List<Pokemon> banned = this.getBannedFormesForPlayerPokemon();
-        if (!abilitiesAreRandomized) {
+        if (!abilitiesAreChanged) {
             List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
             banned.addAll(abilityDependentFormes);
         }
@@ -6160,6 +6160,160 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         // If we made it out of the loop, we weren't able to randomize evos.
         throw new RandomizationException("Not able to randomize evolutions in a sane amount of retries.");
+    }
+
+    @Override
+    public void scriptEvolutions(Settings settings)
+    {
+        boolean sameType = settings.isEvosSameTyping();
+        boolean forceChange = settings.isEvosForceChange();
+        boolean allowAltFormes = settings.isEvosAllowAltFormes();
+        boolean abilitiesAreChanged = settings.getAbilitiesMod() == Settings.AbilitiesMod.RANDOMIZE || settings.getAbilitiesMod() == Settings.AbilitiesMod.SCRIPTED;
+
+        checkPokemonRestrictions();
+        List<Pokemon> pokemonPool;
+        if (this.altFormesCanHaveDifferentEvolutions()) {
+            pokemonPool = new ArrayList<>(mainPokemonListInclFormes);
+        } else {
+            pokemonPool = new ArrayList<>(mainPokemonList);
+        }
+        List<Pokemon> actuallyCosmeticPokemonPool = new ArrayList<>();
+
+        List<Pokemon> banned = this.getBannedFormesForPlayerPokemon();
+        if (!abilitiesAreChanged) {
+            List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
+            banned.addAll(abilityDependentFormes);
+        }
+
+        for (int i = 0; i < pokemonPool.size(); i++) {
+            Pokemon pk = pokemonPool.get(i);
+            if (pk.actuallyCosmetic) {
+                pokemonPool.remove(pk);
+                i--;
+                actuallyCosmeticPokemonPool.add(pk);
+            }
+        }
+
+        Set<EvolutionPair> oldEvoPairs = new HashSet<>();
+
+        if (forceChange) {
+            for (Pokemon pk : pokemonPool) {
+                for (Evolution ev : pk.evolutionsFrom) {
+                    oldEvoPairs.add(new EvolutionPair(ev.from, ev.to));
+                    if (generationOfPokemon() >= 7 && ev.from.number == Species.cosmoem) { // Special case for Cosmoem to add Lunala/Solgaleo since we remove the split evo
+                        int oppositeVersionLegendary = ev.to.number == Species.solgaleo ? Species.lunala : Species.solgaleo;
+                        Pokemon toPkmn = findPokemonInPoolWithSpeciesID(pokemonPool, oppositeVersionLegendary);
+                        if (toPkmn != null) {
+                            oldEvoPairs.add(new EvolutionPair(ev.from, toPkmn));
+                        }
+                    }
+                }
+            }
+        }
+
+        List<Pokemon> replacements = new ArrayList<>();
+
+        // Setup
+        Map<Pokemon, List<Evolution>> oldEvolutionsFrom = new HashMap();
+        for (Pokemon pk : pokemonPool) {
+            oldEvolutionsFrom.put(pk, new ArrayList(pk.evolutionsFrom));
+            pk.evolutionsFrom.clear();
+            pk.evolutionsTo.clear();
+        }
+
+        // Shuffle pokemon list so the results aren't overly predictable.
+        Collections.shuffle(pokemonPool, this.random);
+
+        for (Pokemon fromPK : pokemonPool) {
+            // Pick a Pokemon as replacement
+            replacements.clear();
+
+            List<Pokemon> chosenList =
+                    allowAltFormes ?
+                           mainPokemonListInclFormes
+                                    .stream()
+                                    .filter(pk -> !pk.actuallyCosmetic)
+                                    .collect(Collectors.toList()) :
+                            mainPokemonList;
+            // Step 1: base filters
+            for (Pokemon pk : chosenList) {
+                // Prevent evolving into oneself (mandatory)
+                if (pk == fromPK) {
+                    continue;
+                }
+
+                // Force same EXP curve (mandatory)
+                if (pk.growthCurve != fromPK.growthCurve) {
+                    continue;
+                }
+
+                // Prevent evolving into banned Pokemon (mandatory)
+                if (banned.contains(pk)) {
+                    continue;
+                }
+
+                // Prevent evolving into old thing if flagged
+                EvolutionPair ep = new EvolutionPair(fromPK, pk);
+                if (forceChange && oldEvoPairs.contains(ep)) {
+                    continue;
+                }
+
+                // Passes everything, add as a candidate.
+                replacements.add(pk);
+            }
+
+            // If we don't have any candidates after the filters, we skip this pokemon
+            if (replacements.size() == 0) {
+                System.out.println("Couldn't find any evolution candidates for "+fromPK.name+"! Moving on...");
+            }
+
+            // Step 2: filter by type, if needed
+            if (replacements.size() > 1 && sameType) {
+                Set<Pokemon> includeType = new HashSet<>();
+                for (Pokemon pk : replacements) {
+                    if (pk.primaryType == fromPK.primaryType
+                            || (fromPK.secondaryType != null && pk.primaryType == fromPK.secondaryType)
+                            || (pk.secondaryType != null && pk.secondaryType == fromPK.primaryType)
+                            || (pk.secondaryType != null && pk.secondaryType == fromPK.secondaryType)) {
+                        includeType.add(pk);
+                    }
+                }
+
+                if (includeType.size() != 0) {
+                    replacements.retainAll(includeType);
+                }
+            }
+
+            // Step 3: get list of evolutions from the script
+            List<Evolution> newEvos = settings.getScript().getScriptedEvolutions(replacements, fromPK, oldEvolutionsFrom.get(fromPK));
+
+            // Step 4: fix cosmetics variables and add the new evolutions to the evolutions pool
+            for(Evolution newEvo : newEvos)
+            {
+                Pokemon picked = newEvo.to;
+
+                boolean checkCosmetics = true;
+                if (picked.formeNumber > 0) {
+                    newEvo.forme = picked.formeNumber;
+                    newEvo.formeSuffix = picked.formeSuffix;
+                    checkCosmetics = false;
+                }
+                if (checkCosmetics && newEvo.to.cosmeticForms > 0) {
+                    newEvo.forme = newEvo.to.getCosmeticFormNumber(this.random.nextInt(newEvo.to.cosmeticForms));
+                } else if (!checkCosmetics && picked.cosmeticForms > 0) {
+                    newEvo.forme += picked.getCosmeticFormNumber(this.random.nextInt(picked.cosmeticForms));
+                }
+
+                fromPK.evolutionsFrom.add(newEvo);
+                picked.evolutionsTo.add(newEvo);
+            }
+
+        }
+
+        // copy evolutions for different formes
+        for (Pokemon pk: actuallyCosmeticPokemonPool) {
+            pk.copyBaseFormeEvolutions(pk.baseForme);
+        }
     }
 
     @Override
@@ -7891,4 +8045,11 @@ public abstract class AbstractRomHandler implements RomHandler {
     public void setPickupItems(List<PickupItem> pickupItems) {
         // do nothing
     }
+
+    @Override
+    public Class getItemClass()
+    {
+        return Items.class;
+    }
+
 }

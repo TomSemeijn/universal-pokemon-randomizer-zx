@@ -56,7 +56,7 @@ public class Helper {
     public enum Index{
         ABILITY, ITEM, MOVE, POKEMON
     }
-    public static PyString str(int val, Index valType)throws IllegalAccessException, Exception
+    public static PyString str(int val, Index valType)throws RuntimeException
     {
         Field[] fields = null;
         switch(valType)
@@ -75,19 +75,66 @@ public class Helper {
                 fields = Species.class.getFields();
                 break;
             default:
-                throw new Exception("Unsupported Index type given to Helper.Str(int val, Helper.Index valType)!");
+                throw new RuntimeException("Unsupported Index type given to Helper.Str(int val, Helper.Index valType)!");
         }
 
         for(Field current : fields)
         {
-            int currentVal = (int)current.get(null);
-            if(currentVal == val)
+            try{
+                int currentVal = (int)current.get(null);
+                if(currentVal == val)
+                {
+                    return new PyString(current.getName());
+                }
+            }
+            catch(IllegalAccessException e)
             {
-                return new PyString(current.getName());
+                e.printStackTrace();
+                throw new RuntimeException("IllegalAccessException thrown!");
             }
         }
 
-        throw new Exception("Name of "+valType.name()+" not found!");
+        throw new RuntimeException("Name of "+valType.name()+" not found!");
+    }
+
+    public static int index(String name, Index valType)throws RuntimeException
+    {
+        Field[] fields = null;
+        switch(valType)
+        {
+            case ABILITY:
+                if(name == "static"){ return Abilities.staticTheAbilityNotTheKeyword; } //funny edge case
+                fields = Abilities.class.getFields();
+                break;
+            case ITEM:
+                fields = Items.class.getFields();
+                break;
+            case MOVE:
+                fields = Moves.class.getFields();
+                break;
+            case POKEMON:
+                fields = Species.class.getFields();
+                break;
+            default:
+                throw new RuntimeException("Unsupported Index type given to Helper.index(String name, Helper.Index valType)!");
+        }
+
+        for(Field current : fields)
+        {
+            if(current.getName() == name)
+            {
+                try{
+                    return (int)current.get(null);
+                }
+                catch(IllegalAccessException e)
+                {
+                    e.printStackTrace();
+                    throw new RuntimeException("IllegalAccessException thrown!");
+                }
+            }
+        }
+
+        throw new RuntimeException("Name of "+valType.name()+" not found!");
     }
 
     public static PyObject find(PySequence seq, int number)

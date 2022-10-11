@@ -812,6 +812,17 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.peRandomEveryLevelRadioButton.toolTipText"/>
                     </properties>
                   </component>
+                  <component id="2fa54" class="javax.swing.JRadioButton" binding="peScriptedRadioButton">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to determine pokemon evolutions"/>
+                    </properties>
+                  </component>
                 </children>
               </grid>
               <vspacer id="44843">
@@ -4137,6 +4148,7 @@
       <member id="9dc25"/>
       <member id="577d"/>
       <member id="7fc31"/>
+      <member id="2fa54"/>
     </group>
     <group name="pokemonAbilityButtonGroup">
       <member id="fa40d"/>

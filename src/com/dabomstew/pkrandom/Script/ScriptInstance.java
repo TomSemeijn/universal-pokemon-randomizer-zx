@@ -1,7 +1,9 @@
 package com.dabomstew.pkrandom.Script;
 
 import com.dabomstew.pkrandom.constants.Abilities;
+import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.pokemon.*;
+import com.dabomstew.pkrandom.romhandlers.RomHandler;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
@@ -13,11 +15,13 @@ import java.util.function.Supplier;
 
 public class ScriptInstance {
     private PythonInterpreter interp;
-
-    public ScriptInstance(String source)
+    private RomHandler rom;
+    public ScriptInstance(String source, RomHandler rom)
     {
         interp = new PythonInterpreter();
         interp.exec(source);
+
+        this.rom = rom;
     }
 
     public List<Pokemon> getLimitedPokepool(List<Pokemon> pokepool)
@@ -267,6 +271,122 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectStarterHeldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
         return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool))).asInt();
+    }
+
+    public List<Evolution> getScriptedEvolutions(List<Pokemon> pokepool, Pokemon poke, List<Evolution> oldEvolutions)
+    {
+        PyFunction func = (PyFunction)interp.get("selectEvolutions");
+        PyObject pypool = pyPokePool(pokepool);
+
+        /*
+        [evolveTo: Pokemon, type: EvolutionType, ?level: int, ?item: int, ?move: int]
+         */
+
+        //convert old evolutions to python dictionaries
+        PyArray pyOldEvos = new PyArray(PyDictionary.class, null);
+        for(Evolution evo : oldEvolutions)
+        {
+            PyDictionary oldEvos = new PyDictionary();
+            oldEvos.put(new PyString("evolveTo"), Py.java2py(evo.to));
+            oldEvos.put(new PyString("type"), Py.java2py(evo.type));
+            if(evo.type.usesLevel())
+            {
+                oldEvos.put(new PyString("level"), new PyInteger(evo.extraInfo));
+            }
+            else if(evo.type.usesMove())
+            {
+                oldEvos.put(new PyString("move"), new PyInteger(evo.extraInfo));
+            }
+            else if(evo.type.usesItem())
+            {
+                oldEvos.put(new PyString("item"), new PyInteger(convertedIndex(evo.extraInfo, rom.getItemClass(), Items.class)));
+            }
+            else if(evo.type.usesSpecies())
+            {
+                oldEvos.put(new PyString("species"), new PyInteger(convertedIndex(evo.extraInfo, rom.getItemClass(), Items.class)));
+            }
+        }
+
+        //call function
+        PySequence result = (PySequence)(func.__call__(pypool, Py.java2py(poke), pyOldEvos));
+
+        //convert new evos from pyhton dictionaries
+        List<Evolution> toReturn = new ArrayList<>();
+        for(int k = 0; k < result.__len__(); k++)
+        {
+            PyDictionary current = (PyDictionary)result.__getitem__(k);
+
+            if(!current.has_key(new PyString("evolveTo"))){ throw new RuntimeException("Evolution dictionary must have a \"evolveTo\" field!"); }
+            if(!current.has_key(new PyString("type"))){ throw new RuntimeException("Evolution dictionary must have a \"type\" field!"); }
+
+            Pokemon from = poke;
+            Pokemon to = Py.tojava(current.get(new PyString("evolveTo")), Pokemon.class);
+            EvolutionType evoType = Py.tojava(current.get(new PyString("type")), EvolutionType.class);
+
+            int level = 0;
+            int extraInfo = 0;
+            if(evoType.usesLevel())
+            {
+                if(!current.has_key(new PyString("level"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"level\" key!"); }
+                level = current.get(new PyString("level")).asInt();
+                extraInfo = level;
+            }
+            else if(evoType.usesMove())
+            {
+                if(!current.has_key(new PyString("move"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"move\" key!"); }
+                extraInfo = current.get(new PyString("move")).asInt();
+            }
+            else if(evoType.usesItem())
+            {
+                if(!current.has_key(new PyString("item"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"item\" key!"); }
+                extraInfo = convertedIndex(current.get(new PyString("item")).asInt(), Items.class, rom.getItemClass());
+            }
+            else if(evoType.usesSpecies())
+            {
+                if(!current.has_key(new PyString("species"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"species\" key!"); }
+                extraInfo = current.get(new PyString("species")).asInt();
+            }
+
+            boolean carryStats = result.__len__() == 1 || evoType == EvolutionType.LEVEL_CREATE_EXTRA;
+            Evolution finalEvo = new Evolution(from, to, carryStats, evoType, extraInfo);
+            finalEvo.level = level;
+            finalEvo.forme = to.formeNumber;
+            finalEvo.formeSuffix = to.formeSuffix;
+
+            toReturn.add(finalEvo);
+        }
+
+        //return result
+        return toReturn;
+    }
+
+    private static int convertedIndex(int generalItem, Class startClass, Class endClass)
+    {
+        if(endClass == startClass) { //return general item if the itemclass used by the romhandler is the general one
+            return generalItem;
+        }
+
+        //get the name of the variable in the start class
+        String itemName = Helper.str(generalItem, Helper.Index.ITEM).asString();
+
+        //try to find the variable in the end class and return its value when found
+        Field[] targetFields = endClass.getFields();
+        for(Field fld : targetFields)
+        {
+            if(fld.getName() == itemName)
+            {
+                try{
+                    return (int)fld.get(null);
+                }
+                catch(IllegalAccessException e)
+                {
+                    throw new RuntimeException("IllegalAccessException thrown!");
+                }
+            }
+        }
+
+        //throw exception on failure
+        throw new RuntimeException("Current ROM does not support item "+itemName+"!");
     }
 
     public interface ConvertOperator<T1, T2>

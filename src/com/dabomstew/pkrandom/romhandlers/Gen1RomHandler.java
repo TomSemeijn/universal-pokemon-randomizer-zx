@@ -2872,4 +2872,10 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
         return bim;
     }
 
+    @Override
+    public Class getItemClass()
+    {
+        return Gen1Items.class;
+    }
+
 }

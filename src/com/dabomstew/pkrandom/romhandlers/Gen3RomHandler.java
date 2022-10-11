@@ -4386,4 +4386,10 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
         }
         return items;
     }
+
+    @Override
+    public Class getItemClass()
+    {
+        return Gen3Items.class;
+    }
 }

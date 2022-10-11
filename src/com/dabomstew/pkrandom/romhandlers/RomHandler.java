@@ -35,6 +35,7 @@ import java.util.Set;
 import com.dabomstew.pkrandom.MiscTweak;
 import com.dabomstew.pkrandom.Script.ScriptInstance;
 import com.dabomstew.pkrandom.Settings;
+import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.pokemon.*;
 
 public interface RomHandler {
@@ -588,6 +589,8 @@ public interface RomHandler {
 
     void randomizeEvolutionsEveryLevel(Settings settings);
 
+    void scriptEvolutions(Settings settings);
+
     // In the earlier games, alt formes use the same evolutions as the base forme.
     // In later games, this was changed so that alt formes can have unique evolutions
     // compared to the base forme.
@@ -659,4 +662,6 @@ public interface RomHandler {
     List<Pokemon> getBannedFormesForPlayerPokemon();
 
     List<Pokemon> getBannedFormesForTrainerPokemon();
+
+    public abstract Class getItemClass();
 }

@@ -337,6 +337,7 @@ public class NewRandomizerGUI {
     private JButton ConsoleButton;
     private JRadioButton spUnchangedStarterHeldItemsRadioButton;
     private JRadioButton spScriptedStarterHeldItemsRadioButton;
+    private JRadioButton peScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -500,6 +501,8 @@ public class NewRandomizerGUI {
         peUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         peRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         peRandomEveryLevelRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        peScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        peScriptedRadioButton.addActionListener(e -> addEvolutionScriptFunc());
         peAllowAltFormesCheckBox.addActionListener(e -> enableOrDisableSubControls());
         spUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         spCustomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1653,6 +1656,7 @@ public class NewRandomizerGUI {
         peUnchangedRadioButton.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.UNCHANGED);
         peRandomRadioButton.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM);
         peRandomEveryLevelRadioButton.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM_EVERY_LEVEL);
+        peScriptedRadioButton.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.SCRIPTED);
         peSimilarStrengthCheckBox.setSelected(settings.isEvosSimilarStrength());
         peSameTypingCheckBox.setSelected(settings.isEvosSameTyping());
         peLimitEvolutionsToThreeCheckBox.setSelected(settings.isEvosMaxThreeStages());
@@ -1916,7 +1920,7 @@ public class NewRandomizerGUI {
                 spComboBox2.getSelectedIndex() + 1, spComboBox3.getSelectedIndex() + 1 };
         settings.setCustomStarters(customStarters);
 
-        settings.setEvolutionsMod(peUnchangedRadioButton.isSelected(), peRandomRadioButton.isSelected(), peRandomEveryLevelRadioButton.isSelected());
+        settings.setEvolutionsMod(peUnchangedRadioButton.isSelected(), peRandomRadioButton.isSelected(), peRandomEveryLevelRadioButton.isSelected(), peScriptedRadioButton.isSelected());
         settings.setEvosSimilarStrength(peSimilarStrengthCheckBox.isSelected());
         settings.setEvosSameTyping(peSameTypingCheckBox.isSelected());
         settings.setEvosMaxThreeStages(peLimitEvolutionsToThreeCheckBox.isSelected());
@@ -2324,6 +2328,9 @@ public class NewRandomizerGUI {
         peRandomEveryLevelRadioButton.setVisible(true);
         peRandomEveryLevelRadioButton.setEnabled(false);
         peRandomEveryLevelRadioButton.setSelected(false);
+        peScriptedRadioButton.setVisible(true);
+        peScriptedRadioButton.setEnabled(false);
+        peScriptedRadioButton.setSelected(false);
         peSimilarStrengthCheckBox.setVisible(true);
         peSimilarStrengthCheckBox.setEnabled(false);
         peSimilarStrengthCheckBox.setSelected(false);
@@ -3010,6 +3017,7 @@ public class NewRandomizerGUI {
             peUnchangedRadioButton.setEnabled(true);
             peUnchangedRadioButton.setSelected(true);
             peRandomRadioButton.setEnabled(true);
+            peScriptedRadioButton.setEnabled(true);
             peRandomEveryLevelRadioButton.setVisible(pokemonGeneration >= 3);
             peRandomEveryLevelRadioButton.setEnabled(pokemonGeneration >= 3);
             peChangeImpossibleEvosCheckBox.setEnabled(true);
@@ -3515,7 +3523,15 @@ public class NewRandomizerGUI {
             peLimitEvolutionsToThreeCheckBox.setSelected(false);
             peForceChangeCheckBox.setEnabled(true);
             peAllowAltFormesCheckBox.setEnabled(true);
-        } else {
+        } else if(peScriptedRadioButton.isSelected()){
+            peSimilarStrengthCheckBox.setEnabled(false);
+            peSimilarStrengthCheckBox.setSelected(false);
+            peSameTypingCheckBox.setEnabled(true);
+            peLimitEvolutionsToThreeCheckBox.setEnabled(false);
+            peLimitEvolutionsToThreeCheckBox.setSelected(false);
+            peForceChangeCheckBox.setEnabled(true);
+            peAllowAltFormesCheckBox.setEnabled(true);
+        }else {
             peSimilarStrengthCheckBox.setEnabled(false);
             peSimilarStrengthCheckBox.setSelected(false);
             peSameTypingCheckBox.setEnabled(false);
@@ -4978,6 +4994,39 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Move");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    private void addEvolutionScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects evolutions for the given pokemon",
+                "#  pokepool - an array of Pokemon objects representing all pokemon you can choose for this evolution",
+                "#  poke - a Pokemon object representing the pokemon to pick evolutions for",
+                "#  oldEvos - an array of Evolution dictionaries representing the original evolutions of this pokemon",
+                "#",
+                "#  return: a Sequence of Evolution dictionaries representing the new evolutions for the given pokemon",
+                "#  NOTE: Evolution dictionaries have the following structure: { \"evolveTo\": Pokemon, \"type\": EvolutionType }",
+                "#        If the evolution type uses levels,  the \"level\" : int field is required, the field should be the required level",
+                "#        If the evolution type uses moves,   the \"move\"  : int field is required, the field should be the index of the required move (attainable from the Move class)",
+                "#        If the evolution type uses items,   the \"item\"  : int field is required, the field should be the index of the required item (attainable from the Items class)",
+                "#        If the evolution type uses species, the \"species\" : int field is required, the field should be the index of the required pokemon (attainable from the Species class)"
+        };
+        String funcDeclaration = "def selectEvolutions(pokepool, poke, oldEvos):";
+        String funcBody = "\n\tresult = [] #example\n\tsameLetter = [pk for pk in pokepool if pk.name[0] == poke.name[0]]\n\tcount = 0\n\tfor other in sameLetter:\n\t\tevo = { \"evolveTo\": other, \"type\": EvolutionType.LEVEL, \"level\": RandomSource.nextInt(50) + 1 }\n\t\tresult.append(evo)\n\treturn result";
+
+        if(peScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Evolution");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "EvolutionType");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Species");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

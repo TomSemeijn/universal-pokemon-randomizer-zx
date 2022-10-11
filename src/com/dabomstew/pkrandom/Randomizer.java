@@ -97,7 +97,7 @@ public class Randomizer {
         boolean tutorCompatChanged = false;
         boolean shopsChanged = false;
 
-        settings.initScript();
+        settings.initScript(romHandler);
 
         // Limit Pokemon
         // 1. Set Pokemon pool according to limits (or lack thereof)
@@ -191,6 +191,10 @@ public class Randomizer {
             evolutionsChanged = true;
         } else if (settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM_EVERY_LEVEL) {
             romHandler.randomizeEvolutionsEveryLevel(settings);
+            evolutionsChanged = true;
+        } else if (settings.getEvolutionsMod() == Settings.EvolutionsMod.SCRIPTED)
+        {
+            romHandler.scriptEvolutions(settings);
             evolutionsChanged = true;
         }
 

@@ -127,7 +127,7 @@ public class Settings {
 
     // Evolutions
     public enum EvolutionsMod {
-        UNCHANGED, RANDOM, RANDOM_EVERY_LEVEL
+        UNCHANGED, RANDOM, RANDOM_EVERY_LEVEL, SCRIPTED
     }
 
     private EvolutionsMod evolutionsMod = EvolutionsMod.UNCHANGED;
@@ -505,11 +505,11 @@ public class Settings {
         // 26 move randomizers
         // + static music
         out.write(makeByteSelected(randomizeMovePowers, randomizeMoveAccuracies, randomizeMovePPs, randomizeMoveTypes,
-                randomizeMoveCategory, correctStaticMusic));
+                randomizeMoveCategory, correctStaticMusic, evosAllowAltFormes));
 
         // 27 evolutions
         out.write(makeByteSelected(evolutionsMod == EvolutionsMod.UNCHANGED, evolutionsMod == EvolutionsMod.RANDOM,
-                evosSimilarStrength, evosSameTyping, evosMaxThreeStages, evosForceChange, evosAllowAltFormes,
+                evosSimilarStrength, evosSameTyping, evosMaxThreeStages, evosForceChange, evolutionsMod == EvolutionsMod.SCRIPTED,
                 evolutionsMod == EvolutionsMod.RANDOM_EVERY_LEVEL));
         
         // 28 pokemon trainer misc
@@ -844,13 +844,14 @@ public class Settings {
 
         settings.setEvolutionsMod(restoreEnum(EvolutionsMod.class, data[27], 0, // UNCHANGED
                 1, // RANDOM
-                7 // RANDOM_EVERY_LEVEL
+                7, // RANDOM_EVERY_LEVEL
+                6  // SCRIPTED
         ));
         settings.setEvosSimilarStrength(restoreState(data[27], 2));
         settings.setEvosSameTyping(restoreState(data[27], 3));
         settings.setEvosMaxThreeStages(restoreState(data[27], 4));
         settings.setEvosForceChange(restoreState(data[27], 5));
-        settings.setEvosAllowAltFormes(restoreState(data[27],6));
+        settings.setEvosAllowAltFormes(restoreState(data[26],6));
 
         // new pokemon trainer misc
         settings.setTrainersUsePokemonOfSimilarStrength(restoreState(data[28], 0));
@@ -1093,9 +1094,9 @@ public class Settings {
 
     // getters and setters
 
-    public void initScript()
+    public void initScript(RomHandler rom)
     {
-        script = new ScriptInstance(scriptSource);
+        script = new ScriptInstance(scriptSource, rom);
     }
 
     public ScriptInstance getScript(){ return script; }

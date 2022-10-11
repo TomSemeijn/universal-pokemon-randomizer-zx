@@ -2926,4 +2926,10 @@ public class Gen2RomHandler extends AbstractGBCRomHandler {
             }
         }
     }
+
+    @Override
+    public Class getItemClass()
+    {
+        return Gen2Items.class;
+    }
 }
