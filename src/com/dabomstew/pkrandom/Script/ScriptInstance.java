@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class ScriptInstance {
     private PythonInterpreter interp;
@@ -70,7 +69,7 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemonItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return Py.tojava(func.__call__(pyItempool, Py.java2py(trainer), Py.java2py(pokemon)), Integer.class);
+        return convertedIndex(func.__call__(pyItempool, Py.java2py(trainer), Py.java2py(pokemon)).asInt(), Items.class, rom.getItemClass());
     }
 
     public Pokemon getScriptedWildHeldItemPokemon(ItemList itempool, Pokemon pokemon, boolean supportCommon, boolean supportRare, boolean supportGuaranteed, boolean supportDarkGrass)
@@ -84,19 +83,19 @@ public class ScriptInstance {
         int darkGrass = result.has_key(new PyString("darkGrass")) ? ((PyInteger)result.get(new PyString("darkGrass"))).asInt() : 0;
         if(supportCommon && common != 0)
         {
-            pokemon.commonHeldItem = common == -1 ? 0 : common;
+            pokemon.commonHeldItem = common == -1 ? 0 : convertedIndex(common, Items.class, rom.getItemClass());
         }
         if(supportRare && rare != 0)
         {
-            pokemon.rareHeldItem = rare == -1 ? 0 : rare;
+            pokemon.rareHeldItem = rare == -1 ? 0 : convertedIndex(rare, Items.class, rom.getItemClass());;
         }
         if(supportGuaranteed && guaranteed != 0)
         {
-            pokemon.guaranteedHeldItem = guaranteed == -1 ? 0 : guaranteed;
+            pokemon.guaranteedHeldItem = guaranteed == -1 ? 0 : convertedIndex(guaranteed, Items.class, rom.getItemClass());;
         }
         if(supportDarkGrass && darkGrass != 0 && (!supportGuaranteed || guaranteed == 0))
         {
-            pokemon.darkGrassHeldItem = darkGrass == -1 ? 0 : darkGrass;
+            pokemon.darkGrassHeldItem = darkGrass == -1 ? 0 : convertedIndex(darkGrass, Items.class, rom.getItemClass());;
         }
         return pokemon;
     }
@@ -230,14 +229,14 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectFieldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool, new PyBoolean(isTM)))).asInt();
+        return convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool, new PyBoolean(isTM)).asInt(), Items.class, rom.getItemClass());
     }
 
     public int getScriptedPickupItem(int oldItem, List<Integer> itempool)
     {
         PyFunction func = (PyFunction)interp.get("selectPickupItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool))).asInt();
+        return convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
     }
 
     public Move getScriptedTMMove(Move oldMove, List<Move> movepool, boolean forcedDamagingMove)
@@ -270,7 +269,7 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectStarterHeldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return ((PyInteger)(func.__call__(new PyInteger(oldItem), pyItempool))).asInt();
+        return convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
     }
 
     public List<Evolution> getScriptedEvolutions(List<Pokemon> pokepool, Pokemon poke, List<Evolution> oldEvolutions)
