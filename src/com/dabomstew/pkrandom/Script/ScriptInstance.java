@@ -60,6 +60,14 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Pokemon "+result.pkmn.name+" was not in the given pokepool in function \"selectStaticPokemon\"!");
         }
+        if(result.level <= 0 || result.level > 100)
+        {
+            throw new RuntimeException("Static encounter of pokemon "+result.pkmn.name+" selected in function \"selectStaticPokemon\" has a level outside of the [1-100] range! The given level was "+result.level);
+        }
+        if(result.maxLevel <= 0 || result.maxLevel > 100)
+        {
+            throw new RuntimeException("Static encounter of pokemon "+result.pkmn.name+" selected in function \"selectStaticPokemon\" has a maxLevel outside of the [1-100] range! The given level was "+result.maxLevel);
+        }
         return result;
     }
 
@@ -74,6 +82,22 @@ public class ScriptInstance {
         if(!inPool(pokepool, result.requestedPokemon))
         {
             throw new RuntimeException("Requested Pokemon "+result.requestedPokemon.name+" was not in the given pokepool in function \"selectInGameTradePokemon\"!");
+        }
+        final int maxIV = rom.hasDVs() ? 16 : 32;
+        for(int iv : result.ivs)
+        {
+            if(iv < 0 || iv > maxIV)
+            {
+                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [0-"+maxIV+"] range! The given values are "+result.ivs.toString());
+            }
+        }
+        if(result.otName.length() > rom.maxTradeOTNameLength())
+        {
+            throw new RuntimeException("OT name \""+result.otName+"\" selected in function \"selectInGameTradePokemon\" exceeds the maximum length of "+rom.maxTradeOTNameLength()+"! The length of the given name was "+result.otName.length()+". You can get the maximum OT name length in your script from ROM.maxOTLen");
+        }
+        if(result.nickname.length() > rom.maxTradeNicknameLength())
+        {
+            throw new RuntimeException("Trade Pokemon nickname \""+result.nickname+"\" selected in function \"selectInGameTradePokemon\" exceeds the maximum length of "+rom.maxTradeNicknameLength()+"! The length of the given name was "+result.nickname.length()+". You can get the maximum nickname length in your script from ROM.maxNicknameLen");
         }
         return result;
     }
