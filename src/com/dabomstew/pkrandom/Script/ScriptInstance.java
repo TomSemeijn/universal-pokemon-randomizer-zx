@@ -17,11 +17,12 @@ public class ScriptInstance {
     private RomHandler rom;
     public ScriptInstance(String source, RomHandler rom)
     {
+        this.rom = rom;
+
         interp = new PythonInterpreter();
         interp.exec(Helper.DefinitionString());
+        addROMInfo();
         interp.exec(source);
-
-        this.rom = rom;
     }
 
     public List<Pokemon> getLimitedPokepool(List<Pokemon> pokepool)
@@ -416,6 +417,22 @@ public class ScriptInstance {
     private PyArray pyPokePool(List<Pokemon> pokepool)
     {
         return toPythonArray(pokepool, PyObject.class, poke -> Py.java2py(poke));
+    }
+
+    private void addROMInfo()
+    {
+        String defs = "\n\n";
+        defs += "class ROM:";
+        String startVar = "\n\t";
+        defs += startVar + "generation = "+rom.generationOfPokemon();
+        defs += startVar + "name = \""+rom.getROMName()+"\"";
+        defs += startVar + "code = \""+rom.getROMCode()+"\"";
+        defs += startVar + "maxNicknameLen = "+rom.maxTradeNicknameLength();
+        defs += startVar + "maxOTLen = "+rom.maxTradeOTNameLength();
+        defs += startVar + "maxTrainerClassLen = "+rom.maxTrainerClassNameLength();
+        defs += startVar + "maxTrainerNameLen = "+rom.maxTrainerNameLength();
+        defs += "\n\n";
+        interp.exec(defs);
     }
 
 }
