@@ -189,6 +189,13 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("setLearntMoveset");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
         List<MoveLearnt> result = toJavaList((PySequence) func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        for(MoveLearnt ml : result)
+        {
+            if(ml.level <= 0 || ml.level > 100)
+            {
+                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" has a level of "+ml.level+", which is outside of the [1-100] range!")
+            }
+        }
         return result;
     }
 
@@ -196,14 +203,27 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("setLearntMovesetPost");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
-        return toJavaList((PySequence)func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        List<MoveLearnt> result = toJavaList((PySequence)func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        for(MoveLearnt ml : result)
+        {
+            if(ml.level <= 0 || ml.level > 100)
+            {
+                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMovesetPost\" has a level of "+ml.level+", which is outside of the [1-100] range!")
+            }
+        }
+        return result;
     }
 
     public List<Integer> getScriptedEggMoveset(Pokemon pokemon, List<Integer> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyInteger.class, i -> new PyInteger(i));
-        return toJavaList((PySequence)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
+        List<Integer> result = toJavaList((PySequence)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
+        if(result.size() != oldMoveset.size())
+        {
+            throw new RuntimeException("Egg moveset of pokemon "+pokemon.name+" selected in function \"setEggMoveset\" does not have the same number of moves as the original egg moveset! The original set had "+oldMoveset.size()+" and the returned set has "+result.size()+". If you want to have less egg moves, you can repeat the same move multiple times. You cannot have more egg moves.");
+        }
+        return result;
     }
 
     public void updateScriptedPokemonBaseStats(Pokemon pokemon)
@@ -216,6 +236,30 @@ public class ScriptInstance {
         int spatk = result.has_key(new PyString("spatk")) ? ((PyInteger)result.get(new PyString("spatk"))).asInt() : pokemon.spatk;
         int spdef = result.has_key(new PyString("spdef")) ? ((PyInteger)result.get(new PyString("spdef"))).asInt() : pokemon.spdef;
         int spd = result.has_key(new PyString("spd")) ? ((PyInteger)result.get(new PyString("spd"))).asInt() : pokemon.speed;
+        if(hp <= 0)
+        {
+            throw new RuntimeException("HP of pokemon "+pokemon.name+" selected in function \"setBaseStats\" must be more than 0! The returned value was "+hp);
+        }
+        if(atk <= 0)
+        {
+            throw new RuntimeException("Attack of pokemon "+pokemon.name+" selected in function \"setBaseStats\" must be more than 0! The returned value was "+atk);
+        }
+        if(def <= 0)
+        {
+            throw new RuntimeException("Defense of pokemon "+pokemon.name+" selected in function \"setBaseStats\" must be more than 0! The returned value was "+def);
+        }
+        if(spatk <= 0)
+        {
+            throw new RuntimeException("Special attack of pokemon "+pokemon.name+" selected in function \"setBaseStats\" must be more than 0! The returned value was "+spatk);
+        }
+        if(spdef <= 0)
+        {
+            throw new RuntimeException("Special defense of pokemon "+pokemon.name+" selected in function \"setBaseStats\" must be more than 0! The returned value was "+spdef);
+        }
+        if(spd <= 0)
+        {
+            throw new RuntimeException("Speed of pokemon "+pokemon.name+" selected in function \"setBaseStats\" must be more than 0! The returned value was "+spd);
+        }
         pokemon.hp = hp;
         pokemon.attack = atk;
         pokemon.defense = def;
