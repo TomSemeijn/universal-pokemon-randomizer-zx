@@ -357,6 +357,15 @@ public class ScriptInstance {
             toReturn.add(finalEvo);
         }
 
+        //verify all evolution types are supported by the current generation
+        for(Evolution evo : toReturn)
+        {
+            if(evo.type.toIndex(rom.generationOfPokemon()) == -1)
+            {
+                throw new RuntimeException("EvolutionType."+evo.type.name()+" is not supported in generation "+rom.generationOfPokemon()+"!");
+            }
+        }
+
         //return result
         return toReturn;
     }
