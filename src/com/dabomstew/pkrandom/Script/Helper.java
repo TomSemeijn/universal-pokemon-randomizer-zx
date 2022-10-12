@@ -15,7 +15,7 @@ import java.util.List;
 public class Helper {
 
     //turns a java string into a (sanitized) python string
-    public static PyString str(String value)
+    public static PyString toStr(String value)
     {
         //clean string by filtering out all non-ascii characters
         String cleaned = "";
@@ -48,7 +48,7 @@ public class Helper {
         return poke.primaryType == theType || poke.secondaryType == theType;
     }
 
-    public static PyString str(Enum val)
+    public static PyString toStr(Enum val)
     {
         return new PyString(val.name());
     }
@@ -56,7 +56,7 @@ public class Helper {
     public enum Index{
         ABILITY, ITEM, MOVE, POKEMON
     }
-    public static PyString str(int val, Index valType)throws RuntimeException
+    public static PyString toStr(int val, Index valType)throws RuntimeException
     {
         Field[] fields = null;
         switch(valType)
@@ -178,6 +178,20 @@ public class Helper {
         }
 
         return ScriptInstance.toPythonArray(canPick, PyObject.class, pkmn -> Py.java2py(pkmn));
+    }
+
+    public static String DefinitionString()
+    {
+        String helperImport = "from com.dabomstew.pkrandom.Script import Helper";
+        String toStrDef = "def toStr(val, index = None):\n\tif index is None:\n\t\treturn Helper.toStr(val)\n\treturn Helper.toStr(val, index)";
+        String indexDef = "def index(name, index):\n\treturn Helper.index(name, index)";
+        String simStrengthDef = "def similarStrength(pokepool, poke, targetSize = None):\n\tif targetSize is None:\n\t\treturn Helper.similarStrength(pokepool, poke)\n\treturn Helper.similarStrength(pokepool, poke, targetSize)";
+        String findDef = "def find(pokepool, num):\n\treturn Helper.find(pokepool, num)";
+        String seqDef = "def seq(list):\n\treturn Helper.seq(list)";
+        String hasTypeDef = "def hasType(poke, type):\n\treturn Helper.hasType(poke, type)";
+        String indexTypeDef = "class Index:\n\tABILITY = Helper.Index.ABILITY\n\tITEM = Helper.Index.ITEM\n\tMOVE = Helper.Index.MOVE\n\tPOKEMON = Helper.Index.POKEMON";
+        String newLn = "\n\n";
+        return newLn + helperImport + newLn + toStrDef + newLn + indexDef + newLn + simStrengthDef + newLn + findDef + newLn + seqDef + newLn + hasTypeDef + newLn + indexTypeDef + newLn;
     }
 
 }

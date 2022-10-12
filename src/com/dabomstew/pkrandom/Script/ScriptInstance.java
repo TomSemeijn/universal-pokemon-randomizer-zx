@@ -18,6 +18,7 @@ public class ScriptInstance {
     public ScriptInstance(String source, RomHandler rom)
     {
         interp = new PythonInterpreter();
+        interp.exec(Helper.DefinitionString());
         interp.exec(source);
 
         this.rom = rom;
@@ -366,7 +367,7 @@ public class ScriptInstance {
         }
 
         //get the name of the variable in the start class
-        String itemName = Helper.str(generalItem, Helper.Index.ITEM).asString();
+        String itemName = Helper.toStr(generalItem, Helper.Index.ITEM).asString();
 
         //try to find the variable in the end class and return its value when found
         Field[] targetFields = endClass.getFields();
