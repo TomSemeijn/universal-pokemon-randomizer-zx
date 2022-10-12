@@ -164,7 +164,24 @@ public class ScriptInstance {
     public Move getScriptedMoveData(Move oldMove, boolean hasPhysicalSpecialSplit)
     {
         PyFunction func = (PyFunction)interp.get("setMoveData");
-        return Py.tojava(func.__call__(Py.java2py(oldMove), new PyBoolean(hasPhysicalSpecialSplit)), Move.class);
+        Move result = Py.tojava(func.__call__(Py.java2py(oldMove), new PyBoolean(hasPhysicalSpecialSplit)), Move.class);
+        if(!rom.typeInGame(result.type))
+        {
+            throw new RuntimeException("Move type Type."+result.type.name()+" of Move "+result.name+" selected in function \"setMoveData\" is not supported in generation "+rom.generationOfPokemon()+"!");
+        }
+        if(result.pp < 1)
+        {
+            throw new RuntimeException("PP of Move "+result.name+" selected in function \"setMoveData\" must be at least 1! The given value was "+result.pp);
+        }
+        if(result.power < 1)
+        {
+            throw new RuntimeException("Power of Move "+result.name+" selected in function \"setMoveData\" must be at least 1! The given value was "+result.power);
+        }
+        if(result.hitratio <= 0)
+        {
+            throw new RuntimeException("Power of Move "+result.name+" selected in function \"setMoveData\" must be at least 1! The given value was "+result.power);
+        }
+        return result;
     }
 
     public List<MoveLearnt> getScriptedLearntMoveset(Pokemon pokemon, List<MoveLearnt> oldMoveset)
