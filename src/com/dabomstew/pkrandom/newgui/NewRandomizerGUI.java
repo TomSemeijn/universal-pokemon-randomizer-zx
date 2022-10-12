@@ -4603,7 +4603,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#filters the given list of pokemon to limit the pokemon available in-game (this affects all options where pokemon are selected)",
-                "#itempool - an ItemList of all available items",
+                "#itempool - an array of integers representing all available items",
                 "#pokemon - the pokemon to set the held item(s) for",
                 "#supportCommon - true if this pokemon can have a common held item (if set when false it will be ignored)",
                 "#supportRare - true if this pokemon can have a rare held item (if set when false it will be ignored)",
@@ -4621,7 +4621,6 @@ public class NewRandomizerGUI {
         if(wpScriptHeldItemsCheckBox.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
-            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ItemList");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 

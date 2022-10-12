@@ -28,7 +28,12 @@ public class ScriptInstance {
     public List<Pokemon> getLimitedPokepool(List<Pokemon> pokepool)
     {
         PyFunction func = (PyFunction)interp.get("limitPokemon");
-        return toJavaList((PySequence) func.__call__(pyPokePool(pokepool)), poke -> Py.tojava(poke, Pokemon.class));
+        List<Pokemon> result = toJavaList((PySequence) func.__call__(pyPokePool(pokepool)), poke -> Py.tojava(poke, Pokemon.class));
+        if(!inPool(pokepool, result))
+        {
+            throw new RuntimeException("One or more Pokemon detected that weren't in the given pokepool in function \"limitPokemon\"!");
+        }
+        return result;
     }
 
     public List<Pokemon> getScriptedStarters(List<Pokemon> pokepool, int count)
@@ -37,8 +42,12 @@ public class ScriptInstance {
         List<Pokemon> starters = new ArrayList<Pokemon>();
         for(int k = 0; k < count; k++)
         {
-            PyObject pkm = func.__call__(pyPokePool(pokepool), new PyInteger(k));
-            starters.add(Py.tojava(pkm, Pokemon.class));
+            Pokemon pkm = Py.tojava(func.__call__(pyPokePool(pokepool), new PyInteger(k)), Pokemon.class);
+            if(!inPool(pokepool, pkm))
+            {
+                throw new RuntimeException("Pokemon "+pkm.name+" was not in the given pokepool in function \"selectStarter\"!");
+            }
+            starters.add(pkm);
         }
         return starters;
     }
@@ -46,38 +55,72 @@ public class ScriptInstance {
     public StaticEncounter getScriptedStatic(List<Pokemon> pokepool, StaticEncounter oldEncounter, boolean megaSwap)
     {
         PyFunction func = (PyFunction)interp.get("selectStaticPokemon");
-        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
+        StaticEncounter result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
+        if(!inPool(pokepool, result.pkmn))
+        {
+            throw new RuntimeException("Pokemon "+result.pkmn.name+" was not in the given pokepool in function \"selectStaticPokemon\"!");
+        }
+        return result;
     }
 
     public IngameTrade getScriptedInGameTrade(List<Pokemon> pokepool, IngameTrade oldTrade)
     {
         PyFunction func = (PyFunction)interp.get("selectInGameTradePokemon");
-        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
+        IngameTrade result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
+        if(!inPool(pokepool, result.givenPokemon))
+        {
+            throw new RuntimeException("Given Pokemon "+result.givenPokemon.name+" was not in the given pokepool in function \"selectInGameTradePokemon\"!");
+        }
+        if(!inPool(pokepool, result.requestedPokemon))
+        {
+            throw new RuntimeException("Requested Pokemon "+result.requestedPokemon.name+" was not in the given pokepool in function \"selectInGameTradePokemon\"!");
+        }
+        return result;
     }
 
     public EncounterSet getScriptedWildEncounterSet(List<Pokemon> pokepool, EncounterSet oldArea)
     {
         PyFunction func = (PyFunction)interp.get("selectWildEncountersForArea");
-        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldArea)), EncounterSet.class);
+        EncounterSet result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldArea)), EncounterSet.class);
+        for(Encounter enc : result.encounters)
+        {
+            if(!inPool(pokepool, enc.pokemon))
+            {
+                throw new RuntimeException("Pokemon "+enc.pokemon.name+" was not in the given pokepool in function \"selectWildEncountersForArea\"!");
+            }
+        }
+        return result;
     }
 
     public TrainerPokemon getScriptedTrainerPokemon(List<Pokemon> pokepool, Trainer trainer, TrainerPokemon oldPokemon, boolean megaSwap)
     {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemon");
-        return Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(trainer), Py.java2py(oldPokemon), new PyBoolean(megaSwap)), TrainerPokemon.class);
+        TrainerPokemon result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(trainer), Py.java2py(oldPokemon), new PyBoolean(megaSwap)), TrainerPokemon.class);
+        if(!inPool(pokepool, result.pokemon))
+        {
+            throw new RuntimeException("Pokemon "+result.pokemon.name+" was not in the given pokepool in function \"selectTrainerPokemon\"!");
+        }
+        return result;
     }
 
     public Integer getScriptedTrainerPokemonHeldItem(List<Integer> itempool, Trainer trainer, TrainerPokemon pokemon)
     {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemonItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return convertedIndex(func.__call__(pyItempool, Py.java2py(trainer), Py.java2py(pokemon)).asInt(), Items.class, rom.getItemClass());
+        int result = convertedIndex(func.__call__(pyItempool, Py.java2py(trainer), Py.java2py(pokemon)).asInt(), Items.class, rom.getItemClass());
+        if(!itempool.contains(result))
+        {
+            throw new RuntimeException("Item "+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectTrainerPokemonItem\"!");
+        }
+        return result;
     }
 
     public Pokemon getScriptedWildHeldItemPokemon(ItemList itempool, Pokemon pokemon, boolean supportCommon, boolean supportRare, boolean supportGuaranteed, boolean supportDarkGrass)
     {
         PyFunction func = (PyFunction)interp.get("selectWildPokemonHeldItem");
-        PyObject[] args = {Py.java2py(itempool), Py.java2py(pokemon), new PyBoolean(supportCommon), new PyBoolean(supportRare), new PyBoolean(supportGuaranteed), new PyBoolean(supportDarkGrass)};
+        List<Integer> javaPool = toItemPool(itempool);
+        PySequence pyPool = toPythonArray(javaPool, PyInteger.class, i -> new PyInteger(i));
+        PyObject[] args = {pyPool, Py.java2py(pokemon), new PyBoolean(supportCommon), new PyBoolean(supportRare), new PyBoolean(supportGuaranteed), new PyBoolean(supportDarkGrass)};
         PyDictionary result = (PyDictionary)(func.__call__(args));
         int common = result.has_key(new PyString("common")) ? ((PyInteger)result.get(new PyString("common"))).asInt() : 0;
         int rare = result.has_key(new PyString("rare")) ? ((PyInteger)result.get(new PyString("rare"))).asInt() : 0;
@@ -85,18 +128,34 @@ public class ScriptInstance {
         int darkGrass = result.has_key(new PyString("darkGrass")) ? ((PyInteger)result.get(new PyString("darkGrass"))).asInt() : 0;
         if(supportCommon && common != 0)
         {
+            if(!javaPool.contains(common))
+            {
+                throw new RuntimeException("Common held item "+Helper.toStr(common, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectWildPokemonHeldItem\"!");
+            }
             pokemon.commonHeldItem = common == -1 ? 0 : convertedIndex(common, Items.class, rom.getItemClass());
         }
         if(supportRare && rare != 0)
         {
+            if(!javaPool.contains(rare))
+            {
+                throw new RuntimeException("Rare held item "+Helper.toStr(common, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectWildPokemonHeldItem\"!");
+            }
             pokemon.rareHeldItem = rare == -1 ? 0 : convertedIndex(rare, Items.class, rom.getItemClass());;
         }
         if(supportGuaranteed && guaranteed != 0)
         {
+            if(!javaPool.contains(guaranteed))
+            {
+                throw new RuntimeException("Guaranteed held item "+Helper.toStr(common, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectWildPokemonHeldItem\"!");
+            }
             pokemon.guaranteedHeldItem = guaranteed == -1 ? 0 : convertedIndex(guaranteed, Items.class, rom.getItemClass());;
         }
         if(supportDarkGrass && darkGrass != 0 && (!supportGuaranteed || guaranteed == 0))
         {
+            if(!javaPool.contains(darkGrass))
+            {
+                throw new RuntimeException("Dark grass held item "+Helper.toStr(common, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectWildPokemonHeldItem\"!");
+            }
             pokemon.darkGrassHeldItem = darkGrass == -1 ? 0 : convertedIndex(darkGrass, Items.class, rom.getItemClass());;
         }
         return pokemon;
@@ -164,6 +223,15 @@ public class ScriptInstance {
             secondary = null;
         }
 
+        if(!rom.typeInGame(primary))
+        {
+            throw new RuntimeException("Selected primary type Type."+primary.name()+" is not supported in generation "+rom.generationOfPokemon());
+        }
+        if(secondary != null && !rom.typeInGame(secondary))
+        {
+            throw new RuntimeException("Selected secondary type Type."+secondary.name()+" is not supported in generation "+rom.generationOfPokemon());
+        }
+
         pokemon.primaryType = primary;
         pokemon.secondaryType = secondary;
     }
@@ -204,7 +272,7 @@ public class ScriptInstance {
             int ability = (Integer)result.get(k);
             if(!abilities.contains(ability) && ability != 0)
             {
-                throw new Exception("Chose unavailable ability!");
+                throw new Exception("Chose unavailable ability \""+Helper.toStr(ability, Helper.Index.ABILITY).asString()+"\" in function \"selectPokemonAbilities\"!");
             }
             chosen[chosenIter++] = ability;
         }
@@ -212,7 +280,7 @@ public class ScriptInstance {
         //throw exception if not even the first ability is 0
         if(chosen[0] <= 0)
         {
-            throw new Exception("No ability given to pokemon "+pokemon.name+"!");
+            throw new Exception("No ability given to pokemon "+pokemon.name+" in function \"selectPokemonAbilities\"!");
         }
 
         //set abilities
@@ -231,21 +299,36 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectFieldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool, new PyBoolean(isTM)).asInt(), Items.class, rom.getItemClass());
+        int result = convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool, new PyBoolean(isTM)).asInt(), Items.class, rom.getItemClass());
+        if(!itempool.contains(result))
+        {
+            throw new RuntimeException("Field item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectFieldItem\"!");
+        }
+        return result;
     }
 
     public int getScriptedPickupItem(int oldItem, List<Integer> itempool)
     {
         PyFunction func = (PyFunction)interp.get("selectPickupItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
+        int result = convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
+        if(!itempool.contains(result))
+        {
+            throw new RuntimeException("Pickup item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectPickupItem\"!");
+        }
+        return result;
     }
 
     public Move getScriptedTMMove(Move oldMove, List<Move> movepool, boolean forcedDamagingMove)
     {
         PyFunction func = (PyFunction)interp.get("selectTMMove");
         PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
-        return Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
+        Move result = Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
+        if(!movepool.contains(result))
+        {
+            throw new RuntimeException("TM move \""+result.name+" was not in the given movePool in function \"selectTMMove\"!");
+        }
+        return result;
     }
 
     public boolean getScriptedTMMoveCompat(Move move, Pokemon pokemon)
@@ -264,14 +347,24 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectTutorMove");
         PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
-        return Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
+        Move result = Py.tojava(func.__call__(Py.java2py(oldMove), pyMovepool, new PyBoolean(forcedDamagingMove)), Move.class);
+        if(!movepool.contains(result))
+        {
+            throw new RuntimeException("Tutor move \""+result.name+" was not in the given movePool in function \"selectTutorMove\"!");
+        }
+        return result;
     }
 
     public int getScriptedStarterHeldItem(int oldItem, List<Integer> itempool)
     {
         PyFunction func = (PyFunction)interp.get("selectStarterHeldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        return convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
+        int result = convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
+        if(!itempool.contains(result))
+        {
+            throw new RuntimeException("Starter held item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectStarterHeldItem\"!");
+        }
+        return result;
     }
 
     public List<Evolution> getScriptedEvolutions(List<Pokemon> pokepool, Pokemon poke, List<Evolution> oldEvolutions)
@@ -323,6 +416,11 @@ public class ScriptInstance {
             Pokemon from = poke;
             Pokemon to = Py.tojava(current.get(new PyString("evolveTo")), Pokemon.class);
             EvolutionType evoType = Py.tojava(current.get(new PyString("type")), EvolutionType.class);
+
+            if(!inPool(pokepool, to))
+            {
+                throw new RuntimeException("Evolution pokemon "+to.name+" was not in the given pokepool in  function \"selectEvolutions\"!");
+            }
 
             int level = 0;
             int extraInfo = 0;
@@ -431,6 +529,7 @@ public class ScriptInstance {
     private void addROMInfo()
     {
         String defs = "\n\n";
+        defs += "from com.dabomstew.pkrandom.pokemon import Type\n\n";
         defs += "class ROM:";
         String startVar = "\n\t";
         defs += startVar + "generation = "+rom.generationOfPokemon();
@@ -440,8 +539,38 @@ public class ScriptInstance {
         defs += startVar + "maxOTLen = "+rom.maxTradeOTNameLength();
         defs += startVar + "maxTrainerClassLen = "+rom.maxTrainerClassNameLength();
         defs += startVar + "maxTrainerNameLen = "+rom.maxTrainerNameLength();
+
+        defs += startVar + "supportedTypes = [";
+        for (Type typ : Type.values()) {
+            if(rom.typeInGame(typ)){ defs += "Type."+typ.name()+","; }
+        }
+        defs = defs.substring(0, defs.length() - 1) + "]";
+        
         defs += "\n\n";
         interp.exec(defs);
+    }
+
+    private static boolean inPool(List<Pokemon> pokepool, Pokemon poke)
+    {
+        return pokepool.contains(poke);
+    }
+
+    private static boolean inPool(List<Pokemon> pokepool, List<Pokemon> pokes)
+    {
+        return pokepool.containsAll(pokes);
+    }
+
+    private static List<Integer> toItemPool(ItemList itemList)
+    {
+        List<Integer> itempool = new ArrayList<>();
+        for(int k = 0; k <= itemList.getHighestIndex(); k++)
+        {
+            if(itemList.isAllowed(k))
+            {
+                itempool.add(k);
+            }
+        }
+        return itempool;
     }
 
 }
