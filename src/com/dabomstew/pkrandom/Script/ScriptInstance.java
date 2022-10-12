@@ -193,7 +193,7 @@ public class ScriptInstance {
         {
             if(ml.level <= 0 || ml.level > 100)
             {
-                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" has a level of "+ml.level+", which is outside of the [1-100] range!")
+                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" has a level of "+ml.level+", which is outside of the [1-100] range!");
             }
         }
         return result;
@@ -208,7 +208,7 @@ public class ScriptInstance {
         {
             if(ml.level <= 0 || ml.level > 100)
             {
-                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMovesetPost\" has a level of "+ml.level+", which is outside of the [1-100] range!")
+                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMovesetPost\" has a level of "+ml.level+", which is outside of the [1-100] range!");
             }
         }
         return result;
