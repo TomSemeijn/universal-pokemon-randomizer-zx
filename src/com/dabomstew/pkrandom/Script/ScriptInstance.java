@@ -22,6 +22,7 @@ public class ScriptInstance {
         interp = new PythonInterpreter();
         interp.exec(Helper.DefinitionString());
         addROMInfo();
+        source = source.replaceAll("Abilities.static",  "Abilities.staticTheAbilityNotTheKeyword"); //funny edge case
         interp.exec(source);
     }
 
@@ -112,6 +113,14 @@ public class ScriptInstance {
             {
                 throw new RuntimeException("Pokemon "+enc.pokemon.name+" was not in the given pokepool in function \"selectWildEncountersForArea\"!");
             }
+            if(enc.level <= 0 || enc.level > 100)
+            {
+                throw new RuntimeException("Level of wild pokemon "+enc.pokemon.name+" selected in function \"selectWildEncountersForArea\" was not in the [1-100] range! The returned value was "+enc.level);
+            }
+            if(enc.maxLevel <= 0 || enc.maxLevel > 100)
+            {
+                throw new RuntimeException("Max level of wild pokemon "+enc.pokemon.name+" selected in function \"selectWildEncountersForArea\" was not in the [1-100] range! The returned value was "+enc.maxLevel);
+            }
         }
         return result;
     }
@@ -122,7 +131,15 @@ public class ScriptInstance {
         TrainerPokemon result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(trainer), Py.java2py(oldPokemon), new PyBoolean(megaSwap)), TrainerPokemon.class);
         if(!inPool(pokepool, result.pokemon))
         {
-            throw new RuntimeException("Pokemon "+result.pokemon.name+" was not in the given pokepool in function \"selectTrainerPokemon\"!");
+            throw new RuntimeException("Trainer Pokemon "+result.pokemon.name+" was not in the given pokepool in function \"selectTrainerPokemon\"!");
+        }
+        if(result.level < 0 || result.level > 100)
+        {
+            throw new RuntimeException("Level of trainer Pokemon "+result.pokemon.name+" selected in function \"selectTrainerPokemon\" was not in the [1-100] range! The given value was "+result.level);
+        }
+        if(result.abilitySlot < 1 || result.abilitySlot > rom.abilitiesPerPokemon())
+        {
+            throw new RuntimeException("Ability slot of trainer Pokemon "+result.pokemon.name+" selected in function \"selectTrainerPokemon\" was not int he [1-"+rom.abilitiesPerPokemon()+"] range! The given value was "+result.abilitySlot+". You can use ROM.maxAbilities to get the number of abilities per pokemon in your script.");
         }
         return result;
     }
@@ -240,12 +257,13 @@ public class ScriptInstance {
 
     public List<Integer> getScriptedEggMoveset(Pokemon pokemon, List<Integer> oldMoveset)
     {
+        int oldSize = oldMoveset.size();
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
         PyArray pyMoveset = toPythonArray(oldMoveset, PyInteger.class, i -> new PyInteger(i));
         List<Integer> result = toJavaList((PySequence)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
-        if(result.size() != oldMoveset.size())
+        if(result.size() != oldSize)
         {
-            throw new RuntimeException("Egg moveset of pokemon "+pokemon.name+" selected in function \"setEggMoveset\" does not have the same number of moves as the original egg moveset! The original set had "+oldMoveset.size()+" and the returned set has "+result.size()+". If you want to have less egg moves, you can repeat the same move multiple times. You cannot have more egg moves.");
+            throw new RuntimeException("Egg moveset of pokemon "+pokemon.name+" selected in function \"setEggMoveset\" does not have the same number of moves as the original egg moveset! The original set had "+oldSize+" and the returned set has "+result.size()+". If you want to have less egg moves, you can repeat the same move multiple times. You cannot have more egg moves.");
         }
         return result;
     }
@@ -362,16 +380,29 @@ public class ScriptInstance {
             chosen[chosenIter++] = ability;
         }
 
-        //throw exception if not even the first ability is 0
-        if(chosen[0] <= 0)
-        {
-            throw new Exception("No ability given to pokemon "+pokemon.name+" in function \"selectPokemonAbilities\"!");
-        }
-
         //set abilities
-        pokemon.ability1 = chosen[0];
-        if(maxAbilities >= 2) { pokemon.ability2 = chosen[1]; }
-        if(maxAbilities >= 3) { pokemon.ability3 = chosen[2]; }
+        if(maxAbilities >= 1)
+        {
+            if(chosen[0] <= 0)
+            {
+                throw new Exception("No ability given to pokemon "+pokemon.name+" in function \"selectPokemonAbilities\"!");
+            }
+            pokemon.ability1 = chosen[0];
+        }
+        if(maxAbilities >= 2) {
+            if(chosen[1] <= 0)
+            {
+                throw new Exception("No second ability given to pokemon "+pokemon.name+" in function \"selectPokemonAbilities\"!");
+            }
+            pokemon.ability2 = chosen[1];
+        }
+        if(maxAbilities >= 3) {
+            if(chosen[2] <= 0)
+            {
+                throw new Exception("No third ability given to pokemon "+pokemon.name+" in function \"selectPokemonAbilities\"!");
+            }
+            pokemon.ability3 = chosen[2];
+        }
     }
 
     public ExpCurve getScriptedEXPCurve(Pokemon pokemon)
@@ -513,6 +544,9 @@ public class ScriptInstance {
             {
                 if(!current.has_key(new PyString("level"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"level\" key!"); }
                 level = current.get(new PyString("level")).asInt();
+                if(level <= 0 || level > 100){
+                    throw new RuntimeException("Evolution level for Evolution "+from.name+" => "+to.name+" selected in function \"selectEvolutions\" is not within the [1-100] range! The given value was "+level);
+                }
                 extraInfo = level;
             }
             else if(evoType.usesMove())
@@ -529,6 +563,16 @@ public class ScriptInstance {
             {
                 if(!current.has_key(new PyString("species"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"species\" key!"); }
                 extraInfo = current.get(new PyString("species")).asInt();
+                List<Pokemon> fullPool = rom.getPokemonInclFormes();
+                boolean found = false;
+                for(Pokemon fpoke : fullPool)
+                {
+                    if(fpoke.number == extraInfo){ found = true; break; }
+                }
+                if(!found)
+                {
+                    throw new RuntimeException("Pokemon Species."+Helper.toStr(extraInfo, Helper.Index.POKEMON).asString()+" selected for Evolution."+Helper.toStr(evoType)+" in function \"selectEvolutions\" is not available in the current ROM! Note: it might have been removed from the pool in pokemon limit settings or the \"limitPokemon\" function.");
+                }
             }
 
             boolean carryStats = result.__len__() == 1 || evoType == EvolutionType.LEVEL_CREATE_EXTRA;
@@ -624,6 +668,8 @@ public class ScriptInstance {
         defs += startVar + "maxOTLen = "+rom.maxTradeOTNameLength();
         defs += startVar + "maxTrainerClassLen = "+rom.maxTrainerClassNameLength();
         defs += startVar + "maxTrainerNameLen = "+rom.maxTrainerNameLength();
+        defs += startVar + "maxAbilities = "+rom.abilitiesPerPokemon();
+        defs += startVar + "hasPhysicalSpecialSplit = "+rom.hasPhysicalSpecialSplit();
 
         defs += startVar + "supportedTypes = [";
         for (Type typ : Type.values()) {
