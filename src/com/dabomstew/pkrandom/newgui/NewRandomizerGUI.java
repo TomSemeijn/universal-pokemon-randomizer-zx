@@ -458,7 +458,7 @@ public class NewRandomizerGUI {
             JPanel inputPanel = new JPanel();
             inputPanel.setLayout(new FlowLayout());
             JButton button = new JButton("Clear");
-            button.addActionListener(e -> consoleText.setText(""));
+            button.addActionListener(e -> {consoleText.setText("");System.out.flush();});
 
             consoleText = new JTextArea(20, 100);
             consoleText.setWrapStyleWord(false);
@@ -4659,6 +4659,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#Modifies a pokemon's learnt moves BEFORE other options are run on it",
+                "#movepool - an array of Move objects representing all available moves",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
                 "#oldMoveset - an array of MoveLearnt objects representing the original set of moves learned by leveling up",
                 "#",
@@ -4666,7 +4667,7 @@ public class NewRandomizerGUI {
                 "#NOTE: use the imported Move class to access moves by variable name",
                 "#NOTE: the result of this function will still be affected by other selected moveset options"
         };
-        String funcDeclaration = "def setLearntMoveset(pokemon, oldMoveset):";
+        String funcDeclaration = "def setLearntMoveset(movepool, pokemon, oldMoveset):";
         String funcBody = "\n\tnewMove = MoveLearnt() #example\n\tnewMove.move = Moves.splash\n\tnewMove.level = 100\n\toldMoveset.append(newMove)\n\treturn oldMoveset";
 
         if(pmsScriptLearntCheckBox.isSelected())
@@ -4684,6 +4685,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#Modifies a pokemon's learnt moves AFTER other options are run on it",
+                "#movepool - an array of Move objects representing all available moves",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
                 "#oldMoveset - an array of MoveLearnt objects representing the original set of moves learned by leveling up",
                 "#",
@@ -4691,7 +4693,7 @@ public class NewRandomizerGUI {
                 "#NOTE: use the imported Move class to access moves by variable name",
                 "#NOTE: the result of this function will not be affected by other moveset options because they have been applied beforehand"
         };
-        String funcDeclaration = "def setLearntMovesetPost(pokemon, oldMoveset):";
+        String funcDeclaration = "def setLearntMovesetPost(movepool, pokemon, oldMoveset):";
         String funcBody = "\n\tfor x in oldMoveset: #example\n\t\tx.move = Moves.splash\n\treturn oldMoveset";
 
         if(pmsScriptLearnAfterCheckBox.isSelected())
@@ -4709,6 +4711,7 @@ public class NewRandomizerGUI {
         String scriptText = sScriptInput.getText();
         String[] funcComments = {
                 "#Modifies a pokemon's egg moves AFTER other options are run on it",
+                "#movepool - an array of Move objects representing all available moves",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
                 "#oldMoveset - an array of integers representing the original set of egg moves",
                 "#",
@@ -4717,7 +4720,7 @@ public class NewRandomizerGUI {
                 "#NOTE: the result of this function will still be affected by other selected moveset options",
                 "#WARNING: you CANNOT change the number of egg moves a pokemon has, you can only change what moves they are"
         };
-        String funcDeclaration = "def setEggMoveset(pokemon, oldMoveset):";
+        String funcDeclaration = "def setEggMoveset(movepool, pokemon, oldMoveset):";
         String funcBody = "\n\tif(len(oldMoveset) > 0): #example\n\t\toldMoveset[0] = Moves.splash\n\treturn oldMoveset";
 
         if(pmsScriptEggCheckBox.isSelected())

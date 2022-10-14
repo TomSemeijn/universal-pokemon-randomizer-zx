@@ -67,7 +67,7 @@ public class ScriptInstance {
         }
         if(result.maxLevel <= 0 || result.maxLevel > 100)
         {
-            throw new RuntimeException("Static encounter of pokemon "+result.pkmn.name+" selected in function \"selectStaticPokemon\" has a maxLevel outside of the [1-100] range! The given level was "+result.maxLevel);
+            throw new RuntimeException("Static encounter of pokemon " + result.pkmn.name + " selected in function \"selectStaticPokemon\" has a maxLevel outside of the [1-100] range! The given level was " + result.maxLevel);
         }
         return result;
     }
@@ -228,13 +228,21 @@ public class ScriptInstance {
     public List<MoveLearnt> getScriptedLearntMoveset(Pokemon pokemon, List<MoveLearnt> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setLearntMoveset");
+        List<Move> movepool = getMovePool(true, false);
+        PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
         PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
-        List<MoveLearnt> result = toJavaList((PySequence) func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        List<MoveLearnt> result = toJavaList((PySequence) func.__call__(pyMovepool, Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
         for(MoveLearnt ml : result)
         {
             if(ml.level <= 0 || ml.level > 100)
             {
-                throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" has a level of "+ml.level+", which is outside of the [1-100] range!");
+                throw new RuntimeException("Learnt Move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" has a level of "+ml.level+", which is outside of the [1-100] range!");
+            }
+            boolean foundMove = false;
+            for(Move m : movepool){ if(m.number == ml.move){ foundMove = true; break; } }
+            if(!foundMove)
+            {
+                throw new RuntimeException("Learnt Move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" was not in the given movepool!");
             }
         }
         return result;
@@ -243,13 +251,21 @@ public class ScriptInstance {
     public List<MoveLearnt> getPostScriptedLearntMoveset(Pokemon pokemon, List<MoveLearnt> oldMoveset)
     {
         PyFunction func = (PyFunction)interp.get("setLearntMovesetPost");
+        List<Move> movepool = getMovePool(true, false);
+        PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
         PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, move -> Py.java2py(move));
-        List<MoveLearnt> result = toJavaList((PySequence)func.__call__(Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
+        List<MoveLearnt> result = toJavaList((PySequence)func.__call__(pyMovepool, Py.java2py(pokemon), pyMoveset), move -> Py.tojava(move, MoveLearnt.class));
         for(MoveLearnt ml : result)
         {
             if(ml.level <= 0 || ml.level > 100)
             {
                 throw new RuntimeException("Learnt move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMovesetPost\" has a level of "+ml.level+", which is outside of the [1-100] range!");
+            }
+            boolean foundMove = false;
+            for(Move m : movepool){ if(m.number == ml.move){ foundMove = true; break; } }
+            if(!foundMove)
+            {
+                throw new RuntimeException("Learnt Move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" was not in the given movepool!");
             }
         }
         return result;
@@ -259,11 +275,22 @@ public class ScriptInstance {
     {
         int oldSize = oldMoveset.size();
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
+        List<Move> movepool = getMovePool(false, true);
+        PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
         PyArray pyMoveset = toPythonArray(oldMoveset, PyInteger.class, i -> new PyInteger(i));
-        List<Integer> result = toJavaList((PySequence)(func.__call__(Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
+        List<Integer> result = toJavaList((PySequence)(func.__call__(pyMovepool, Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
         if(result.size() != oldSize)
         {
             throw new RuntimeException("Egg moveset of pokemon "+pokemon.name+" selected in function \"setEggMoveset\" does not have the same number of moves as the original egg moveset! The original set had "+oldSize+" and the returned set has "+result.size()+". If you want to have less egg moves, you can repeat the same move multiple times. You cannot have more egg moves.");
+        }
+        for(Integer em : result)
+        {
+            boolean moveFound = false;
+            for(Move m : movepool){ if(m.number == em){ moveFound = true; break; } }
+            if(!moveFound)
+            {
+                throw new RuntimeException("Egg move Moves."+Helper.toStr(em, Helper.Index.MOVE).asString()+" selected in function \"setEggMoveset\" was not in the given movepool!");
+            }
         }
         return result;
     }
@@ -657,6 +684,7 @@ public class ScriptInstance {
 
     private void addROMInfo()
     {
+        interp.set("temp", Py.java2py(rom));
         String defs = "\n\n";
         defs += "from com.dabomstew.pkrandom.pokemon import Type\n\n";
         defs += "class ROM:";
@@ -669,16 +697,43 @@ public class ScriptInstance {
         defs += startVar + "maxTrainerClassLen = "+rom.maxTrainerClassNameLength();
         defs += startVar + "maxTrainerNameLen = "+rom.maxTrainerNameLength();
         defs += startVar + "maxAbilities = "+rom.abilitiesPerPokemon();
-        defs += startVar + "hasPhysicalSpecialSplit = "+rom.hasPhysicalSpecialSplit();
+        defs += startVar + "hasPhysicalSpecialSplit = "+(rom.hasPhysicalSpecialSplit() ? "True" : "False");
+        defs += startVar + "hasMoveTutors = "+(rom.hasMoveTutors()  ? "True" : "False");
+        defs += startVar + "__romHandler = temp";
 
         defs += startVar + "supportedTypes = [";
         for (Type typ : Type.values()) {
             if(rom.typeInGame(typ)){ defs += "Type."+typ.name()+","; }
         }
         defs = defs.substring(0, defs.length() - 1) + "]";
-        
+
+        defs += startVar + "HMs = [";
+        for(Integer hm : rom.getHMMoves())
+        {
+            defs += hm + ",";
+        }
+        defs = defs.substring(0, defs.length() - 1) + "]";
+
+        defs +=   startVar + "@staticmethod"
+                + startVar + "def getMovepool(levelup = None, excludeHMs = None):"
+                + startVar + "\tif levelup is None:"
+                + startVar + "\t\treturn Helper.getMoves(ROM.__romHandler)"
+                + startVar + "\telif excludeHMs is None:"
+                + startVar + "\t\treturn Helper.getMoves(ROM.__romHandler, levelup)"
+                + startVar + "\telse:"
+                + startVar + "\t\treturn Helper.getMoves(ROM.__romHandler, levelup, excludeHMs)";
+
+        defs +=   startVar + "@staticmethod"
+                + startVar + "def getPokepool(includeFormes = None):"
+                + startVar + "\tif(includeFormes is None):"
+                + startVar + "\t\treturn Helper.getPokepool(ROM.__romHandler)"
+                + startVar + "\telse:"
+                + startVar + "\t\treturn Helper.getPokepool(ROM.__romHandler, includeFormes)";
+
         defs += "\n\n";
+        System.out.print(defs);
         interp.exec(defs);
+        interp.set("temp", null);
     }
 
     private static boolean inPool(List<Pokemon> pokepool, Pokemon poke)
@@ -702,6 +757,22 @@ public class ScriptInstance {
             }
         }
         return itempool;
+    }
+
+    private List<Move> getMovePool(boolean levelup, boolean egg)
+    {
+        List<Move> movepool = rom.getMoves();
+        movepool.removeAll(rom.getIllegalMoves());
+        if(levelup)
+        {
+            movepool.removeAll(rom.getMovesBannedFromLevelup());
+            movepool.removeAll(rom.getHMMoves());
+        }
+        if(egg)
+        {
+            movepool.removeAll(rom.getHMMoves());
+        }
+        return movepool;
     }
 
 }

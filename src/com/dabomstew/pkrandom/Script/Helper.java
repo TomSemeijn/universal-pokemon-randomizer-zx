@@ -4,13 +4,17 @@ import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.constants.Moves;
 import com.dabomstew.pkrandom.constants.Species;
+import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.Type;
+import com.dabomstew.pkrandom.romhandlers.RomHandler;
 import org.python.core.*;
+import sun.font.Script;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Helper {
 
@@ -178,6 +182,40 @@ public class Helper {
         }
 
         return ScriptInstance.toPythonArray(canPick, PyObject.class, pkmn -> Py.java2py(pkmn));
+    }
+
+    public static PySequence getMoves(RomHandler rom) { return getMoves(rom, false); }
+    public static PySequence getMoves(RomHandler rom, boolean levelup) { return getMoves(rom, levelup, false); }
+    public static PySequence getMoves(RomHandler rom, boolean levelup, boolean excludeHM)
+    {
+        ArrayList<Move> filtered = new ArrayList<>();
+        List<Move> moves = rom.getMoves();
+        List<Integer> illegalMoves = rom.getIllegalMoves();
+        List<Integer> HMs = rom.getHMMoves();
+        List<Integer> bannedFromLevel = rom.getMovesBannedFromLevelup();
+        for(Move move : moves)
+        {
+            if(move == null){ continue; }
+            if(illegalMoves.contains(move.number)){ continue; }
+            if(levelup && bannedFromLevel.contains(move.number)){ continue; }
+            if(excludeHM && HMs.contains(move.number)){ continue; }
+            filtered.add(move);
+        }
+        return ScriptInstance.toPythonArray(filtered, PyObject.class, move -> Py.java2py(move));
+    }
+
+    public static PySequence getPokepool(RomHandler rom){ return getPokepool(rom, false); }
+    public static PySequence getPokepool(RomHandler rom, boolean includeFormes)
+    {
+        List<Pokemon> pokes = (includeFormes ? rom.getPokemonInclFormes() : rom.getPokemon());
+        ArrayList<Pokemon> filteredPokes = new ArrayList<>();
+        for(Pokemon poke : pokes){
+            if(poke != null)
+            {
+                filteredPokes.add(poke);
+            }
+        }
+        return ScriptInstance.toPythonArray(filteredPokes, PyObject.class, poke -> Py.java2py(poke));
     }
 
     public static String DefinitionString()
