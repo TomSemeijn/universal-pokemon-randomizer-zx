@@ -3936,9 +3936,10 @@
                       <caretColor color="-1"/>
                       <codeFoldingEnabled value="true"/>
                       <currentLineHighlightColor color="-11454665"/>
-                      <enabled value="false"/>
+                      <editable value="true"/>
+                      <enabled value="true"/>
                       <fadeCurrentLineHighlight value="true"/>
-                      <font name="Consolas" size="32"/>
+                      <font name="Consolas" size="16"/>
                       <foreground color="-1"/>
                       <inheritsPopupMenu value="true"/>
                       <marginLineEnabled value="false"/>
@@ -3953,6 +3954,7 @@
                       <selectionColor color="-6908241"/>
                       <showMatchedBracketPopup value="true"/>
                       <syntaxEditingStyle value="text/python"/>
+                      <text value=""/>
                     </properties>
                   </component>
                 </children>

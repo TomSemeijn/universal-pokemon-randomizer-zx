@@ -730,8 +730,11 @@ public class ScriptInstance {
                 + startVar + "\telse:"
                 + startVar + "\t\treturn Helper.getPokepool(ROM.__romHandler, includeFormes)";
 
+        defs +=   startVar + "@staticmethod"
+                + startVar + "def supportsEvolution(evoType):"
+                + startVar + "\treturn Helper.supportsEvolutionType(ROM.__romHandler, evoType)";
+
         defs += "\n\n";
-        System.out.print(defs);
         interp.exec(defs);
         interp.set("temp", null);
     }

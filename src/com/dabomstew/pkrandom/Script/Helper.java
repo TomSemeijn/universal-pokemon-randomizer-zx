@@ -4,6 +4,7 @@ import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.constants.Moves;
 import com.dabomstew.pkrandom.constants.Species;
+import com.dabomstew.pkrandom.pokemon.EvolutionType;
 import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.pokemon.Type;
@@ -216,6 +217,11 @@ public class Helper {
             }
         }
         return ScriptInstance.toPythonArray(filteredPokes, PyObject.class, poke -> Py.java2py(poke));
+    }
+
+    public static PyBoolean supportsEvolutionType(RomHandler rom, EvolutionType evo)
+    {
+        return new PyBoolean(evo.toIndex(rom.generationOfPokemon()) != -1);
     }
 
     public static String DefinitionString()
