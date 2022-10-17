@@ -730,6 +730,15 @@ public class ScriptInstance {
                 + startVar + "\telse:"
                 + startVar + "\t\treturn Helper.getPokepool(ROM.__romHandler, includeFormes)";
 
+        defs += startVar + "@staticmethod" + startVar + "def getItempool():"          + startVar + "\treturn Helper.getItempool(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getConsumableItems():"   + startVar + "\treturn Helper.getConsumableItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getHeldItems():"         + startVar + "\treturn Helper.getHeldItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getEvolutionItems():"    + startVar + "\treturn Helper.getEvolutionItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getGoodItems():"         + startVar + "\treturn Helper.getGoodItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getOPShopItems():"       + startVar + "\treturn Helper.getOPShopItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getRegularFieldItems():" + startVar + "\treturn Helper.getRegularFieldItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getRegularShopItems():"  + startVar + "\treturn Helper.getRegularShopItems(ROM.__romHandler)";
+
         defs +=   startVar + "@staticmethod"
                 + startVar + "def supportsEvolution(evoType):"
                 + startVar + "\treturn Helper.supportsEvolutionType(ROM.__romHandler, evoType)";

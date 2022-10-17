@@ -4,10 +4,7 @@ import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.constants.Moves;
 import com.dabomstew.pkrandom.constants.Species;
-import com.dabomstew.pkrandom.pokemon.EvolutionType;
-import com.dabomstew.pkrandom.pokemon.Move;
-import com.dabomstew.pkrandom.pokemon.Pokemon;
-import com.dabomstew.pkrandom.pokemon.Type;
+import com.dabomstew.pkrandom.pokemon.*;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
 import org.python.core.*;
 import sun.font.Script;
@@ -217,6 +214,70 @@ public class Helper {
             }
         }
         return ScriptInstance.toPythonArray(filteredPokes, PyObject.class, poke -> Py.java2py(poke));
+    }
+
+    private static PySequence toSeq(ItemList list)
+    {
+        final int highest = list.getHighestIndex();
+        PyArray seq = new PyArray(PyInteger.class, null);
+        for(int k = 0; k <= highest; k++)
+        {
+            if(list.isAllowed(k))
+            {
+                seq.append(new PyInteger(k));
+            }
+        }
+        return seq;
+    }
+
+    private static PySequence toSeq(ItemList list, List<Integer> req)
+    {
+        List<Integer> result = new ArrayList<>();
+        for(Integer item : req)
+        {
+            if(list.isAllowed(item)){result.add(item);}
+        }
+        return ScriptInstance.toPythonArray(result, PyInteger.class, i -> new PyInteger(i));
+    }
+
+    public static PySequence getItempool(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems());
+    }
+
+    public static PySequence getConsumableItems(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems(), rom.getAllConsumableHeldItems());
+    }
+
+    public static PySequence getHeldItems(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems(), rom.getAllHeldItems());
+    }
+
+    public static PySequence getEvolutionItems(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems(), rom.getEvolutionItems());
+    }
+
+    public static PySequence getGoodItems(RomHandler rom)
+    {
+        return toSeq(rom.getNonBadItems());
+    }
+
+    public static PySequence getOPShopItems(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems(), rom.getOPShopItems());
+    }
+
+    public static PySequence getRegularFieldItems(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems(), rom.getRegularFieldItems());
+    }
+
+    public static PySequence getRegularShopItems(RomHandler rom)
+    {
+        return toSeq(rom.getAllowedItems(), rom.getRegularShopItems());
     }
 
     public static PyBoolean supportsEvolutionType(RomHandler rom, EvolutionType evo)
