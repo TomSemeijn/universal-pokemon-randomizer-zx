@@ -285,6 +285,17 @@ public class Helper {
         return new PyBoolean(evo.toIndex(rom.generationOfPokemon()) != -1);
     }
 
+    public static PySequence getSupportedEvolutionTypes(RomHandler rom)
+    {
+        final int gen = rom.generationOfPokemon();
+        List<EvolutionType> result = new ArrayList<>();
+        for(EvolutionType evo : EvolutionType.values())
+        {
+            if(evo.toIndex(gen) != -1){ result.add(evo); }
+        }
+        return ScriptInstance.toPythonArray(result, PyObject.class, evo -> Py.java2py(evo));
+    }
+
     public static String DefinitionString()
     {
         String helperImport = "from com.dabomstew.pkrandom.Script import Helper";

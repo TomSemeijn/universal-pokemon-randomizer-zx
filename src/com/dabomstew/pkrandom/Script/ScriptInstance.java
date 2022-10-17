@@ -743,6 +743,10 @@ public class ScriptInstance {
                 + startVar + "def supportsEvolution(evoType):"
                 + startVar + "\treturn Helper.supportsEvolutionType(ROM.__romHandler, evoType)";
 
+        defs +=   startVar + "@staticmethod"
+                + startVar + "def supportedEvolutionTypes():"
+                + startVar + "\treturn Helper.getSupportedEvolutionTypes(ROM.__romHandler)";
+
         defs += "\n\n";
         interp.exec(defs);
         interp.set("temp", null);
