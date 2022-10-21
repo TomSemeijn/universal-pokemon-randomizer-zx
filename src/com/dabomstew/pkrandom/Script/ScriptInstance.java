@@ -70,6 +70,11 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Static encounter of pokemon " + result.pkmn.name + " selected in function \"selectStaticPokemon\" has a maxLevel outside of the [0-100] range! The given level was " + result.maxLevel);
         }
+        List<Integer> itempool = toItemPool(rom.getAllowedItems());
+        if(!itempool.contains(result.heldItem))
+        {
+            throw new RuntimeException("Held item Items."+Helper.toStr(result.heldItem, Helper.Index.ITEM).asString()+" selected in function \"selectStaticPokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
+        }
         return result;
     }
 
@@ -100,6 +105,11 @@ public class ScriptInstance {
         if(result.nickname.length() > rom.maxTradeNicknameLength())
         {
             throw new RuntimeException("Trade Pokemon nickname \""+result.nickname+"\" selected in function \"selectInGameTradePokemon\" exceeds the maximum length of "+rom.maxTradeNicknameLength()+"! The length of the given name was "+result.nickname.length()+". You can get the maximum nickname length in your script from ROM.maxNicknameLen");
+        }
+        List<Integer> itempool = toItemPool(rom.getAllowedItems());
+        if(!itempool.contains(result.item))
+        {
+            throw new RuntimeException("Held item Items."+Helper.toStr(result.item, Helper.Index.ITEM).asString()+" selected in function \"selectInGameTradePokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
         }
         return result;
     }
@@ -625,7 +635,24 @@ public class ScriptInstance {
         {
             if(evo.type.toIndex(rom.generationOfPokemon()) == -1)
             {
-                throw new RuntimeException("EvolutionType."+evo.type.name()+" is not supported in generation "+rom.generationOfPokemon()+"!");
+                throw new RuntimeException("EvolutionType."+evo.type.name()+" selected in function \"selectEvolutions\" is not supported in generation "+rom.generationOfPokemon()+"!");
+            }
+            if(evo.type.usesItem())
+            {
+                int item = evo.extraInfo;
+                List<Integer> itempool = toItemPool(rom.getAllowedItems());
+                if(!itempool.contains(item))
+                {
+                    throw new RuntimeException("Evolution item Items."+Helper.toStr(item, Helper.Index.ITEM).asString()+" selected in function \"selectEvolutions\" is not in the itempool! You can get the itempool from ROM.getItempool()");
+                }
+                if(evo.type.needsEvolutionItem())
+                {
+                    List<Integer> evoItems = rom.getEvolutionItems();
+                    if(!evoItems.contains(item))
+                    {
+                        throw new RuntimeException("Evolution item Items."+Helper.toStr(item, Helper.Index.ITEM).asString()+" selected in function \"selectEvolutions\" is not an official evolution item, while the selected EvolutionType.\""+Helper.toStr(evo.type).asString()+"\" does require this! You can get a list of evolution items from ROM.getEvolutionItems()");
+                    }
+                }
             }
         }
 

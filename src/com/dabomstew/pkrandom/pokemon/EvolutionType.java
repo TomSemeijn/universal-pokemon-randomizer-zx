@@ -112,6 +112,11 @@ public enum EvolutionType {
                 this == TRADE_ITEM || this == LEVEL_ITEM_NIGHT || this == LEVEL_ITEM_DAY;
     }
 
+    public boolean needsEvolutionItem()
+    {
+        return this == STONE || this == STONE_ULTRA || this == STONE_FEMALE_ONLY || this == STONE_MALE_ONLY;
+    }
+
     public boolean usesMove()
     {
         return this == LEVEL_WITH_MOVE;
