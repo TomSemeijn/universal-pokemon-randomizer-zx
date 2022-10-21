@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ScriptInstance {
     private PythonInterpreter interp;
@@ -65,9 +66,9 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Static encounter of pokemon "+result.pkmn.name+" selected in function \"selectStaticPokemon\" has a level outside of the [1-100] range! The given level was "+result.level);
         }
-        if(result.maxLevel <= 0 || result.maxLevel > 100)
+        if(result.maxLevel < 0 || result.maxLevel > 100)
         {
-            throw new RuntimeException("Static encounter of pokemon " + result.pkmn.name + " selected in function \"selectStaticPokemon\" has a maxLevel outside of the [1-100] range! The given level was " + result.maxLevel);
+            throw new RuntimeException("Static encounter of pokemon " + result.pkmn.name + " selected in function \"selectStaticPokemon\" has a maxLevel outside of the [0-100] range! The given level was " + result.maxLevel);
         }
         return result;
     }
@@ -89,7 +90,7 @@ public class ScriptInstance {
         {
             if(iv < 0 || iv > maxIV)
             {
-                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [0-"+maxIV+"] range! The given values are "+result.ivs.toString());
+                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [0-"+maxIV+"] range! The given values are "+result.ivs.toString()+". You can get the maximum IV value in your script with ROM.maxIV");
             }
         }
         if(result.otName.length() > rom.maxTradeOTNameLength())
@@ -117,9 +118,9 @@ public class ScriptInstance {
             {
                 throw new RuntimeException("Level of wild pokemon "+enc.pokemon.name+" selected in function \"selectWildEncountersForArea\" was not in the [1-100] range! The returned value was "+enc.level);
             }
-            if(enc.maxLevel <= 0 || enc.maxLevel > 100)
+            if(enc.maxLevel < 0 || enc.maxLevel > 100)
             {
-                throw new RuntimeException("Max level of wild pokemon "+enc.pokemon.name+" selected in function \"selectWildEncountersForArea\" was not in the [1-100] range! The returned value was "+enc.maxLevel);
+                throw new RuntimeException("Max level of wild pokemon "+enc.pokemon.name+" selected in function \"selectWildEncountersForArea\" was not in the [0-100] range! The returned value was "+enc.maxLevel);
             }
         }
         return result;
@@ -239,7 +240,15 @@ public class ScriptInstance {
                 throw new RuntimeException("Learnt Move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" has a level of "+ml.level+", which is outside of the [1-100] range!");
             }
             boolean foundMove = false;
-            for(Move m : movepool){ if(m.number == ml.move){ foundMove = true; break; } }
+            for(Move m : movepool){
+                if(m == null){System.out.println("m is null"); }
+                if(ml == null){System.out.println("ml is null"); }
+
+                if(m.number == ml.move){
+                    foundMove = true;
+                    break;
+                }
+            }
             if(!foundMove)
             {
                 throw new RuntimeException("Learnt Move "+Helper.toStr(ml.move, Helper.Index.MOVE)+" selected in function \"setLearntMoveset\" was not in the given movepool!");
@@ -699,6 +708,7 @@ public class ScriptInstance {
         defs += startVar + "maxAbilities = "+rom.abilitiesPerPokemon();
         defs += startVar + "hasPhysicalSpecialSplit = "+(rom.hasPhysicalSpecialSplit() ? "True" : "False");
         defs += startVar + "hasMoveTutors = "+(rom.hasMoveTutors()  ? "True" : "False");
+        defs += startVar + "maxIV = "+(rom.hasDVs() ? 16 : 32);
         defs += startVar + "__romHandler = temp";
 
         defs += startVar + "supportedTypes = [";
@@ -777,7 +787,8 @@ public class ScriptInstance {
 
     private List<Move> getMovePool(boolean levelup, boolean egg)
     {
-        List<Move> movepool = rom.getMoves();
+        ArrayList<Move> movepool = new ArrayList<>(rom.getMoves());
+        movepool.removeIf(Objects::isNull);
         movepool.removeAll(rom.getIllegalMoves());
         if(levelup)
         {
@@ -787,6 +798,10 @@ public class ScriptInstance {
         if(egg)
         {
             movepool.removeAll(rom.getHMMoves());
+        }
+        if(movepool == null)
+        {
+            System.out.println("MOVEPOOL IS NULL");
         }
         return movepool;
     }
