@@ -143,10 +143,27 @@ public class Helper {
     {
         for(int k = 0; k < seq.__len__(); k++)
         {
-            if(Py.tojava(seq.__getitem__(k), Pokemon.class).number == number)
-            {
-                return seq.__getitem__(k);
+            PyObject item = seq.__getitem__(k);
+            try{
+                Pokemon poke = Py.tojava(item, Pokemon.class);
+                if(poke != null) {
+                    if (poke.number == number) {
+                        return item;
+                    }
+                }
             }
+            catch(PyException ex){}
+            try{
+                Move move = Py.tojava(item, Move.class);
+                if(move != null)
+                {
+                    if(move.number == number)
+                    {
+                        return item;
+                    }
+                }
+            }
+            catch(PyException ex){}
         }
         return null;
     }
