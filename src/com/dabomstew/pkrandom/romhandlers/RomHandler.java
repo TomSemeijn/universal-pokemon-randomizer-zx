@@ -275,6 +275,12 @@ public interface RomHandler {
 
     List<Move> getMoveSelectionPoolAtLevel(TrainerPokemon tp, boolean cyclicEvolutions);
 
+    List<Move> getAllMovesOf(Pokemon poke, boolean includePrevos);
+    List<MoveLearnt> getLearntMovesOf(Pokemon poke, boolean includePrevos);
+    List<Move> getTMMovesOf(Pokemon poke, boolean includePrevos);
+    List<Move> getTutorMovesOf(Pokemon poke, boolean includePrevos);
+    List<Move> getEggMovesOf(Pokemon poke);
+
     void pickTrainerMovesets(Settings settings);
 
     // =========

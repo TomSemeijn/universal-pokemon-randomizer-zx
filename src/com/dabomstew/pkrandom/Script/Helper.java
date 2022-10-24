@@ -296,6 +296,35 @@ public class Helper {
         return ScriptInstance.toPythonArray(result, PyObject.class, evo -> Py.java2py(evo));
     }
 
+    public static PySequence getAllPossibleMoves(RomHandler rom, Pokemon poke, boolean includePrevos)
+    {
+        return ScriptInstance.toPythonArray(rom.getAllMovesOf(poke, includePrevos), PyObject.class, move -> Py.java2py(move));
+    }
+
+    public static PySequence getLearntMoves(RomHandler rom, Pokemon poke, boolean includePrevos)
+    {
+        return ScriptInstance.toPythonArray(rom.getLearntMovesOf(poke, includePrevos), PyObject.class, move -> Py.java2py(move));
+    }
+
+    public static PySequence getTMMoves(RomHandler rom, Pokemon poke, boolean includePrevos)
+    {
+        return ScriptInstance.toPythonArray(rom.getTMMovesOf(poke, includePrevos), PyObject.class, move -> Py.java2py(move));
+    }
+
+    public static PySequence getTutorMoves(RomHandler rom, Pokemon poke, boolean includePrevos)
+    {
+        if(!rom.hasMoveTutors())
+        {
+            throw new RuntimeException("Tried to call ROM.getTutorMovesOf() while this ROM does not support move tutors! You can check this in your script with ROM.hasMoveTutors");
+        }
+        return ScriptInstance.toPythonArray(rom.getTutorMovesOf(poke, includePrevos), PyObject.class, move -> Py.java2py(move));
+    }
+
+    public static PySequence getEggMoves(RomHandler rom, Pokemon poke)
+    {
+        return ScriptInstance.toPythonArray(rom.getEggMovesOf(poke), PyObject.class, move -> Py.java2py(move));
+    }
+
     public static String DefinitionString()
     {
         String helperImport = "from com.dabomstew.pkrandom.Script import Helper";

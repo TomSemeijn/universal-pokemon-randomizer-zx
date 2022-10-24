@@ -2356,6 +2356,136 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
+    public List<Move> getAllMovesOf(Pokemon poke, boolean includePrevos)
+    {
+        List<Move> allMoves = getMoves();
+        List<Move> moves = getLearntMovesOf(poke, includePrevos).stream().map(ml -> allMoves.get(ml.move)).collect(Collectors.toList());
+        moves.addAll(getTMMovesOf(poke, includePrevos));
+        moves.addAll(getTutorMovesOf(poke, includePrevos));
+        moves.addAll(getEggMovesOf(poke));
+        return new ArrayList<>(new HashSet<>(moves)); //remove duplicate moves
+    }
+
+    @Override
+    public List<MoveLearnt> getLearntMovesOf(Pokemon poke, boolean includePrevos)
+    {
+        List<Move> moves = getMoves();
+        if (allLevelUpMoves == null) {
+            allLevelUpMoves = getMovesLearnt();
+        }
+        ArrayList<MoveLearnt> result = new ArrayList<>(allLevelUpMoves.get(poke.number));
+        ArrayList<Pokemon> alreadyChecked = new ArrayList<>();
+        if(includePrevos)
+        {
+            ArrayList<Pokemon> toCheck = new ArrayList<>(poke.evolutionsTo.stream().map(evo -> evo.from).collect(Collectors.toList()));
+            for(int k = 0; k < toCheck.size(); k++)
+            {
+                Pokemon p = toCheck.get(k);
+                result.addAll(allLevelUpMoves.get(p.number));
+                ArrayList<Pokemon> newCheck = new ArrayList<>(p.evolutionsTo.stream().map(evo -> evo.from).collect(Collectors.toList()));
+                newCheck.removeAll(alreadyChecked);
+                toCheck.addAll(newCheck);
+                alreadyChecked.addAll(newCheck);
+            }
+        }
+        return new ArrayList<>(new HashSet<>(result)); //remove duplicate movelearnts
+    }
+
+    @Override
+    public List<Move> getTMMovesOf(Pokemon poke, boolean includePrevos)
+    {
+        List<Move> moves = getMoves();
+        if (allTMCompat == null) {
+            allTMCompat = getTMHMCompatibility();
+        }
+        if (allTMMoves == null) {
+            allTMMoves = getTMMoves();
+        }
+        ArrayList<Move> result = new ArrayList<>();
+        ArrayList<Pokemon> toCheck = new ArrayList<>();
+        ArrayList<Pokemon> alreadyChecked = new ArrayList<>();
+        toCheck.add(poke);
+        for(int k = 0; k < toCheck.size(); k++)
+        {
+            Pokemon p = toCheck.get(k);
+            if(includePrevos)
+            {
+                ArrayList<Pokemon> newCheck = new ArrayList<>(p.evolutionsTo.stream().map(evo -> evo.from).collect(Collectors.toList()));
+                newCheck.removeAll(alreadyChecked);
+                toCheck.addAll(newCheck);
+                alreadyChecked.addAll(newCheck);
+            }
+            boolean[] tmCompat = allTMCompat.get(p);
+            for (int tmMove: allTMMoves) {
+                if (tmCompat[allTMMoves.indexOf(tmMove) + 1]) {
+                    result.add(moves.get(tmMove));
+                }
+            }
+        }
+
+        return new ArrayList<>(new HashSet<>(result)); //remove duplicate moves
+    }
+
+    @Override
+    public List<Move> getTutorMovesOf(Pokemon poke, boolean includePrevos)
+    {
+        if(!hasMoveTutors()){
+            return new ArrayList<>();
+        }
+        List<Move> moves = getMoves();
+        if (allTutorCompat == null) {
+            allTutorCompat = getMoveTutorCompatibility();
+        }
+        if (allTutorMoves == null) {
+            allTutorMoves = getMoveTutorMoves();
+        }
+        ArrayList<Move> result = new ArrayList<>();
+        ArrayList<Pokemon> toCheck = new ArrayList<>();
+        ArrayList<Pokemon> alreadyChecked = new ArrayList<>();
+        toCheck.add(poke);
+        for(int k = 0; k < toCheck.size(); k++) {
+            Pokemon p = toCheck.get(k);
+            if(includePrevos)
+            {
+                ArrayList<Pokemon> newCheck = new ArrayList<>(p.evolutionsTo.stream().map(evo -> evo.from).collect(Collectors.toList()));
+                newCheck.removeAll(alreadyChecked);
+                toCheck.addAll(newCheck);
+                alreadyChecked.addAll(newCheck);
+            }
+            boolean[] tutorCompat = allTutorCompat.get(p);
+            for (int tutorMove: allTutorMoves) {
+                if (tutorCompat[allTutorMoves.indexOf(tutorMove) + 1]) {
+                    result.add(moves.get(tutorMove));
+                }
+            }
+        }
+
+        return new ArrayList<>(new HashSet<>(result)); //remove duplicate moves
+    }
+
+    @Override
+    public List<Move> getEggMovesOf(Pokemon poke)
+    {
+        List<Move> moves = getMoves();
+        if (allEggMoves == null) {
+            allEggMoves = getEggMoves();
+        }
+
+        ArrayList<Move> result = new ArrayList<>();
+        Pokemon firstEvo = poke;
+        while (!firstEvo.evolutionsTo.isEmpty()) {
+            firstEvo = firstEvo.evolutionsTo.get(0).from;
+        }
+        if (allEggMoves.get(firstEvo.number) != null) {
+            result.addAll(allEggMoves.get(firstEvo.number)
+                    .stream()
+                    .map(moves::get)
+                    .collect(Collectors.toList()));
+        }
+        return new ArrayList<>(new HashSet<>(result)); //remove duplicate moves
+    }
+
+    @Override
     public void pickTrainerMovesets(Settings settings) {
         boolean isCyclicEvolutions = settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM_EVERY_LEVEL;
         boolean doubleBattleMode = settings.isDoubleBattleMode();

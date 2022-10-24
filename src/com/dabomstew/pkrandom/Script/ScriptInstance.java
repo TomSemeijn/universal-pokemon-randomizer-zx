@@ -599,6 +599,17 @@ public class ScriptInstance {
             {
                 if(!current.has_key(new PyString("move"))){ throw new RuntimeException("Evolution dictionary with type EvolutionType."+evoType.name()+" must have a \"move\" key!"); }
                 extraInfo = current.get(new PyString("move")).asInt();
+                final int move = extraInfo;
+                List<Move> movepool = rom.getAllMovesOf(from, true);
+                boolean found = false;
+                for(Move mv : movepool)
+                {
+                    if(mv.number == move){ found = true; break; }
+                }
+                if(!found)
+                {
+                    throw new RuntimeException("Evolution move for Evolution "+from.name+" => "+to.name+" selected in function \"selectEvolutions\" cannot be learned by the evolving pokemon or any of its pre-evolutions! The given move was Moves."+Helper.toStr(move, Helper.Index.MOVE).asString()+". You can get the moves available to a pokemon in your script from ROM.getAllMovesOf(pokemon, includePrevos)");
+                }
             }
             else if(evoType.usesItem())
             {
@@ -783,6 +794,12 @@ public class ScriptInstance {
         defs +=   startVar + "@staticmethod"
                 + startVar + "def supportedEvolutionTypes():"
                 + startVar + "\treturn Helper.getSupportedEvolutionTypes(ROM.__romHandler)";
+
+        defs += startVar + "@staticmethod" + startVar + "def getAllMovesOf(poke, includePrevos = False):"  + startVar + "\treturn Helper.getAllPossibleMoves(ROM.__romHandler, poke, includePrevos)";
+        defs += startVar + "@staticmethod" + startVar + "def getLearntMovesOf(poke, includePrevos = False):"  + startVar + "\treturn Helper.getLearntMoves(ROM.__romHandler, poke, includePrevos)";
+        defs += startVar + "@staticmethod" + startVar + "def getTMMovesOf(poke, includePrevos = False):"  + startVar + "\treturn Helper.getTMMoves(ROM.__romHandler, poke, includePrevos)";
+        defs += startVar + "@staticmethod" + startVar + "def getTutorMovesOf(poke, includePrevos = False):"  + startVar + "\treturn Helper.getTutorMoves(ROM.__romHandler, poke, includePrevos)";
+        defs += startVar + "@staticmethod" + startVar + "def getEggMovesOf(poke):"  + startVar + "\treturn Helper.getEggMoves(ROM.__romHandler, poke)";
 
         defs += "\n\n";
         interp.exec(defs);
