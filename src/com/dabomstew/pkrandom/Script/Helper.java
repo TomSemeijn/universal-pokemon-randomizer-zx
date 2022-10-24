@@ -164,6 +164,17 @@ public class Helper {
                 }
             }
             catch(PyException ex){}
+            try{
+                MoveLearnt move = Py.tojava(item, MoveLearnt.class);
+                if(move != null)
+                {
+                    if(move.move == number)
+                    {
+                        return item;
+                    }
+                }
+            }
+            catch(PyException ex){}
         }
         return null;
     }
