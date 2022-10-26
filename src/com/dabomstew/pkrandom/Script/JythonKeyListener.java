@@ -77,6 +77,11 @@ public class JythonKeyListener implements KeyListener {
             {
                 lineEnd++;
             }
+            if(caretPos >= text.length())
+            {
+                lineStart = caretPos;
+                lineEnd = caretPos;
+            }
             String line = text.substring(lineStart, lineEnd);
             if(!line.endsWith("\n")){ line += "\n"; }
 
@@ -120,7 +125,7 @@ public class JythonKeyListener implements KeyListener {
                         try{
                             editor.getDocument().insertString(lineStart, data, null);
                         }
-                        catch(BadLocationException exception){}
+                        catch(BadLocationException exception){ System.out.println("bad location haha"); }
                         e.consume();
                     }
                 }

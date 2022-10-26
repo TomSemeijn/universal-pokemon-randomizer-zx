@@ -26,6 +26,7 @@ package com.dabomstew.pkrandom.newgui;
 /*----------------------------------------------------------------------------*/
 
 import com.dabomstew.pkrandom.*;
+import com.dabomstew.pkrandom.Script.JythonKeyListener;
 import com.dabomstew.pkrandom.cli.CliRandomizer;
 import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
@@ -781,6 +782,9 @@ public class NewRandomizerGUI {
         ac.setAutoActivationDelay(300);
         provider.setAutoActivationRules(true, ".");
         ac.install(sScriptInput);*/
+
+        //add line operations
+        sScriptInput.addKeyListener(new JythonKeyListener(sScriptInput));
 
         //add the RandomSource import
         String scriptText = sScriptInput.getText();
