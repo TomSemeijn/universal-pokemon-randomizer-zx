@@ -142,6 +142,24 @@ public class JythonKeyListener implements KeyListener {
                 e.consume();
             }
         }
+        //text resize - CTR->SHIFT->LESS/GREATER
+        else if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 && (e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0 && (e.getKeyCode() == KeyEvent.VK_COMMA || e.getKeyCode() == KeyEvent.VK_LESS || e.getKeyCode() == KeyEvent.VK_PERIOD || e.getKeyCode() == KeyEvent.VK_GREATER))
+        {
+            Font fnt = editor.getFont();
+            int diff = 4;
+            switch(e.getKeyCode())
+            {
+                case KeyEvent.VK_COMMA:
+                case KeyEvent.VK_LESS:
+                    editor.setFont(fnt.deriveFont(fnt.getStyle(), fnt.getSize() - diff));
+                    break;
+                case KeyEvent.VK_PERIOD:
+                case KeyEvent.VK_GREATER:
+                    editor.setFont(fnt.deriveFont(fnt.getStyle(), fnt.getSize() + diff));
+                    break;
+            }
+            e.consume();
+        }
     }
 
     @Override
