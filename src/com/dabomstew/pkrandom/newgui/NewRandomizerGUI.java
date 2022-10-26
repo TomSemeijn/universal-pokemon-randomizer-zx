@@ -4717,15 +4717,15 @@ public class NewRandomizerGUI {
                 "#Modifies a pokemon's egg moves AFTER other options are run on it",
                 "#movepool - an array of Move objects representing all available moves",
                 "#pokemon - a Pokemon object representing the pokemon whose moveset is being changed",
-                "#oldMoveset - an array of integers representing the original set of egg moves",
+                "#oldMoveset - an array of Move objects representing the original set of egg moves",
                 "#",
-                "#return: an array of Integer objects representing the modified set of egg moves",
+                "#return: an array of Move objects representing the modified set of egg moves",
                 "#NOTE: use the imported Move class to access moves by variable name",
                 "#NOTE: the result of this function will still be affected by other selected moveset options",
                 "#WARNING: you CANNOT change the number of egg moves a pokemon has, you can only change what moves they are"
         };
         String funcDeclaration = "def setEggMoveset(movepool, pokemon, oldMoveset):";
-        String funcBody = "\n\tif(len(oldMoveset) > 0): #example\n\t\toldMoveset[0] = Moves.splash\n\treturn oldMoveset";
+        String funcBody = "\n\tif(len(oldMoveset) > 0): #example\n\t\toldMoveset[0] = find(movepool, Moves.splash)\n\treturn oldMoveset";
 
         if(pmsScriptEggCheckBox.isSelected())
         {

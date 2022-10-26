@@ -296,8 +296,8 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("setEggMoveset");
         List<Move> movepool = getMovePool(false, true);
         PyArray pyMovepool = toPythonArray(movepool, PyObject.class, move -> Py.java2py(move));
-        PyArray pyMoveset = toPythonArray(oldMoveset, PyInteger.class, i -> new PyInteger(i));
-        List<Integer> result = toJavaList((PySequence)(func.__call__(pyMovepool, Py.java2py(pokemon), pyMoveset)), i -> new Integer(i.asInt()));
+        PyArray pyMoveset = toPythonArray(oldMoveset, PyObject.class, i -> Helper.find(pyMovepool, i));
+        List<Integer> result = toJavaList((PySequence)(func.__call__(pyMovepool, Py.java2py(pokemon), pyMoveset)), move -> Py.tojava(move, Move.class).number);
         if(result.size() != oldSize)
         {
             throw new RuntimeException("Egg moveset of pokemon "+pokemon.name+" selected in function \"setEggMoveset\" does not have the same number of moves as the original egg moveset! The original set had "+oldSize+" and the returned set has "+result.size()+". If you want to have less egg moves, you can repeat the same move multiple times. You cannot have more egg moves.");
