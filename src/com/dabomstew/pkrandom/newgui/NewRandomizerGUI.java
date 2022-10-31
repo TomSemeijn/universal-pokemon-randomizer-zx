@@ -27,6 +27,9 @@ package com.dabomstew.pkrandom.newgui;
 
 import com.dabomstew.pkrandom.*;
 import com.dabomstew.pkrandom.Script.JythonKeyListener;
+import com.dabomstew.pkrandom.Script.JythonTokenMaker;
+import com.dabomstew.pkrandom.Script.MultiOutputStream;
+import com.dabomstew.pkrandom.Script.TextAreaOutputStream;
 import com.dabomstew.pkrandom.cli.CliRandomizer;
 import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
@@ -37,10 +40,7 @@ import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
 import com.dabomstew.pkrandom.romhandlers.*;
 import org.fife.ui.autocomplete.*;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
-import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.python.google.common.primitives.Ints;
@@ -477,7 +477,8 @@ public class NewRandomizerGUI {
             consoleWindow.setLocationByPlatform(true);
             consoleWindow.setResizable(true);
 
-            PrintStream con=new PrintStream(new TextAreaOutputStream(consoleText));
+            MultiOutputStream multiOut= new MultiOutputStream(System.out, new TextAreaOutputStream(consoleText));
+            PrintStream con=new PrintStream(multiOut);
             System.setOut(con);
             System.setErr(con);
         }
@@ -742,20 +743,49 @@ public class NewRandomizerGUI {
     private void initializeScriptInput()
     {
         //set highlighting style
-        sScriptInput.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+        JythonTokenMaker.register();
+        sScriptInput.setSyntaxEditingStyle("text/jython");
         sScriptInput.setForeground(Color.white);
         sScriptInput.setBackground(new Color(50, 50, 50));
         SyntaxScheme scheme = sScriptInput.getSyntaxScheme();
+
+        Font baseFont = scheme.getStyle(Token.COMMENT_EOL).font;
+        Font boldFont = baseFont.deriveFont(Font.BOLD);
+        Font italicFont = baseFont.deriveFont(Font.ITALIC);
+
         scheme.getStyle(Token.RESERVED_WORD).foreground = new Color(86, 156, 214);
         Color numberColor = new Color(181, 206, 168);
         scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = numberColor;
         scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = numberColor;
         scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = numberColor;
         scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = new Color(204, 120, 50);
+        scheme.getStyle(Token.LITERAL_BOOLEAN).font = boldFont;
         scheme.getStyle(Token.LITERAL_CHAR).foreground = new Color(211, 144, 116);
         scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = new Color(211, 144, 116);
         scheme.getStyle(Token.OPERATOR).foreground = new Color(156, 220, 254);
+        scheme.getStyle(Token.ANNOTATION).foreground = new Color(154, 154, 154);
+        scheme.getStyle(Token.ANNOTATION).font = italicFont;
+        scheme.getStyle(Token.DATA_TYPE).foreground = new Color(78, 201, 176);
+        scheme.getStyle(Token.COMMENT_EOL).foreground = new Color(87, 166,74);
+        scheme.getStyle(Token.COMMENT_EOL).font = italicFont;
+        scheme.getStyle(Token.FUNCTION).foreground = new Color(220, 220, 170);
+        scheme.getStyle(Token.MARKUP_CDATA).foreground = new Color(154, 154, 154); //use for arguments
+        scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = new Color(190, 183, 255); //use for members
+
         sScriptInput.revalidate();
+
+        /*
+        commentStyle = Color(87, 166, 74) - italic
+        keywordStyle = Color(86, 156, 214) - bold
+        funcStyle = Color(220, 220, 170)
+        stringStyle = Color(211, 144, 116)
+        boolStyle = Color(204, 120, 50) - bold
+        argStyle = Color(154, 154, 154)
+        memberStyle = Color(190, 183, 255)
+        numericLiteralStyle = Color(181, 206, 168)
+        importStyle = Color(154, 154, 154) - italic - bold
+        classStyle = Color(78, 201, 176) - bold
+         */
 
         //enable code folding
         sScriptInput.setCodeFoldingEnabled(true);

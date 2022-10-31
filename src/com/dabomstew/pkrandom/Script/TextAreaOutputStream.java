@@ -1,4 +1,4 @@
-package com.dabomstew.pkrandom;
+package com.dabomstew.pkrandom.Script;
 
 import java.awt.*;
 import java.io.*;

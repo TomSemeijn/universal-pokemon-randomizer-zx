@@ -1,5 +1,8 @@
 package com.dabomstew.pkrandom.Script;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
@@ -13,9 +16,9 @@ import java.io.IOException;
 
 public class JythonKeyListener implements KeyListener {
 
-    private JTextArea editor;
+    private RSyntaxTextArea editor;
 
-    public JythonKeyListener(JTextArea editor)
+    public JythonKeyListener(RSyntaxTextArea editor)
     {
         this.editor = editor;
     }
