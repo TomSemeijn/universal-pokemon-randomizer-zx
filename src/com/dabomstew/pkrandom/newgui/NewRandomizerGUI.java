@@ -26,11 +26,8 @@ package com.dabomstew.pkrandom.newgui;
 /*----------------------------------------------------------------------------*/
 
 import com.dabomstew.pkrandom.*;
-import com.dabomstew.pkrandom.Script.JythonKeyListener;
-import com.dabomstew.pkrandom.Script.JythonSyntaxDocument;
+import com.dabomstew.pkrandom.Script.*;
 import com.dabomstew.pkrandom.Script.JythonTokenMaker;
-import com.dabomstew.pkrandom.Script.MultiOutputStream;
-import com.dabomstew.pkrandom.Script.TextAreaOutputStream;
 import com.dabomstew.pkrandom.cli.CliRandomizer;
 import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
@@ -776,6 +773,8 @@ public class NewRandomizerGUI {
         scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = new Color(190, 183, 255); //use for members
 
         sScriptInput.revalidate();
+
+        sScriptInput.getDocument().addDocumentListener(new JythonDocumentListener(sScriptInput));
 
         /*
         commentStyle = Color(87, 166, 74) - italic

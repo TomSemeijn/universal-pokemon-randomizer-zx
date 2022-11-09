@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class JythonTokenMaker extends AbstractTokenMaker {
 
-    public RSyntaxDocument doc;
+    public JythonSyntaxDocument doc;
 
     private int currentTokenStart = 0;
     private int currentTokenType = Token.NULL;
@@ -412,44 +412,84 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
     @Override
     public synchronized void addToken(Segment segment, int start, int end, int tokenType, int startOffset) {
+        int originalStart = start;
+        int originalEnd = end;
+        int originalStartOffset = startOffset;
         if (tokenType == Token.IDENTIFIER) {
             int value = wordsToHighlight.get(segment, start, end);
             if (value != -1) {
                 tokenType = value;
             }
-            else if(cachedText != null && cachedText.length() > 0 && start < cachedText.length() && end < cachedText.length())
-            {
-                //get the line and the current word from the inputs
+            else if(start < end) {
                 String full = cachedText;
-                int startLn = start;
-                int endLn = end;
-                while(startLn > 0 && full.charAt(startLn) != '\n'){ startLn--; }
-                while(endLn < full.length() - 1 && full.charAt(endLn) != '\n'){ endLn++; }
-                if(full.charAt(startLn) == '\n'){ startLn++; }
-                if(endLn > startLn) //skip if empty line
+                String fullSeg = new String(segment.array);
+                String segPart = fullSeg.substring(start, end + 1);
+                boolean valid = true;
+                if((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart))
                 {
-                    String line = full.substring(startLn, endLn);
-                    String part = full.substring(start, end + 1);
-                    int lineOffset = startOffset - startLn;
+                    valid = false;
+                    int segStartLine = start;
+                    int segEndLine = end;
+                    while(segStartLine > 0 && fullSeg.charAt(segStartLine - 1) != '\n') { segStartLine--; }
+                    while(segEndLine < fullSeg.length() && fullSeg.charAt(segEndLine) != '\n') { segEndLine++; }
+                    String segLine = fullSeg.substring(segStartLine, segEndLine);
 
-                    //import formatting
-                    int importIndex = line.indexOf("import");
-                    int fromIndex = line.indexOf("from");
-                    if(fromIndex > -1 && lineOffset > fromIndex) //if this is an import line
+                    int offset = this.doc.getLastEditOffset();
+                    int fullStart = offset;
+                    int fullEnd = offset;
+                    while(fullStart > 0 && full.charAt(fullStart - 1) != '\n') { fullStart--; }
+                    while(fullEnd < full.length() && full.charAt(fullEnd) != '\n') { fullEnd++; }
+                    String fullLine = full.substring(fullStart, fullEnd);
+
+                    if(fullLine.equals(segLine))
                     {
-                        if (importIndex == -1 || importIndex > lineOffset) //between from and import - it's the module location
-                            tokenType = Token.ANNOTATION;
-                        else if (importIndex > -1 && importIndex < lineOffset) //after import - it's the class name
-                            tokenType = Token.DATA_TYPE;
+                        System.out.println(segLine);
+                        start += fullStart;
+                        end += fullStart;
+                        if(startOffset < fullStart)
+                            startOffset += fullStart;
+                        valid = true;
                     }
-                    //scoped formatting
-                    else
-                        tokenType = getScopedTokenType(globalScope.getLowestScopeOf(start), part, line, lineOffset);
+                }
+                if (valid && (cachedText != null && cachedText.length() > 0 && start < cachedText.length() && end < cachedText.length()))
+                {
+                    //get the line and the current word from the inputs
+                    int startLn = start;
+                    int endLn = end;
+                    while (startLn > 0 && full.charAt(startLn) != '\n') {
+                        startLn--;
+                    }
+                    while (endLn < full.length() - 1 && full.charAt(endLn) != '\n') {
+                        endLn++;
+                    }
+                    if (full.charAt(startLn) == '\n') {
+                        startLn++;
+                    }
+                    if (endLn > startLn) //skip if empty line
+                    {
+                        String line = full.substring(startLn, endLn);
+                        String part = full.substring(start, end + 1);
+                        int lineOffset = startOffset - startLn;
+
+                        //import formatting
+                        int importIndex = line.indexOf("import");
+                        int fromIndex = line.indexOf("from");
+                        if (fromIndex > -1 && lineOffset > fromIndex) //if this is an import line
+                        {
+                            if (importIndex == -1 || importIndex > lineOffset) //between from and import - it's the module location
+                                tokenType = Token.ANNOTATION;
+                            else if (importIndex > -1 && importIndex < lineOffset) //after import - it's the class name
+                                tokenType = Token.DATA_TYPE;
+                        }
+                        //scoped formatting
+                        else
+                            tokenType = getScopedTokenType(globalScope.getLowestScopeOf(start), part, line, lineOffset);
+                    }
                 }
             }
 
         }
-        super.addToken(segment, start, end, tokenType, startOffset);
+        super.addToken(segment, originalStart, originalEnd, tokenType, originalStartOffset);
     }
 
     private int getScopedTokenType(Scope myScope, String part, String line, int lineOffset)

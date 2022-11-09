@@ -3,11 +3,15 @@ package com.dabomstew.pkrandom.Script;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.util.DynamicIntArray;
 
+import javax.swing.event.DocumentEvent;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.Segment;
 import java.lang.reflect.*;
 
 public class JythonSyntaxDocument extends RSyntaxDocument {
+
+    private int lastEditOffset = 0;
 
     public JythonSyntaxDocument(String syntaxStyle) {
         super(syntaxStyle);
@@ -43,5 +47,13 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
         catch(NoSuchFieldException e){}
         catch(IllegalAccessException e){}
     }
+
+    @Override
+    protected void fireInsertUpdate(DocumentEvent e) {
+        lastEditOffset = e.getOffset();
+        super.fireInsertUpdate(e);
+    }
+
+    public int getLastEditOffset(){ return this.lastEditOffset; }
 
 }
