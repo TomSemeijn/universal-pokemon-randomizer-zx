@@ -27,6 +27,7 @@ package com.dabomstew.pkrandom.newgui;
 
 import com.dabomstew.pkrandom.*;
 import com.dabomstew.pkrandom.Script.JythonKeyListener;
+import com.dabomstew.pkrandom.Script.JythonSyntaxDocument;
 import com.dabomstew.pkrandom.Script.JythonTokenMaker;
 import com.dabomstew.pkrandom.Script.MultiOutputStream;
 import com.dabomstew.pkrandom.Script.TextAreaOutputStream;
@@ -744,6 +745,7 @@ public class NewRandomizerGUI {
     {
         //set highlighting style
         JythonTokenMaker.register();
+        sScriptInput.setDocument(new JythonSyntaxDocument("text/jython"));
         sScriptInput.setSyntaxEditingStyle("text/jython");
         sScriptInput.setForeground(Color.white);
         sScriptInput.setBackground(new Color(50, 50, 50));
@@ -762,13 +764,14 @@ public class NewRandomizerGUI {
         scheme.getStyle(Token.LITERAL_BOOLEAN).font = boldFont;
         scheme.getStyle(Token.LITERAL_CHAR).foreground = new Color(211, 144, 116);
         scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = new Color(211, 144, 116);
-        scheme.getStyle(Token.OPERATOR).foreground = new Color(156, 220, 254);
+        scheme.getStyle(Token.VARIABLE).foreground = new Color(156, 220, 254);
         scheme.getStyle(Token.ANNOTATION).foreground = new Color(154, 154, 154);
         scheme.getStyle(Token.ANNOTATION).font = italicFont;
         scheme.getStyle(Token.DATA_TYPE).foreground = new Color(78, 201, 176);
         scheme.getStyle(Token.COMMENT_EOL).foreground = new Color(87, 166,74);
         scheme.getStyle(Token.COMMENT_EOL).font = italicFont;
-        scheme.getStyle(Token.FUNCTION).foreground = new Color(220, 220, 170);
+        scheme.getStyle(Token.FUNCTION).foreground = new Color(219, 219, 114);
+        scheme.getStyle(Token.OPERATOR).foreground = Color.white;
         scheme.getStyle(Token.MARKUP_CDATA).foreground = new Color(154, 154, 154); //use for arguments
         scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = new Color(190, 183, 255); //use for members
 
