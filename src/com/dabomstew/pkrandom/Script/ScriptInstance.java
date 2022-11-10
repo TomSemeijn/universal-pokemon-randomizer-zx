@@ -806,6 +806,45 @@ public class ScriptInstance {
         interp.set("temp", null);
     }
 
+    public static void initJythonDoc(JythonSyntaxDocument jdoc)
+    {
+        JythonScope dummy = jdoc.getGlobalScope();
+
+        JythonScope.Class romCls = dummy.new Class("ROM", -1);
+        romCls.methods.add(dummy.new Function("getMovePool", -1));
+        romCls.methods.add(dummy.new Function("getPokepool", -1));
+        romCls.methods.add(dummy.new Function("getItempool", -1));
+        romCls.methods.add(dummy.new Function("getConsumableItems", -1));
+        romCls.methods.add(dummy.new Function("getHeldItems", -1));
+        romCls.methods.add(dummy.new Function("getEvolutionItems", -1));
+        romCls.methods.add(dummy.new Function("getGoodItems", -1));
+        romCls.methods.add(dummy.new Function("getOPShopItems", -1));
+        romCls.methods.add(dummy.new Function("getRegularFieldItems", -1));
+        romCls.methods.add(dummy.new Function("getRegularShopItems", -1));
+        romCls.methods.add(dummy.new Function("supportsEvolution", -1));
+        romCls.methods.add(dummy.new Function("supportedEvolutionTypes", -1));
+        romCls.methods.add(dummy.new Function("getAllMovesOf", -1));
+        romCls.methods.add(dummy.new Function("getLearntMovesOf", -1));
+        romCls.methods.add(dummy.new Function("getTMMovesOf", -1));
+        romCls.methods.add(dummy.new Function("getTutorMovesOf", -1));
+        romCls.methods.add(dummy.new Function("getEggMovesOf", -1));
+        romCls.members.add("name");
+        romCls.members.add("generation");
+        romCls.members.add("code");
+        romCls.members.add("maxNicknameLen");
+        romCls.members.add("maxOTLen");
+        romCls.members.add("maxTrainerClassLen");
+        romCls.members.add("maxTrainerNameLen");
+        romCls.members.add("maxAbilities");
+        romCls.members.add("hasPhysicalSpecialSplit");
+        romCls.members.add("hasMoveTutors");
+        romCls.members.add("maxIV");
+        romCls.members.add("supportedTypes");
+        romCls.members.add("HMs");
+
+        jdoc.addExtraGlobalClass(romCls);
+    }
+
     private static boolean inPool(List<Pokemon> pokepool, Pokemon poke)
     {
         return pokepool.contains(poke);

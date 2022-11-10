@@ -367,4 +367,23 @@ public class Helper {
         return newLn + helperImport + newLn + toStrDef + newLn + indexDef + newLn + simStrengthDef + newLn + findDef + newLn + seqDef + newLn + hasTypeDef + newLn + indexTypeDef + newLn;
     }
 
+    public static void initJythonDoc(JythonSyntaxDocument jdoc)
+    {
+        JythonScope dummy = jdoc.getGlobalScope();
+
+        jdoc.addExtraGlobalFunc(dummy.new Function("toStr", -1));
+        jdoc.addExtraGlobalFunc(dummy.new Function("index", -1));
+        jdoc.addExtraGlobalFunc(dummy.new Function("similarStrength", -1));
+        jdoc.addExtraGlobalFunc(dummy.new Function("find", -1));
+        jdoc.addExtraGlobalFunc(dummy.new Function("seq", -1));
+        jdoc.addExtraGlobalFunc(dummy.new Function("hasType", -1));
+
+        JythonScope.Class indexCls = dummy.new Class("Index", -1);
+        indexCls.members.add("ABILITY");
+        indexCls.members.add("ITEM");
+        indexCls.members.add("MOVE");
+        indexCls.members.add("POKEMON");
+        jdoc.addExtraGlobalClass(indexCls);
+    }
+
 }

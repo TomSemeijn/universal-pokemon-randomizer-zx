@@ -742,7 +742,10 @@ public class NewRandomizerGUI {
     {
         //set highlighting style
         JythonTokenMaker.register();
-        sScriptInput.setDocument(new JythonSyntaxDocument("text/jython"));
+        JythonSyntaxDocument jdoc = new JythonSyntaxDocument("text/jython");
+        ScriptInstance.initJythonDoc(jdoc);
+        Helper.initJythonDoc(jdoc);
+        sScriptInput.setDocument(jdoc);
         sScriptInput.setSyntaxEditingStyle("text/jython");
         sScriptInput.setForeground(Color.white);
         sScriptInput.setBackground(new Color(50, 50, 50));

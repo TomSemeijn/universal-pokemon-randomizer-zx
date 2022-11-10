@@ -15,7 +15,9 @@ import java.util.List;
 public class JythonSyntaxDocument extends RSyntaxDocument {
 
     private int lastEditOffset = 0;
-    private JythonScope globalScope = null;
+    private JythonScope globalScope = new JythonScope(0, 0, 0);
+    private List<JythonScope.Function> extraGlobalFuncs = new ArrayList<>();
+    private List<JythonScope.Class> extraGlobalClasses = new ArrayList<>();
 
 
     public JythonSyntaxDocument(String syntaxStyle) {
@@ -81,6 +83,10 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
         //initialize new global scope
         String cachedText = getAllText();
         globalScope = new JythonScope(0, cachedText.length() - 1, 0);
+        for(JythonScope.Function f : extraGlobalFuncs)
+            globalScope.addFunc(f);
+        for(JythonScope.Class c : extraGlobalClasses)
+            globalScope.addClass(c);
         JythonScope currentScope = globalScope;
 
         //find imported classes
@@ -328,6 +334,16 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
         }
 
         //System.out.println(this.globalScope);
+    }
+
+    public void addExtraGlobalFunc(JythonScope.Function func)
+    {
+        extraGlobalFuncs.add(func);
+    }
+
+    public void addExtraGlobalClass(JythonScope.Class cls)
+    {
+        extraGlobalClasses.add(cls);
     }
 
     private static List<String> findLocalsFromScopeDeclaration(String scopeDecl)
