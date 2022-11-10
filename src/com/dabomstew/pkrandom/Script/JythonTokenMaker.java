@@ -5,6 +5,7 @@ import org.fife.ui.rsyntaxtextarea.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -1108,7 +1109,15 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                             }
                         }
                         if(isScope)
-                            currentScope = currentScope.addChild(nextNewline, cachedText.length() - 1, tabLevel + 1);
+                        {
+                            //create scope
+                            currentScope = currentScope.addChild(lastNewline, cachedText.length() - 1, tabLevel + 1);
+
+                            //find any local variables declared in loop definitions
+                            String declaration = cachedText.substring(lastNewline, nextNewline);
+                            for(String lcl : findLocalsFromScopeDeclaration(declaration))
+                                currentScope.addLocal(lcl);
+                        }
                     }
                 }
             }
@@ -1128,6 +1137,41 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             wasInStringOrComment = inStr || inComment;
         }
 
-        System.out.println(this.globalScope);
+        //System.out.println(this.globalScope);
+    }
+
+    private static List<String> findLocalsFromScopeDeclaration(String scopeDecl)
+    {
+        ArrayList<String> result = new ArrayList<>();
+        String firstWord = "";
+
+        //do some parsing to find the first word and then find the locals based on what that word was
+        for(int k = 0; k < scopeDecl.length(); k++)
+        {
+            char c = scopeDecl.charAt(k);
+            if(firstWord.length() == 0 && (RSyntaxUtilities.isWhitespace(c) || c == '\n')) { continue; } //skip leading whitespace
+            if(!RSyntaxUtilities.isLetterOrDigit(c) && c != '_')
+            {
+                if(firstWord.equals("for")) {
+                    int inKeyword = scopeDecl.indexOf(" in "); //with spaces so that it must be its own word
+                    if(inKeyword > -1)
+                    {
+                        String list = scopeDecl.substring(k, inKeyword + 1); //add 1 to the end so it includes the character before the space
+                        String[] vars = list.trim().split(",");
+                        for(String v : vars)
+                            result.add(v.trim());
+                    }
+                }
+                //break the parsing loop after the first word, if variables were found, they are in the list now
+                break;
+            }
+            else
+            {
+                firstWord += c;
+            }
+        }
+
+        //return the result
+        return result;
     }
 }
