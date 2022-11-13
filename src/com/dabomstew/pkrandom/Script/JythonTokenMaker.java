@@ -190,8 +190,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             //check if there's a '.' before the word
             if(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')
             {
-                System.out.print("Looking for dots for word \""+part+"\"");
-
                 //get the word before the '.'
                 int lastWordStart = lineOffset - 2;
                 while(lastWordStart > 0 && (RSyntaxUtilities.isLetterOrDigit(line.charAt(lastWordStart - 1)) || line.charAt(lastWordStart - 1) == '_'))
@@ -552,5 +550,21 @@ public class JythonTokenMaker extends AbstractTokenMaker {
     @Override
     public boolean getShouldIndentNextLineAfter(Token token) {
         return token != null && token.getType() == Token.OPERATOR && token.isSingleChar(':');
+    }
+
+    @Override
+    public boolean getMarkOccurrencesOfTokenType(int type) {
+        return
+                type != Token.COMMENT_EOL &&
+                        type != Token.PREPROCESSOR &&
+                        type != Token.OPERATOR &&
+                        type != Token.LITERAL_STRING_DOUBLE_QUOTE &&
+                        type != Token.RESERVED_WORD &&
+                        type != Token.LITERAL_BOOLEAN &&
+                        type != Token.LITERAL_NUMBER_DECIMAL_INT &&
+                        type != Token.LITERAL_NUMBER_FLOAT &&
+                        type != Token.LITERAL_NUMBER_HEXADECIMAL &&
+                        type != Token.LITERAL_CHAR
+                ;
     }
 }
