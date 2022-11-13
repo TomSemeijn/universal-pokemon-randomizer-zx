@@ -166,6 +166,11 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             for(JythonScope.Class cls : myScope.getClasses())
                 if(cls.getName().equals(part))
                     return Token.DATA_TYPE;
+            //check if it's a member within a class definition
+            if(myScope.getType() == ScopeType.CLASS)
+                for(String member : myScope.getThisClass().members)
+                    if(member.equals(part))
+                        return Token.MARKUP_ENTITY_REFERENCE;
             //check if it's a local variable
             for(String local : myScope.getlocals())
                 if(local.equals(part))
@@ -173,6 +178,8 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             //check if there's a '.' before the word
             if(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')
             {
+                System.out.print("Looking for dots for word \""+part+"\"");
+
                 //get the word before the '.'
                 int lastWordStart = lineOffset - 2;
                 while(lastWordStart > 0 && (RSyntaxUtilities.isLetterOrDigit(line.charAt(lastWordStart - 1)) || line.charAt(lastWordStart - 1) == '_'))

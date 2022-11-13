@@ -100,6 +100,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
         boolean inWhitespace = false;
 
         boolean inFuncDef = false;
+        boolean inClassDef = false;
         boolean inImportLine = false;
         boolean inImportFromDef = false;
         String importSource = "";
@@ -168,34 +169,39 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
             final boolean wordAtEnd = !(inStr || inComment) && (k == cachedText.length() - 1 && !inWhitespace);
             final boolean enterStrOrComment = ((inStr || inComment) && !wasInStringOrComment) && !inWhitespace;
             final boolean enterScope = !(inStr || inComment) && cachedText.charAt(k) == ':';
-            if((enterWhitespace && !inFuncDef) || wordAtEnd || enterStrOrComment || enterScope)
+            if((enterWhitespace && !inFuncDef && !inClassDef) || wordAtEnd || enterStrOrComment || enterScope)
             {
                 //this word is a function definition if the last word was a "def" keyword and we're entering a scope
-                if(inFuncDef && enterScope)
+                if(enterScope)
                 {
-                    //get definition information
-                    int openArgs = currentWord.indexOf('(');
-                    int closeArgs = currentWord.indexOf(')');
+                    if(inFuncDef) {
+                        //get definition information
+                        int openArgs = currentWord.indexOf('(');
+                        int closeArgs = currentWord.indexOf(')');
 
-                    //verify definition is correct
-                    if(openArgs > -1 && closeArgs > -1 && openArgs < closeArgs)
-                    {
-                        //put the definition into the current scope
-                        JythonScope.Function func = currentScope.new Function(currentWord.substring(0, openArgs), lastNewline);
-                        String argList = (closeArgs > openArgs + 1) ? currentWord.substring(openArgs + 1, closeArgs) : "";
-                        String[] splitArgs = argList.split(",");
-                        for(int argIndex = 0; argIndex < splitArgs.length; argIndex++)
-                        {
-                            splitArgs[argIndex] = splitArgs[argIndex].trim();
-                            if(splitArgs[argIndex].length() > 0)
-                            {
-                                func.arguments.add(splitArgs[argIndex]);
+                        //verify definition is correct
+                        if (openArgs > -1 && closeArgs > -1 && openArgs < closeArgs) {
+                            //put the definition into the current scope
+                            JythonScope.Function func = currentScope.new Function(currentWord.substring(0, openArgs), lastNewline);
+                            String argList = (closeArgs > openArgs + 1) ? currentWord.substring(openArgs + 1, closeArgs) : "";
+                            String[] splitArgs = argList.split(",");
+                            for (int argIndex = 0; argIndex < splitArgs.length; argIndex++) {
+                                splitArgs[argIndex] = splitArgs[argIndex].trim();
+                                if (splitArgs[argIndex].length() > 0) {
+                                    func.arguments.add(splitArgs[argIndex]);
+                                }
                             }
+                            currentScope.addFunc(func);
                         }
-                        currentScope.addFunc(func);
-                    }
 
-                    inFuncDef = false;
+                        inFuncDef = false;
+                    }
+                    else if(inClassDef)
+                    {
+                        JythonScope.Class addedCls = globalScope.new Class(currentWord, lastNewline);
+                        currentScope.addClass(addedCls);
+                        inClassDef = false;
+                    }
                 }
                 //this is an imported class if we've passed a from and an import keyword
                 else if(inImportFromDef)
@@ -205,22 +211,34 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                         //find the static methods and members of the class
                         Class<?> cls = Class.forName(importSource+"."+currentWord);
                         JythonScope.Class addedClass = currentScope.new Class(currentWord, lastNewline);
+                        boolean checkStaticAbility = currentWord.equals("Abilities");
                         for(Method meth : cls.getMethods())
                             if(Modifier.isStatic(meth.getModifiers()))
                                 addedClass.methods.add(currentScope.new Function(meth.getName(), lastNewline));
-                        for(Field fld : cls.getFields())
-                            if(Modifier.isStatic(fld.getModifiers()))
-                                addedClass.members.add(fld.getName());
+                        for(Field fld : cls.getFields()) {
+                            if(Modifier.isStatic(fld.getModifiers())) {
+                                String fieldName = fld.getName();
+                                if(checkStaticAbility && fieldName.equals("staticTheAbilityNotTheKeyword"))
+                                    fieldName = "static";
+                                addedClass.members.add(fieldName);
+                            }
+                        }
                         //actually add the class
                         currentScope.addClass(addedClass);
                     }
                     catch(ClassNotFoundException e) {} //do nothing, this wasn't a real class
                 }
 
-                //look for funciton definitions
-                else if(currentWord.equals("def"))
+                //look for function definitions
+                else if(currentWord.equals("def") && !inClassDef && !inImportLine)
                 {
                     inFuncDef = true;
+                }
+
+                //look for class definitions
+                else if(currentWord.equals("class") && !inFuncDef && !inImportLine)
+                {
+                    inClassDef = true;
                 }
 
                 //look for imports
@@ -248,7 +266,10 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                         char curC = cachedText.charAt(i);
                         if(curC == '=')
                         {
-                            currentScope.addLocal(currentWord);
+                            if(currentScope.getType() == ScopeType.CLASS)
+                                currentScope.getThisClass().members.add(currentWord);
+                            else
+                                currentScope.addLocal(currentWord);
                             break;
                         }
                         if(!RSyntaxUtilities.isWhitespace(curC))
@@ -322,6 +343,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
             if(c == '\n')
             {
                 inFuncDef = false;
+                inClassDef = false;
                 inImportLine = false;
                 inImportFromDef = false;
                 currentWord = "";
