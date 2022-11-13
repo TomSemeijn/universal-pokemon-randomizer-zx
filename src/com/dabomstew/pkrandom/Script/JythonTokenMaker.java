@@ -536,4 +536,9 @@ public class JythonTokenMaker extends AbstractTokenMaker {
         // Return the first token in our linked list.
         return firstToken;
     }
+
+    @Override
+    public boolean getShouldIndentNextLineAfter(Token token) {
+        return token.getType() == Token.OPERATOR && token.isSingleChar(':');
+    }
 }
