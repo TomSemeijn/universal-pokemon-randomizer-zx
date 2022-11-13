@@ -826,7 +826,6 @@ public class NewRandomizerGUI {
         //add the RandomSource import
         String scriptText = sScriptInput.getText();
         scriptText = addImport(scriptText, "com.dabomstew.pkrandom", "RandomSource");
-        scriptText = addImport(scriptText, "com.dabomstew.pkrandom.Script", "Helper");
         sScriptInput.setText(scriptText);
     }
 
