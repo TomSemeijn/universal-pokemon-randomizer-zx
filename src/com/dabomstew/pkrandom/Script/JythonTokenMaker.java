@@ -77,7 +77,7 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             if (value != -1) {
                 tokenType = value;
             }
-            else if(start < end) {
+            else if(start <= end) {
                 String full = this.doc.getAllText();
                 String fullSeg = new String(segment.array);
                 String segPart = fullSeg.substring(start, end + 1);
