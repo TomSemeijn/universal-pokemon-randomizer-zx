@@ -73,60 +73,67 @@ public class JythonTokenMaker extends AbstractTokenMaker {
         int originalEnd = end;
         int originalStartOffset = startOffset;
         if (tokenType == Token.IDENTIFIER) {
+
+            String full = this.doc.getAllText();
+            String fullSeg = new String(segment.array);
+            String segPart = fullSeg.substring(start, end + 1);
+
+            boolean valid = true;
+            if((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart))
+            {
+                valid = false;
+                int segStartLine = start;
+                int segEndLine = end;
+                while(segStartLine > 0 && fullSeg.charAt(segStartLine - 1) != '\n') { segStartLine--; }
+                while(segEndLine < fullSeg.length() && fullSeg.charAt(segEndLine) != '\n') { segEndLine++; }
+                String segLine = fullSeg.substring(segStartLine, segEndLine);
+
+                int offset = this.doc.getLastEditOffset();
+                int fullStart = offset;
+                int fullEnd = offset;
+                while(fullStart > 0 && full.charAt(fullStart - 1) != '\n') { fullStart--; }
+                while(fullEnd < full.length() && full.charAt(fullEnd) != '\n') { fullEnd++; }
+                String fullLine = full.substring(fullStart, fullEnd);
+
+                if(fullLine.equals(segLine))
+                {
+                    start += fullStart;
+                    end += fullStart;
+                    if(startOffset < fullStart)
+                        startOffset += fullStart;
+                    valid = true;
+                }
+            }
+
+            //get the line and the current word from the inputs
+            int startLn = start;
+            int endLn = end;
+            while (startLn > 0 && full.charAt(startLn) != '\n') {
+                startLn--;
+            }
+            while (endLn < full.length() - 1 && full.charAt(endLn) != '\n') {
+                endLn++;
+            }
+            if (full.charAt(startLn) == '\n') {
+                startLn++;
+            }
+
+            String line = "";
+            if(endLn > startLn)
+                line = full.substring(startLn, endLn);
+            int lineOffset = startOffset - startLn;
+
             int value = wordsToHighlight.get(segment, start, end);
-            if (value != -1) {
+            if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
                 tokenType = value;
             }
+
             else if(start <= end) {
-                String full = this.doc.getAllText();
-                String fullSeg = new String(segment.array);
-                String segPart = fullSeg.substring(start, end + 1);
-                boolean valid = true;
-                if((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart))
-                {
-                    valid = false;
-                    int segStartLine = start;
-                    int segEndLine = end;
-                    while(segStartLine > 0 && fullSeg.charAt(segStartLine - 1) != '\n') { segStartLine--; }
-                    while(segEndLine < fullSeg.length() && fullSeg.charAt(segEndLine) != '\n') { segEndLine++; }
-                    String segLine = fullSeg.substring(segStartLine, segEndLine);
-
-                    int offset = this.doc.getLastEditOffset();
-                    int fullStart = offset;
-                    int fullEnd = offset;
-                    while(fullStart > 0 && full.charAt(fullStart - 1) != '\n') { fullStart--; }
-                    while(fullEnd < full.length() && full.charAt(fullEnd) != '\n') { fullEnd++; }
-                    String fullLine = full.substring(fullStart, fullEnd);
-
-                    if(fullLine.equals(segLine))
-                    {
-                        System.out.println(segLine);
-                        start += fullStart;
-                        end += fullStart;
-                        if(startOffset < fullStart)
-                            startOffset += fullStart;
-                        valid = true;
-                    }
-                }
                 if (valid && (full != null && full.length() > 0 && start < full.length() && end < full.length()))
                 {
-                    //get the line and the current word from the inputs
-                    int startLn = start;
-                    int endLn = end;
-                    while (startLn > 0 && full.charAt(startLn) != '\n') {
-                        startLn--;
-                    }
-                    while (endLn < full.length() - 1 && full.charAt(endLn) != '\n') {
-                        endLn++;
-                    }
-                    if (full.charAt(startLn) == '\n') {
-                        startLn++;
-                    }
                     if (endLn > startLn) //skip if empty line
                     {
-                        String line = full.substring(startLn, endLn);
                         String part = full.substring(start, end + 1);
-                        int lineOffset = startOffset - startLn;
 
                         //import formatting
                         int importIndex = line.indexOf("import");
