@@ -182,6 +182,9 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             for(String local : myScope.getlocals())
                 if(local.equals(part))
                     return Token.VARIABLE;
+            //check if it's a @staticmethod modifier within a class scope
+            if(myScope.getType() == ScopeType.CLASS && part.equals("@staticmethod"))
+                return Token.PREPROCESSOR;
             //check if there's a '.' before the word
             if(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')
             {
@@ -546,6 +549,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
     @Override
     public boolean getShouldIndentNextLineAfter(Token token) {
-        return token.getType() == Token.OPERATOR && token.isSingleChar(':');
+        return token != null && token.getType() == Token.OPERATOR && token.isSingleChar(':');
     }
 }

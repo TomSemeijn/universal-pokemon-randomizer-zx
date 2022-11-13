@@ -101,6 +101,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
 
         boolean inFuncDef = false;
         boolean inClassDef = false;
+        int expectingStaticMethod = 0;
         boolean inImportLine = false;
         boolean inImportFromDef = false;
         String importSource = "";
@@ -192,6 +193,11 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                                 }
                             }
                             currentScope.addFunc(func);
+
+                            if(expectingStaticMethod > 0 && currentScope.getType() == ScopeType.CLASS)
+                            {
+                                currentScope.getThisClass().methods.add(func);
+                            }
                         }
 
                         inFuncDef = false;
@@ -240,6 +246,10 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                 {
                     inClassDef = true;
                 }
+
+                //look for static methods
+                else if(currentWord.equals("@staticmethod") && currentScope.getType() == ScopeType.CLASS)
+                    expectingStaticMethod = 2;
 
                 //look for imports
                 else if(currentWord.equals("from"))
@@ -348,6 +358,8 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                 inImportFromDef = false;
                 currentWord = "";
                 lastNewline = k;
+                if(expectingStaticMethod > 0)
+                    expectingStaticMethod--;
             }
 
             //keep track of past state

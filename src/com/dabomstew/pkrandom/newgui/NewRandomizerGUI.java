@@ -774,6 +774,8 @@ public class NewRandomizerGUI {
         scheme.getStyle(Token.OPERATOR).foreground = Color.white;
         scheme.getStyle(Token.MARKUP_CDATA).foreground = new Color(154, 154, 154); //use for arguments
         scheme.getStyle(Token.MARKUP_ENTITY_REFERENCE).foreground = new Color(190, 183, 255); //use for members
+        scheme.getStyle(Token.PREPROCESSOR).foreground = new Color(182, 177, 40); //use for @staticmethod and such
+        scheme.getStyle(Token.PREPROCESSOR).font = boldFont;
 
         sScriptInput.revalidate();
 
