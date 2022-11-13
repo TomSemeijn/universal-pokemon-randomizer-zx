@@ -111,7 +111,7 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             while (startLn > 0 && full.charAt(startLn) != '\n') {
                 startLn--;
             }
-            while (endLn < full.length() - 1 && full.charAt(endLn) != '\n') {
+            while (endLn < full.length() && full.charAt(endLn) != '\n') {
                 endLn++;
             }
             if (full.charAt(startLn) == '\n') {
@@ -121,9 +121,13 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             String line = "";
             if(endLn > startLn)
                 line = full.substring(startLn, endLn);
+            String part = full.substring(start, end + 1);
             int lineOffset = startOffset - startLn;
 
-            int value = wordsToHighlight.get(segment, start, end);
+            int searchStart = (start > segment.array.length) ? line.indexOf(part) : start;
+            int searchEnd = searchStart + part.length() - 1;
+
+            int value = wordsToHighlight.get(segment, searchStart, searchEnd);
             if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
                 tokenType = value;
             }
@@ -133,8 +137,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                 {
                     if (endLn > startLn) //skip if empty line
                     {
-                        String part = full.substring(start, end + 1);
-
                         //import formatting
                         int importIndex = line.indexOf("import");
                         int fromIndex = line.indexOf("from");
