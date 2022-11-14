@@ -35,11 +35,32 @@ public class JythonScope {
             return result + "] declared at "+this.declaredAt;
         }
     }
+
+    public class Variable{
+        private String name;
+        private int declaredAt;
+
+        public Variable(String name, int declaredAt)
+        {
+            this.name = name;
+            this.declaredAt = declaredAt;
+        }
+
+        public String getName(){ return this.name; }
+        public int getDeclaredAt() { return this.declaredAt; }
+
+        @Override
+        public String toString()
+        {
+            return "<" + name + " declared at " + declaredAt + ">";
+        }
+    }
+
     public class Class
     {
         private String name;
         private int declaredAt;
-        public List<String> members = new ArrayList<>();
+        public List<Variable> members = new ArrayList<>();
         public List<Function> methods = new ArrayList<>();
 
         public Class(String name, int declaredAt)
@@ -53,8 +74,12 @@ public class JythonScope {
 
         public boolean hasMethod(String name)
         {
+            return hasMethod(name, Integer.MAX_VALUE);
+        }
+        public boolean hasMethod(String name, int offset)
+        {
             for(Function f : this.methods)
-                if(f.name.equals(name))
+                if(offset >= f.getDeclaredAt() && f.name.equals(name))
                     return true;
             return false;
         }
@@ -63,7 +88,7 @@ public class JythonScope {
         public String toString()
         {
             String result = "Class \""+this.name+"\" with members [";
-            for(String mem : this.members)
+            for(Variable mem : this.members)
             {
                 result += "\""+mem+"\", ";
             }
@@ -89,7 +114,7 @@ public class JythonScope {
     private List<Function> funcs;
     private List<Class> classes;
 
-    private List<String> locals;
+    private List<Variable> locals;
 
     private List<JythonScope> children;
 
@@ -182,7 +207,7 @@ public class JythonScope {
 
     public void addFunc(Function toAdd) { this.funcs.add(toAdd); }
     public void addClass(Class toAdd) { this.classes.add(toAdd); }
-    public void addLocal(String toAdd) { this.locals.add(toAdd); }
+    public void addLocal(Variable toAdd) { this.locals.add(toAdd); }
 
     public JythonScope getLowestScopeOf(int pos)
     {
@@ -252,9 +277,9 @@ public class JythonScope {
         return result;
     }
 
-    public List<String> getlocals()
+    public List<Variable> getlocals()
     {
-        ArrayList<String> toReturn = new ArrayList<>(this.locals);
+        ArrayList<Variable> toReturn = new ArrayList<>(this.locals);
         if(this.parent != null)
         {
             toReturn.addAll(this.parent.getlocals());

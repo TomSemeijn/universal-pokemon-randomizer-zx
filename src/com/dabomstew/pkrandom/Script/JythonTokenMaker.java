@@ -79,89 +79,94 @@ public class JythonTokenMaker extends AbstractTokenMaker {
             String segPart = fullSeg.substring(start, end + 1);
 
             boolean valid = true;
-            if((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart))
-            {
+            if ((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart)) {
                 valid = false;
                 int segStartLine = start;
                 int segEndLine = end;
-                while(segStartLine > 0 && fullSeg.charAt(segStartLine - 1) != '\n') { segStartLine--; }
-                while(segEndLine < fullSeg.length() && fullSeg.charAt(segEndLine) != '\n') { segEndLine++; }
+                while (segStartLine > 0 && fullSeg.charAt(segStartLine - 1) != '\n') {
+                    segStartLine--;
+                }
+                while (segEndLine < fullSeg.length() && fullSeg.charAt(segEndLine) != '\n') {
+                    segEndLine++;
+                }
                 String segLine = fullSeg.substring(segStartLine, segEndLine);
 
                 int offset = this.doc.getLastEditOffset();
                 int fullStart = offset;
                 int fullEnd = offset;
-                while(fullStart > 0 && full.charAt(fullStart - 1) != '\n') { fullStart--; }
-                while(fullEnd < full.length() && full.charAt(fullEnd) != '\n') { fullEnd++; }
+                while (fullStart > 0 && full.charAt(fullStart - 1) != '\n') {
+                    fullStart--;
+                }
+                while (fullEnd < full.length() && full.charAt(fullEnd) != '\n') {
+                    fullEnd++;
+                }
                 String fullLine = full.substring(fullStart, fullEnd);
 
-                if(fullLine.equals(segLine))
-                {
+                if (fullLine.equals(segLine)) {
                     start += fullStart;
                     end += fullStart;
-                    if(startOffset < fullStart)
+                    if (startOffset < fullStart)
                         startOffset += fullStart;
                     valid = true;
                 }
             }
+            if (valid && start < full.length() && end < full.length()) {
 
-            //get the line and the current word from the inputs
-            int startLn = start;
-            int endLn = end;
-            while (startLn > 0 && full.charAt(startLn) != '\n') {
-                startLn--;
-            }
-            while (endLn < full.length() && full.charAt(endLn) != '\n') {
-                endLn++;
-            }
-            if (full.charAt(startLn) == '\n') {
-                startLn++;
-            }
+                //get the line and the current word from the inputs
+                int startLn = start;
+                int endLn = end;
+                while (startLn > 0 && full.charAt(startLn) != '\n') {
+                    startLn--;
+                }
+                while (endLn < full.length() && full.charAt(endLn) != '\n') {
+                    endLn++;
+                }
+                if (full.charAt(startLn) == '\n') {
+                    startLn++;
+                }
 
-            String line = "";
-            if(endLn > startLn)
-                line = full.substring(startLn, endLn);
-            String part = full.substring(start, end + 1);
-            int lineOffset = startOffset - startLn;
+                String line = "";
+                if (endLn > startLn)
+                    line = full.substring(startLn, endLn);
+                String part = full.substring(start, end + 1);
+                int lineOffset = startOffset - startLn;
 
-            int searchStart = (start > segment.array.length) ? line.indexOf(part) : start;
-            int searchEnd = searchStart + part.length() - 1;
+                int searchStart = (start > segment.array.length) ? line.indexOf(part) : start;
+                int searchEnd = searchStart + part.length() - 1;
 
-            int value = wordsToHighlight.get(segment, searchStart, searchEnd);
-            if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
-                tokenType = value;
-            }
-
-            else if(start <= end) {
-                if (valid && (full != null && full.length() > 0 && start < full.length() && end < full.length()))
-                {
-                    if (endLn > startLn) //skip if empty line
-                    {
-                        //import formatting
-                        int importIndex = line.indexOf("import");
-                        int fromIndex = line.indexOf("from");
-                        if (fromIndex > -1 && lineOffset > fromIndex) //if this is an import line
+                int value = wordsToHighlight.get(segment, searchStart, searchEnd);
+                if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
+                    tokenType = value;
+                } else if (start <= end) {
+                    if (full != null && full.length() > 0 && start < full.length() && end < full.length()) {
+                        if (endLn > startLn) //skip if empty line
                         {
-                            if (importIndex == -1 || importIndex > lineOffset) //between from and import - it's the module location
-                                tokenType = Token.ANNOTATION;
-                            else if (importIndex > -1 && importIndex < lineOffset) //after import - it's the class name
-                                tokenType = Token.DATA_TYPE;
-                        }
-                        //scoped formatting
-                        else {
-                            JythonScope globalScope = this.doc.getGlobalScope();
-                            if(globalScope != null)
-                                tokenType = getScopedTokenType(globalScope.getLowestScopeOf(start), part, line, lineOffset);
+                            //import formatting
+                            int importIndex = line.indexOf("import");
+                            int fromIndex = line.indexOf("from");
+                            if (fromIndex > -1 && lineOffset > fromIndex) //if this is an import line
+                            {
+                                if (importIndex == -1 || importIndex > lineOffset) //between from and import - it's the module location
+                                    tokenType = Token.ANNOTATION;
+                                else if (importIndex > -1 && importIndex < lineOffset) //after import - it's the class name
+                                    tokenType = Token.DATA_TYPE;
+                            }
+                            //scoped formatting
+                            else {
+                                JythonScope globalScope = this.doc.getGlobalScope();
+                                if (globalScope != null)
+                                    tokenType = getScopedTokenType(globalScope.getLowestScopeOf(start), part, line, lineOffset, start);
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
         super.addToken(segment, originalStart, originalEnd, tokenType, originalStartOffset);
     }
 
-    private int getScopedTokenType(JythonScope myScope, String part, String line, int lineOffset)
+    private int getScopedTokenType(JythonScope myScope, String part, String line, int lineOffset, int identifierPosition)
     {
         if(myScope != null) {
             //check if it's an argument
@@ -169,20 +174,20 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                 return Token.MARKUP_CDATA;
             //check if it's a function
             for (JythonScope.Function func : myScope.getFuncs())
-                if (func.getName().equals(part))
+                if (identifierPosition >= func.getDeclaredAt() && func.getName().equals(part))
                     return Token.FUNCTION;
             //check if it's a class
             for(JythonScope.Class cls : myScope.getClasses())
-                if(cls.getName().equals(part))
+                if(identifierPosition >= cls.getDeclaredAt() && cls.getName().equals(part))
                     return Token.DATA_TYPE;
             //check if it's a member within a class definition
             if(myScope.getType() == ScopeType.CLASS)
-                for(String member : myScope.getThisClass().members)
-                    if(member.equals(part))
+                for(JythonScope.Variable member : myScope.getThisClass().members)
+                    if(identifierPosition >= member.getDeclaredAt() && member.getName().equals(part))
                         return Token.MARKUP_ENTITY_REFERENCE;
             //check if it's a local variable
-            for(String local : myScope.getlocals())
-                if(local.equals(part))
+            for(JythonScope.Variable local : myScope.getlocals())
+                if(identifierPosition >= local.getDeclaredAt() && local.getName().equals(part))
                     return Token.VARIABLE;
             //check if it's a @staticmethod modifier within a class scope
             if(myScope.getType() == ScopeType.CLASS && part.equals("@staticmethod"))
@@ -198,8 +203,15 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
                 //if the last word was a class, try to find this word in its statics
                 for(JythonScope.Class cls : myScope.getClasses())
-                    if(cls.getName().equals(lastWord))
-                        return cls.hasMethod(part) ? Token.FUNCTION : (cls.members.contains(part) ? Token.MARKUP_ENTITY_REFERENCE : Token.IDENTIFIER);
+                    if(identifierPosition > cls.getDeclaredAt() && cls.getName().equals(lastWord)) {
+                        if (cls.hasMethod(part, identifierPosition)) {
+                            return Token.FUNCTION;
+                        }
+                        for(JythonScope.Variable mem : cls.members)
+                            if(identifierPosition >= mem.getDeclaredAt() && mem.getName().equals(part))
+                                return Token.MARKUP_ENTITY_REFERENCE;
+                        return Token.IDENTIFIER;
+                    }
             }
         }
         return Token.IDENTIFIER;

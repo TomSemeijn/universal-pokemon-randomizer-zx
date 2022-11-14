@@ -226,7 +226,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                                 String fieldName = fld.getName();
                                 if(checkStaticAbility && fieldName.equals("staticTheAbilityNotTheKeyword"))
                                     fieldName = "static";
-                                addedClass.members.add(fieldName);
+                                addedClass.members.add(currentScope.new Variable(fieldName, -1));
                             }
                         }
                         //actually add the class
@@ -276,10 +276,11 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                         char curC = cachedText.charAt(i);
                         if(curC == '=')
                         {
+                            int wordStart = k - currentWord.length();
                             if(currentScope.getType() == ScopeType.CLASS)
-                                currentScope.getThisClass().members.add(currentWord);
+                                currentScope.getThisClass().members.add(currentScope.new Variable(currentWord, wordStart));
                             else
-                                currentScope.addLocal(currentWord);
+                                currentScope.addLocal(currentScope.new Variable(currentWord, wordStart));
                             break;
                         }
                         if(!RSyntaxUtilities.isWhitespace(curC))
@@ -343,7 +344,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                             //find any local variables declared in loop definitions
                             String declaration = cachedText.substring(lastNewline, nextNewline);
                             for(String lcl : findLocalsFromScopeDeclaration(declaration))
-                                currentScope.addLocal(lcl);
+                                currentScope.addLocal(currentScope.new Variable(lcl, lastNewline));
                         }
                     }
                 }

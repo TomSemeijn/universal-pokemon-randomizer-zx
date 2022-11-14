@@ -828,19 +828,19 @@ public class ScriptInstance {
         romCls.methods.add(dummy.new Function("getTMMovesOf", -1));
         romCls.methods.add(dummy.new Function("getTutorMovesOf", -1));
         romCls.methods.add(dummy.new Function("getEggMovesOf", -1));
-        romCls.members.add("name");
-        romCls.members.add("generation");
-        romCls.members.add("code");
-        romCls.members.add("maxNicknameLen");
-        romCls.members.add("maxOTLen");
-        romCls.members.add("maxTrainerClassLen");
-        romCls.members.add("maxTrainerNameLen");
-        romCls.members.add("maxAbilities");
-        romCls.members.add("hasPhysicalSpecialSplit");
-        romCls.members.add("hasMoveTutors");
-        romCls.members.add("maxIV");
-        romCls.members.add("supportedTypes");
-        romCls.members.add("HMs");
+        romCls.members.add(dummy.new Variable("name", -1));
+        romCls.members.add(dummy.new Variable("generation", -1));
+        romCls.members.add(dummy.new Variable("code", -1));
+        romCls.members.add(dummy.new Variable("maxNicknameLen", -1));
+        romCls.members.add(dummy.new Variable("maxOTLen", -1));
+        romCls.members.add(dummy.new Variable("maxTrainerClassLen", -1));
+        romCls.members.add(dummy.new Variable("maxTrainerNameLen", -1));
+        romCls.members.add(dummy.new Variable("maxAbilities", -1));
+        romCls.members.add(dummy.new Variable("hasPhysicalSpecialSplit", -1));
+        romCls.members.add(dummy.new Variable("hasMoveTutors", -1));
+        romCls.members.add(dummy.new Variable("maxIV", -1));
+        romCls.members.add(dummy.new Variable("supportedTypes", -1));
+        romCls.members.add(dummy.new Variable("HMs", -1));
 
         jdoc.addExtraGlobalClass(romCls);
     }

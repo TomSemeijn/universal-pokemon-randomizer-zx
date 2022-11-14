@@ -379,10 +379,10 @@ public class Helper {
         jdoc.addExtraGlobalFunc(dummy.new Function("hasType", -1));
 
         JythonScope.Class indexCls = dummy.new Class("Index", -1);
-        indexCls.members.add("ABILITY");
-        indexCls.members.add("ITEM");
-        indexCls.members.add("MOVE");
-        indexCls.members.add("POKEMON");
+        indexCls.members.add(dummy.new Variable("ABILITY", 1));
+        indexCls.members.add(dummy.new Variable("ITEM", 1));
+        indexCls.members.add(dummy.new Variable("MOVE", 1));
+        indexCls.members.add(dummy.new Variable("POKEMON", 1));
         jdoc.addExtraGlobalClass(indexCls);
     }
 
