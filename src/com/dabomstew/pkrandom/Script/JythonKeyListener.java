@@ -46,7 +46,7 @@ public class JythonKeyListener implements KeyListener {
 
             //find last leading tab position
             int newCaretPos = lineStart;
-            while(text.charAt(newCaretPos) == '\t')
+            while(newCaretPos < text.length() && text.charAt(newCaretPos) == '\t')
             {
                 newCaretPos++;
             }

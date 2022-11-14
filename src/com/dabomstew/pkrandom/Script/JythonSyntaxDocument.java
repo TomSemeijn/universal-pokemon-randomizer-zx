@@ -75,11 +75,6 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
 
     public void onTextUpdate()
     {
-        //TODO: set up a structure of classes (with members) and functions that have
-        // been defined and imported so they can be highlighted. Do this by detecting scope
-        // and then caching the start and end positions of those scopes so the token methods
-        // can easily check what definitions are available at their locations
-
         //initialize new global scope
         String cachedText = getAllText();
         globalScope = new JythonScope(0, cachedText.length() - 1, 0);
