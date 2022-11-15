@@ -1,24 +1,10 @@
 package com.dabomstew.pkrandom.Script;
-import jdk.nashorn.internal.runtime.Scope;
 import org.fife.ui.rsyntaxtextarea.*;
-import org.python.modules._jythonlib._jythonlib;
-
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Supplier;
 
 public class JythonTokenMaker extends AbstractTokenMaker {
 
     public JythonSyntaxDocument doc;
-
     private int currentTokenStart = 0;
     private int currentTokenType = Token.NULL;
 
@@ -69,27 +55,27 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
     @Override
     public synchronized void addToken(Segment segment, int start, int end, int tokenType, int startOffset) {
+
         int originalStart = start;
         int originalEnd = end;
         int originalStartOffset = startOffset;
         if (tokenType == Token.IDENTIFIER) {
 
             String full = this.doc.getAllText();
-            String fullSeg = new String(segment.array);
-            String segPart = fullSeg.substring(start, end + 1);
+            String segPart = new String(segment.array, start, (end + 1) - start);
 
             boolean valid = true;
             if ((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart)) {
                 valid = false;
                 int segStartLine = start;
                 int segEndLine = end;
-                while (segStartLine > 0 && fullSeg.charAt(segStartLine - 1) != '\n') {
+                while (segStartLine > 0 && segment.array[segStartLine - 1] != '\n') {
                     segStartLine--;
                 }
-                while (segEndLine < fullSeg.length() && fullSeg.charAt(segEndLine) != '\n') {
+                while (segEndLine < segment.array.length && segment.array[segEndLine] != '\n') {
                     segEndLine++;
                 }
-                String segLine = fullSeg.substring(segStartLine, segEndLine);
+                String segLine = new String(segment.array, segStartLine, segEndLine - segStartLine);
 
                 int offset = this.doc.getLastEditOffset();
                 int fullStart = offset;
@@ -163,6 +149,7 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
             }
         }
+
         super.addToken(segment, originalStart, originalEnd, tokenType, originalStartOffset);
     }
 
@@ -576,7 +563,8 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                         type != Token.LITERAL_NUMBER_DECIMAL_INT &&
                         type != Token.LITERAL_NUMBER_FLOAT &&
                         type != Token.LITERAL_NUMBER_HEXADECIMAL &&
-                        type != Token.LITERAL_CHAR
+                        type != Token.LITERAL_CHAR &&
+                        type != Token.WHITESPACE
                 ;
     }
 }

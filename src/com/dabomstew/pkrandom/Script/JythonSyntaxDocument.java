@@ -18,6 +18,8 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
     private JythonScope globalScope = new JythonScope(0, 0, 0);
     private List<JythonScope.Function> extraGlobalFuncs = new ArrayList<>();
     private List<JythonScope.Class> extraGlobalClasses = new ArrayList<>();
+    private String myCachedText = "";
+    private boolean cachedTextDirty = true;
 
 
     public JythonSyntaxDocument(String syntaxStyle) {
@@ -65,17 +67,24 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
 
     public String getAllText()
     {
+        if(!this.cachedTextDirty)
+            return this.myCachedText;
+
         String full = "";
         try{
             full = this.getText(0, this.getLength());
         }
         catch(BadLocationException e){ }
+
+        this.myCachedText = full;
+        this.cachedTextDirty = false;
         return full;
     }
 
     public void onTextUpdate()
     {
         //initialize new global scope
+        this.cachedTextDirty = true;
         String cachedText = getAllText();
         globalScope = new JythonScope(0, cachedText.length() - 1, 0);
         for(JythonScope.Function f : extraGlobalFuncs)
