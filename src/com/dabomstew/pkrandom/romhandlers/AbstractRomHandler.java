@@ -5625,9 +5625,17 @@ public abstract class AbstractRomHandler implements RomHandler {
                     if (itempool.isEmpty()) {
                         if(TMs)
                         {
+                            int firstTM = Items.tm01;
+                            try{
+                                firstTM = (int)getItemClass().getField("tm01").get(null);
+                            }
+                            catch(NoSuchFieldException e){}
+                            catch(SecurityException e){}
+                            catch(IllegalAccessException e){}
+
                             for(int k = 0; k < totalTMCount; k++)
                             {
-                                int id = k + Items.tm01; //convert to item ID
+                                int id = k + firstTM; //convert to item ID
                                 if(!newTMs.contains(id))
                                 {
                                     itempool.add(id);

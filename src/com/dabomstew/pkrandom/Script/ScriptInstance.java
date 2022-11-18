@@ -9,9 +9,7 @@ import org.python.util.PythonInterpreter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ScriptInstance {
     private PythonInterpreter interp;
@@ -71,7 +69,7 @@ public class ScriptInstance {
             throw new RuntimeException("Static encounter of pokemon " + result.pkmn.name + " selected in function \"selectStaticPokemon\" has a maxLevel outside of the [0-100] range! The given level was " + result.maxLevel);
         }
         List<Integer> itempool = toItemPool(rom.getAllowedItems());
-        if(!itempool.contains(result.heldItem))
+        if(!itempool.contains(result.heldItem) && result.heldItem != Items.none)
         {
             throw new RuntimeException("Held item Items."+Helper.toStr(result.heldItem, Helper.Index.ITEM).asString()+" selected in function \"selectStaticPokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
         }
@@ -82,6 +80,12 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectInGameTradePokemon");
         IngameTrade result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
+
+        //treat IVs so they aren't higher than the max value before being passed to the script (this happens apparrently)
+        final int maxIV = rom.hasDVs() ? 16 : 32;
+        for(int k = 0; k < result.ivs.length; k++)
+            result.ivs[k] = Math.min(result.ivs[k], maxIV);
+
         if(!inPool(pokepool, result.givenPokemon))
         {
             throw new RuntimeException("Given Pokemon "+result.givenPokemon.name+" was not in the given pokepool in function \"selectInGameTradePokemon\"!");
@@ -90,12 +94,15 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Requested Pokemon "+result.requestedPokemon.name+" was not in the given pokepool in function \"selectInGameTradePokemon\"!");
         }
-        final int maxIV = rom.hasDVs() ? 16 : 32;
         for(int iv : result.ivs)
         {
             if(iv < 0 || iv > maxIV)
             {
-                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [0-"+maxIV+"] range! The given values are "+result.ivs.toString()+". You can get the maximum IV value in your script with ROM.maxIV");
+                String IVString = "[";
+                for(Integer thisIV : result.ivs)
+                    IVString += thisIV + ", ";
+                IVString = IVString.substring(0, IVString.length() - 2) + "]";
+                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [0-"+maxIV+"] range! The given values are "+IVString+". You can get the maximum IV value in your script with ROM.maxIV");
             }
         }
         if(result.otName.length() > rom.maxTradeOTNameLength())
@@ -107,7 +114,7 @@ public class ScriptInstance {
             throw new RuntimeException("Trade Pokemon nickname \""+result.nickname+"\" selected in function \"selectInGameTradePokemon\" exceeds the maximum length of "+rom.maxTradeNicknameLength()+"! The length of the given name was "+result.nickname.length()+". You can get the maximum nickname length in your script from ROM.maxNicknameLen");
         }
         List<Integer> itempool = toItemPool(rom.getAllowedItems());
-        if(!itempool.contains(result.item))
+        if(!itempool.contains(result.item) && result.item != Items.none)
         {
             throw new RuntimeException("Held item Items."+Helper.toStr(result.item, Helper.Index.ITEM).asString()+" selected in function \"selectInGameTradePokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
         }
@@ -148,9 +155,9 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Level of trainer Pokemon "+result.pokemon.name+" selected in function \"selectTrainerPokemon\" was not in the [1-100] range! The given value was "+result.level);
         }
-        if(result.abilitySlot < 1 || result.abilitySlot > rom.abilitiesPerPokemon())
+        if(result.abilitySlot < 0 || result.abilitySlot > rom.abilitiesPerPokemon())
         {
-            throw new RuntimeException("Ability slot of trainer Pokemon "+result.pokemon.name+" selected in function \"selectTrainerPokemon\" was not int he [1-"+rom.abilitiesPerPokemon()+"] range! The given value was "+result.abilitySlot+". You can use ROM.maxAbilities to get the number of abilities per pokemon in your script.");
+            throw new RuntimeException("Ability slot of trainer Pokemon "+result.pokemon.name+" selected in function \"selectTrainerPokemon\" was not int he [0-"+rom.abilitiesPerPokemon()+"> range! The given value was "+result.abilitySlot+". You can use ROM.maxAbilities to get the number of abilities per pokemon in your script.");
         }
         return result;
     }
@@ -160,7 +167,7 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectTrainerPokemonItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
         int result = convertedIndex(func.__call__(pyItempool, Py.java2py(trainer), Py.java2py(pokemon)).asInt(), Items.class, rom.getItemClass());
-        if(!itempool.contains(result))
+        if(!itempool.contains(result) && result != Items.none)
         {
             throw new RuntimeException("Item "+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectTrainerPokemonItem\"!");
         }
@@ -460,11 +467,15 @@ public class ScriptInstance {
     public int getScriptedFieldItem(int oldItem, List<Integer> itempool, boolean isTM)
     {
         PyFunction func = (PyFunction)interp.get("selectFieldItem");
-        PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        int result = convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool, new PyBoolean(isTM)).asInt(), Items.class, rom.getItemClass());
+        List<Integer> convertedItemPool = new ArrayList<>();
+        for(Integer item : itempool)
+            convertedItemPool.add(convertedIndex(item, rom.getItemClass(), Items.class));
+        PyArray pyItempool = toPythonArray(convertedItemPool, PyInteger.class, i -> new PyInteger(i));
+        int result = func.__call__(new PyInteger(convertedIndex(oldItem, rom.getItemClass(), Items.class)), pyItempool, new PyBoolean(isTM)).asInt();
+        result = convertedIndex(result, Items.class, rom.getItemClass());
         if(!itempool.contains(result))
         {
-            throw new RuntimeException("Field item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectFieldItem\"!");
+            throw new RuntimeException("Field item Items."+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectFieldItem\"!");
         }
         return result;
     }
@@ -522,7 +533,7 @@ public class ScriptInstance {
         PyFunction func = (PyFunction)interp.get("selectStarterHeldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
         int result = convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
-        if(!itempool.contains(result))
+        if(!itempool.contains(result) && result != Items.none)
         {
             throw new RuntimeException("Starter held item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectStarterHeldItem\"!");
         }
@@ -678,13 +689,59 @@ public class ScriptInstance {
         }
 
         //get the name of the variable in the start class
-        String itemName = Helper.toStr(generalItem, Helper.Index.ITEM).asString();
+        String itemName = "";
+
+        Field[] sourceFields = startClass.getFields();
+        for(Field fld : sourceFields)
+        {
+            try {
+                if ((int) fld.get(null) == generalItem) {
+                    itemName = fld.getName();
+                    break;
+                }
+            }
+            catch(IllegalArgumentException e){}
+            catch(IllegalAccessException e){}
+        }
+
+        HashMap<String, String> toGeneralItems = new HashMap<>();
+        toGeneralItems.put("parlyzHeal", "paralyzeHeal");
+        toGeneralItems.put("xDefend", "xDefense");
+        toGeneralItems.put("xSpecial", "xSpAtk");
+        toGeneralItems.put("orangeMail", "mail1");
+        toGeneralItems.put("harborMail", "mail2");
+        toGeneralItems.put("glitterMail", "mail3");
+        toGeneralItems.put("mechMail", "mail4");
+        toGeneralItems.put("woodMail", "mail5");
+        toGeneralItems.put("waveMail", "mail6");
+        toGeneralItems.put("beadMail", "mail7");
+        toGeneralItems.put("shadowMail", "mail8");
+        toGeneralItems.put("tropicMail", "mail9");
+        toGeneralItems.put("dreamMail", "mail10");
+        toGeneralItems.put("fabMail", "mail11");
+        toGeneralItems.put("retroMail",	"mail12");
+        HashMap<String, String> fromGeneralItems = new HashMap<>();
+        for(Map.Entry<String, String> entry : toGeneralItems.entrySet())
+            fromGeneralItems.put(entry.getValue(), entry.getKey());
+
+        if(startClass.getName().equals("com.dabomstew.pkrandom.constants.Items") && fromGeneralItems.containsKey(itemName))
+            itemName = fromGeneralItems.get(itemName);
+        else if(endClass.getName().equals("com.dabomstew.pkrandom.constants.Items"))
+        {
+            if(toGeneralItems.containsKey(itemName))
+                itemName = toGeneralItems.get(itemName);
+            else if(itemName.toLowerCase().contains("unknown"))
+                throw new RuntimeException("Item "+itemName+" is not in the general Items class!");
+        }
+
+        if(itemName.length() == 0)
+            throw new RuntimeException("Item "+generalItem+" was not found in the current ROM!");
 
         //try to find the variable in the end class and return its value when found
         Field[] targetFields = endClass.getFields();
         for(Field fld : targetFields)
         {
-            if(fld.getName() == itemName)
+            if(fld.getName().toLowerCase().equals(itemName.toLowerCase()))
             {
                 try{
                     return (int)fld.get(null);

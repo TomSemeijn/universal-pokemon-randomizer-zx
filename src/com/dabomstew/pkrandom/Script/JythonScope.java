@@ -111,12 +111,13 @@ public class JythonScope {
     }
 
     private int start, end, tabLevel;
-    private List<Function> funcs;
-    private List<Class> classes;
+    private List<Function> funcs = new ArrayList<>();
+    private List<Class> classes = new ArrayList<>();
 
-    private List<Variable> locals;
+    private List<Variable> locals = new ArrayList<>();
+    private List<Variable> specialVariables = new ArrayList<>();
 
-    private List<JythonScope> children;
+    private List<JythonScope> children = new ArrayList<>();
 
     private ScopeType type;
     private Function thisFunc = null;
@@ -130,26 +131,15 @@ public class JythonScope {
         this.end = end;
         this.parent = null;
         this.tabLevel = tabLevel;
-        this.thisFunc = null;
-        this.thisClass = null;
         this.type = ScopeType.GLOBAL;
-        funcs = new ArrayList<>();
-        classes = new ArrayList<>();
-        children = new ArrayList<>();
-        locals = new ArrayList<>();
     }
     private JythonScope(JythonScope parent, Function thisFunc, int start, int end, int tabLevel){
         this.start = start;
         this.end = end;
         this.parent = parent;
         this.tabLevel = tabLevel;
-        this.thisClass = null;
         this.thisFunc = thisFunc;
         this.type = ScopeType.FUNCTION;
-        funcs = new ArrayList<>();
-        classes = new ArrayList<>();
-        children = new ArrayList<>();
-        locals = new ArrayList<>();
     }
 
     private JythonScope(JythonScope parent, Class thisClass, int start, int end, int tabLevel){
@@ -158,12 +148,7 @@ public class JythonScope {
         this.parent = parent;
         this.tabLevel = tabLevel;
         this.thisClass = thisClass;
-        this.thisFunc = null;
         this.type = ScopeType.CLASS;
-        funcs = new ArrayList<>();
-        classes = new ArrayList<>();
-        children = new ArrayList<>();
-        locals = new ArrayList<>();
     }
 
     private JythonScope(JythonScope parent, int start, int end, int tabLevel){
@@ -171,13 +156,7 @@ public class JythonScope {
         this.end = end;
         this.parent = parent;
         this.tabLevel = tabLevel;
-        this.thisClass = thisClass;
-        this.thisFunc = null;
         this.type = ScopeType.OTHER;
-        funcs = new ArrayList<>();
-        classes = new ArrayList<>();
-        children = new ArrayList<>();
-        locals = new ArrayList<>();
     }
 
     public boolean inScope(int pos)
@@ -208,6 +187,7 @@ public class JythonScope {
     public void addFunc(Function toAdd) { this.funcs.add(toAdd); }
     public void addClass(Class toAdd) { this.classes.add(toAdd); }
     public void addLocal(Variable toAdd) { this.locals.add(toAdd); }
+    public void addSpecialVariable(Variable toAdd) { this.specialVariables.add(toAdd); }
 
     public JythonScope getLowestScopeOf(int pos)
     {
@@ -287,6 +267,11 @@ public class JythonScope {
         return toReturn;
     }
 
+    public List<Variable> getSpecialVariables()
+    {
+        return this.specialVariables;
+    }
+
     public Function getLastFunction()
     {
         if(this.funcs.size() > 0)
@@ -304,6 +289,8 @@ public class JythonScope {
         }
         return null;
     }
+
+    public int getEnd() { return this.end; }
 
     @Override
     public String toString()

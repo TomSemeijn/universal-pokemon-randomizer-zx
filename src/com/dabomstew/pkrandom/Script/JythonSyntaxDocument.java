@@ -102,9 +102,12 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
 
         String currentWord = "";
         boolean inWhitespace = false;
+        int currentWordStart = 0;
 
         boolean inFuncDef = false;
         boolean inClassDef = false;
+        boolean inLambdaDef = false;
+        int lambdaStart = Integer.MAX_VALUE;
         int expectingStaticMethod = 0;
         boolean inImportLine = false;
         boolean inImportFromDef = false;
@@ -117,6 +120,10 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
         for(int k = 0; k < cachedText.length(); k++)
         {
             final char c = cachedText.charAt(k);
+
+            //end scopes when we pass them (for scopes that can be smaller than lines like lambdas, other scopes have their end at EOF until we find the end)
+            while(k > currentScope.getEnd())
+                currentScope = currentScope.getParent();
 
             //move up in scope when reaching lower tab levels
             if(startLine)
@@ -251,6 +258,13 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                     inClassDef = true;
                 }
 
+                //look for lambdas
+                else if(currentWord.equals("lambda"))
+                {
+                    inLambdaDef = true;
+                    lambdaStart = currentWordStart;
+                }
+
                 //look for static methods
                 else if(currentWord.equals("@staticmethod") && currentScope.getType() == ScopeType.CLASS)
                     expectingStaticMethod = 2;
@@ -296,6 +310,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
 
                 //reset the word
                 currentWord = "";
+                currentWordStart = k;
             }
             //continue building word
             else
@@ -320,6 +335,16 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                             currentScope = currentScope.addChild(lastFunc, lastNewline, cachedText.length() - 1, tabLevel + 1);
                         else if(lastClassDecl == lastNewline) //if this scope is the last declared class
                             currentScope = currentScope.addChild(lastClass, lastNewline, cachedText.length() - 1, tabLevel + 1);
+                    }
+                    else if(inLambdaDef) //if there was a lambda definition, open a lambda scope
+                    {
+                        String lambda = getLambdaString(cachedText, lambdaStart);
+                        int lambdaEnd = lambdaStart + lambda.length();
+                        currentScope = currentScope.addChild(lambdaStart, lambdaEnd, currentScope.getTabLevel() + 1);
+                        for(String arg : getLambdaArguments(lambda))
+                        {
+                            currentScope.addSpecialVariable(currentScope.new Variable(arg, lambdaStart));
+                        }
                     }
                     else //if there was no function or class, see if this is a scope character and add an "other"-type scope for things like loops
                     {
@@ -361,6 +386,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                 inClassDef = false;
                 inImportLine = false;
                 inImportFromDef = false;
+                inLambdaDef = false;
                 currentWord = "";
                 lastNewline = k;
                 if(expectingStaticMethod > 0)
@@ -421,4 +447,14 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
     }
 
     public JythonScope getGlobalScope() { return globalScope; }
+
+    public String getLambdaString(String full, int lambdaStart)
+    {
+        return "";
+    }
+
+    public String[] getLambdaArguments(String lambda)
+    {
+        return new String[]{""};
+    }
 }
