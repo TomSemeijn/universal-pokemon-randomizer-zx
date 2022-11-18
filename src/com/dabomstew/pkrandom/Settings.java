@@ -772,8 +772,7 @@ public class Settings {
                 1, // RANDOM_MATCHING
                 2, // COMPLETELY_RANDOM
                 3, // SIMILAR_STRENGTH
-                4, // SCRIPTED
-                5  // FULL_SCRIPTED
+                4  // SCRIPTED
         ));
         
         settings.setLimitMainGameLegendaries(restoreState(data[18], 0));

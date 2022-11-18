@@ -55,6 +55,7 @@ public class ScriptInstance {
     public StaticEncounter getScriptedStatic(List<Pokemon> pokepool, StaticEncounter oldEncounter, boolean megaSwap)
     {
         PyFunction func = (PyFunction)interp.get("selectStaticPokemon");
+        oldEncounter.heldItem = convertedIndex(oldEncounter.heldItem, rom.getItemClass(), Items.class);
         StaticEncounter result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldEncounter), new PyBoolean(megaSwap)), StaticEncounter.class);
         if(!inPool(pokepool, result.pkmn))
         {
@@ -81,6 +82,7 @@ public class ScriptInstance {
     public IngameTrade getScriptedInGameTrade(List<Pokemon> pokepool, IngameTrade oldTrade)
     {
         PyFunction func = (PyFunction)interp.get("selectInGameTradePokemon");
+        oldTrade.item = convertedIndex(oldTrade.item, rom.getItemClass(), Items.class);
         IngameTrade result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldTrade)), IngameTrade.class);
 
         //treat IVs so they aren't higher than the max value before being passed to the script (this happens apparrently)
@@ -116,11 +118,10 @@ public class ScriptInstance {
             throw new RuntimeException("Trade Pokemon nickname \""+result.nickname+"\" selected in function \"selectInGameTradePokemon\" exceeds the maximum length of "+rom.maxTradeNicknameLength()+"! The length of the given name was "+result.nickname.length()+". You can get the maximum nickname length in your script from ROM.maxNicknameLen");
         }
         List<Integer> itempool = toItemPool(rom.getAllowedItems());
-        if(!itempool.contains(result.item) && result.item != Items.none)
-        {
-            throw new RuntimeException("Held item Items."+Helper.toStr(result.item, Helper.Index.ITEM).asString()+" selected in function \"selectInGameTradePokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
+        if (!itempool.contains(result.item) && result.item != Items.none) {
+            throw new RuntimeException("Held item Items." + Helper.toStr(result.item, Helper.Index.ITEM).asString() + " selected in function \"selectInGameTradePokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
         }
-        if(result.item != Items.none)
+        if (result.item != Items.none)
             result.item = convertedIndex(result.item, Items.class, rom.getItemClass());
         return result;
     }
@@ -748,6 +749,8 @@ public class ScriptInstance {
         toGeneralItems.put("dreamMail", "mail10");
         toGeneralItems.put("fabMail", "mail11");
         toGeneralItems.put("retroMail",	"mail12");
+        toGeneralItems.put("stick", "leek");
+        toGeneralItems.put("nothing", "none");
         HashMap<String, String> fromGeneralItems = new HashMap<>();
         for(Map.Entry<String, String> entry : toGeneralItems.entrySet())
             fromGeneralItems.put(entry.getValue(), entry.getKey());
