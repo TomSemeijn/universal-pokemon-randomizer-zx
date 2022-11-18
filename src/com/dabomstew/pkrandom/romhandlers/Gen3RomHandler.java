@@ -3263,15 +3263,21 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
     }
 
     @Override
-    public void setShopPrices() {
+    public void setShopPrices(Map<Integer, Integer> prices) {
         int itemDataOffset = romEntry.getValue("ItemData");
         int entrySize = romEntry.getValue("ItemEntrySize");
         int itemCount = romEntry.getValue("ItemCount");
         for (int i = 1; i < itemCount; i++) {
-            int balancedPrice = Gen3Constants.balancedItemPrices.get(i) * 10;
+            int newPrice = prices.get(i) * 10;
             int offset = itemDataOffset + (i * entrySize) + 16;
-            FileFunctions.write2ByteInt(rom, offset, balancedPrice);
+            FileFunctions.write2ByteInt(rom, offset, newPrice);
         }
+    }
+
+    @Override
+    public Map<Integer, Integer> getBalancedPrices()
+    {
+        return Gen3Constants.balancedItemPrices;
     }
 
     @Override

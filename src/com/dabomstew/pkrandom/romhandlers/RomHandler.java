@@ -545,7 +545,8 @@ public interface RomHandler {
 
     void setShopItems(Map<Integer, Shop> shopItems);
 
-    void setShopPrices();
+    void setShopPrices(Map<Integer, Integer> prices);
+    Map<Integer, Integer> getBalancedPrices();
 
     // ============
     // Pickup Items

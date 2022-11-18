@@ -337,6 +337,8 @@ public class NewRandomizerGUI {
     private JRadioButton spUnchangedStarterHeldItemsRadioButton;
     private JRadioButton spScriptedStarterHeldItemsRadioButton;
     private JRadioButton peScriptedRadioButton;
+    private JRadioButton shScriptedRadioButton;
+    private JCheckBox shScriptedPricesCheckbox;
 
     private static JFrame frame;
 
@@ -576,6 +578,10 @@ public class NewRandomizerGUI {
         shUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         shShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         shRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        shScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        shScriptedRadioButton.addActionListener(e -> addShopItemScriptFunc());
+        shScriptedPricesCheckbox.addActionListener(e -> enableOrDisableSubControls());
+        shScriptedPricesCheckbox.addActionListener(e -> addShopItemPriceScriptFunc());
         puUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         puRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         puScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1874,6 +1880,8 @@ public class NewRandomizerGUI {
         shRandomRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.RANDOM);
         shShuffleRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.SHUFFLE);
         shUnchangedRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.UNCHANGED);
+        shScriptedRadioButton.setSelected(settings.getShopItemsMod() == Settings.ShopItemsMod.SCRIPTED);
+        shScriptedPricesCheckbox.setSelected(settings.isScriptedShopPrices());
         shBanBadItemsCheckBox.setSelected(settings.isBanBadRandomShopItems());
         shBanRegularShopItemsCheckBox.setSelected(settings.isBanRegularShopItems());
         shBanOverpoweredShopItemsCheckBox.setSelected(settings.isBanOPShopItems());
@@ -2085,13 +2093,14 @@ public class NewRandomizerGUI {
         settings.setBanBadRandomFieldItems(fiBanBadItemsCheckBox.isSelected());
         settings.setShuffleFieldItems(fiShuffleItemsCheckBox.isSelected());
 
-        settings.setShopItemsMod(shUnchangedRadioButton.isSelected(), shShuffleRadioButton.isSelected(), shRandomRadioButton.isSelected());
+        settings.setShopItemsMod(shUnchangedRadioButton.isSelected(), shShuffleRadioButton.isSelected(), shRandomRadioButton.isSelected(), shScriptedRadioButton.isSelected());
         settings.setBanBadRandomShopItems(shBanBadItemsCheckBox.isSelected());
         settings.setBanRegularShopItems(shBanRegularShopItemsCheckBox.isSelected());
         settings.setBanOPShopItems(shBanOverpoweredShopItemsCheckBox.isSelected());
         settings.setBalanceShopPrices(shBalanceShopItemPricesCheckBox.isSelected());
         settings.setGuaranteeEvolutionItems(shGuaranteeEvolutionItemsCheckBox.isSelected());
         settings.setGuaranteeXItems(shGuaranteeXItemsCheckBox.isSelected());
+        settings.setScriptedShopPrices(shScriptedPricesCheckbox.isSelected());
 
         settings.setPickupItemsMod(puUnchangedRadioButton.isSelected(), puRandomRadioButton.isSelected(), puScriptedRadioButton.isSelected());
         settings.setBanBadRandomPickupItems(puBanBadItemsCheckBox.isSelected());
@@ -2882,6 +2891,9 @@ public class NewRandomizerGUI {
         shRandomRadioButton.setVisible(true);
         shRandomRadioButton.setEnabled(false);
         shRandomRadioButton.setSelected(false);
+        shScriptedRadioButton.setVisible(true);
+        shScriptedRadioButton.setEnabled(false);
+        shScriptedRadioButton.setSelected(false);
         shBanOverpoweredShopItemsCheckBox.setVisible(true);
         shBanOverpoweredShopItemsCheckBox.setEnabled(false);
         shBanOverpoweredShopItemsCheckBox.setSelected(false);
@@ -2900,6 +2912,9 @@ public class NewRandomizerGUI {
         shGuaranteeXItemsCheckBox.setVisible(true);
         shGuaranteeXItemsCheckBox.setEnabled(false);
         shGuaranteeXItemsCheckBox.setSelected(false);
+        shScriptedPricesCheckbox.setVisible(true);
+        shScriptedPricesCheckbox.setEnabled(false);
+        shScriptedPricesCheckbox.setSelected(false);
         puUnchangedRadioButton.setVisible(true);
         puUnchangedRadioButton.setEnabled(false);
         puUnchangedRadioButton.setSelected(false);
@@ -3299,7 +3314,9 @@ public class NewRandomizerGUI {
             shUnchangedRadioButton.setEnabled(true);
             shUnchangedRadioButton.setSelected(true);
             shShuffleRadioButton.setEnabled(true);
+            shScriptedRadioButton.setEnabled(true);
             shRandomRadioButton.setEnabled(true);
+            shScriptedPricesCheckbox.setEnabled(true);
 
             pickupItemsPanel.setVisible(romHandler.abilitiesPerPokemon() > 0);
             puUnchangedRadioButton.setEnabled(true);
@@ -4089,13 +4106,21 @@ public class NewRandomizerGUI {
             fiShuffleItemsCheckBox.setSelected(false);
         }
 
-        if (shRandomRadioButton.isSelected() && shRandomRadioButton.isVisible() && shRandomRadioButton.isEnabled()) {
+        boolean randomShopItemsSelected = (shRandomRadioButton.isSelected() && shRandomRadioButton.isVisible() && shRandomRadioButton.isEnabled());
+        boolean scriptedShopItemsSelected = (shScriptedRadioButton.isSelected() && shScriptedRadioButton.isVisible() && shScriptedRadioButton.isEnabled());
+        if (randomShopItemsSelected || scriptedShopItemsSelected) {
             shBanBadItemsCheckBox.setEnabled(true);
             shBanRegularShopItemsCheckBox.setEnabled(true);
             shBanOverpoweredShopItemsCheckBox.setEnabled(true);
-            shBalanceShopItemPricesCheckBox.setEnabled(true);
-            shGuaranteeEvolutionItemsCheckBox.setEnabled(true);
-            shGuaranteeXItemsCheckBox.setEnabled(true);
+            if(shScriptedPricesCheckbox.isSelected()) {
+                shBalanceShopItemPricesCheckBox.setEnabled(false);
+                shBalanceShopItemPricesCheckBox.setSelected(false);
+            }
+            else {
+                shBalanceShopItemPricesCheckBox.setEnabled(true);
+            }
+            shGuaranteeEvolutionItemsCheckBox.setEnabled(!scriptedShopItemsSelected);
+            shGuaranteeXItemsCheckBox.setEnabled(!scriptedShopItemsSelected);
         } else {
             shBanBadItemsCheckBox.setEnabled(false);
             shBanBadItemsCheckBox.setSelected(false);
@@ -5069,6 +5094,54 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Species");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addShopItemScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Selects items available in special shops",
+                "#itemPool - an array of integers representing all available items",
+                "#shop - a Shop object representing the shop the item will be available in",
+                "#oldItem - an int representing the original shop item",
+                "#",
+                "#return: an int representing the new shop item",
+                "#NOTE: you can access items through the imported Items class"
+        };
+        String funcDeclaration = "def selectShopItem(itemPool, shop, oldItem):";
+        String funcBody = "\n\tif(\"Ball\" in toStr(oldItem, Index.ITEM)): #example\n\t\treturn Items.rareCandy\n\treturn oldItem";
+
+        if(shScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Shop");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    public void addShopItemPriceScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#Selects items available in special shops",
+                "#item - an int representing the shop item",
+                "#balancedPrice - an int representing the \"balanced\" price of the item, this would have been selected by the \"balanced prices\" option",
+                "#",
+                "#return: an int representing the new price of the shop item",
+                "#NOTE: you can access items through the imported Items class"
+        };
+        String funcDeclaration = "def selectShopItemPrice(item, balancedPrice):";
+        String funcBody = "\n\tif(\"mail\" in toStr(item, Index.ITEM).lower()): #example\n\t\treturn balancedPrice * 10\n\tif(item == Items.rareCandy):\n\t\treturn 100\n\treturn balancedPrice";
+
+        if(shScriptedPricesCheckbox.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

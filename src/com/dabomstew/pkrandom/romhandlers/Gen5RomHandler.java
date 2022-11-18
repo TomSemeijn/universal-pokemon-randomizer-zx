@@ -4065,16 +4065,22 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
-    public void setShopPrices() {
+    public void setShopPrices(Map<Integer, Integer> prices) {
         try {
             NARCArchive itemPriceNarc = this.readNARC(romEntry.getFile("ItemData"));
             for (int i = 1; i < itemPriceNarc.files.size(); i++) {
-                writeWord(itemPriceNarc.files.get(i),0,Gen5Constants.balancedItemPrices.get(i));
+                writeWord(itemPriceNarc.files.get(i),0,prices.get(i));
             }
             writeNARC(romEntry.getFile("ItemData"),itemPriceNarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
+    }
+
+    @Override
+    public Map<Integer, Integer> getBalancedPrices()
+    {
+        return Gen5Constants.balancedItemPrices;
     }
 
     @Override

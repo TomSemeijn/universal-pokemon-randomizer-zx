@@ -674,11 +674,37 @@ public class Randomizer {
                 shopsChanged = true;
                 break;
             case RANDOM:
+            case SCRIPTED:
                 romHandler.randomizeShopItems(settings);
                 shopsChanged = true;
                 break;
             default:
                 break;
+        }
+
+        //scripted shop prices
+        if(settings.isScriptedShopPrices())
+        {
+            //get all the balanced prices
+            Map<Integer, Integer> prices = romHandler.getBalancedPrices();
+
+            //update the items that are actually in the shops
+            Map<Integer, Shop> items = romHandler.getShopItems();
+            List<Integer> handledItems = new ArrayList<>();
+            for (int i : items.keySet()) {
+                Shop shop = items.get(i);
+                for (Integer item : shop.items) {
+                    if(!handledItems.contains(item))
+                    {
+                        prices.put(item, settings.getScript().getScriptedShopItemPrice(item, prices.get(item)));
+                        System.out.println("item "+item+" now has price "+prices.get(item));
+                        handledItems.add(item);
+                    }
+                }
+            }
+
+            //set the prices
+            romHandler.setShopPrices(prices);
         }
 
         if (shopsChanged) {

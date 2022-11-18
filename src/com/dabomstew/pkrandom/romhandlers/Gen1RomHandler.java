@@ -1895,8 +1895,14 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
     }
 
     @Override
-    public void setShopPrices() {
+    public void setShopPrices(Map<Integer, Integer> prices) {
         // Not implemented
+    }
+
+    @Override
+    public Map<Integer, Integer> getBalancedPrices()
+    {
+        return null; // Not implemented
     }
 
     private List<String> getTrainerClassesForText() {

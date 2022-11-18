@@ -73,6 +73,8 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Held item Items."+Helper.toStr(result.heldItem, Helper.Index.ITEM).asString()+" selected in function \"selectStaticPokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
         }
+        if(result.heldItem != Items.none)
+            result.heldItem = convertedIndex(result.heldItem, Items.class, rom.getItemClass());
         return result;
     }
 
@@ -118,6 +120,8 @@ public class ScriptInstance {
         {
             throw new RuntimeException("Held item Items."+Helper.toStr(result.item, Helper.Index.ITEM).asString()+" selected in function \"selectInGameTradePokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
         }
+        if(result.item != Items.none)
+            result.item = convertedIndex(result.item, Items.class, rom.getItemClass());
         return result;
     }
 
@@ -181,11 +185,11 @@ public class ScriptInstance {
         PySequence pyPool = toPythonArray(javaPool, PyInteger.class, i -> new PyInteger(i));
         PyObject[] args = {pyPool, Py.java2py(pokemon), new PyBoolean(supportCommon), new PyBoolean(supportRare), new PyBoolean(supportGuaranteed), new PyBoolean(supportDarkGrass)};
         PyDictionary result = (PyDictionary)(func.__call__(args));
-        int common = result.has_key(new PyString("common")) ? ((PyInteger)result.get(new PyString("common"))).asInt() : 0;
-        int rare = result.has_key(new PyString("rare")) ? ((PyInteger)result.get(new PyString("rare"))).asInt() : 0;
-        int guaranteed = result.has_key(new PyString("guaranteed")) ? ((PyInteger)result.get(new PyString("guaranteed"))).asInt() : 0;
-        int darkGrass = result.has_key(new PyString("darkGrass")) ? ((PyInteger)result.get(new PyString("darkGrass"))).asInt() : 0;
-        if(supportCommon && common != 0)
+        int common = result.has_key(new PyString("common")) ? ((PyInteger)result.get(new PyString("common"))).asInt() : -2;
+        int rare = result.has_key(new PyString("rare")) ? ((PyInteger)result.get(new PyString("rare"))).asInt() : -2;
+        int guaranteed = result.has_key(new PyString("guaranteed")) ? ((PyInteger)result.get(new PyString("guaranteed"))).asInt() : -2;
+        int darkGrass = result.has_key(new PyString("darkGrass")) ? ((PyInteger)result.get(new PyString("darkGrass"))).asInt() : -2;
+        if(supportCommon && common != -2)
         {
             if(!javaPool.contains(common))
             {
@@ -193,7 +197,7 @@ public class ScriptInstance {
             }
             pokemon.commonHeldItem = common == -1 ? 0 : convertedIndex(common, Items.class, rom.getItemClass());
         }
-        if(supportRare && rare != 0)
+        if(supportRare && rare != -2)
         {
             if(!javaPool.contains(rare))
             {
@@ -201,7 +205,7 @@ public class ScriptInstance {
             }
             pokemon.rareHeldItem = rare == -1 ? 0 : convertedIndex(rare, Items.class, rom.getItemClass());;
         }
-        if(supportGuaranteed && guaranteed != 0)
+        if(supportGuaranteed && guaranteed != -2)
         {
             if(!javaPool.contains(guaranteed))
             {
@@ -209,7 +213,7 @@ public class ScriptInstance {
             }
             pokemon.guaranteedHeldItem = guaranteed == -1 ? 0 : convertedIndex(guaranteed, Items.class, rom.getItemClass());;
         }
-        if(supportDarkGrass && darkGrass != 0 && (!supportGuaranteed || guaranteed == 0))
+        if(supportDarkGrass && darkGrass != -2)
         {
             if(!javaPool.contains(darkGrass))
             {
@@ -532,12 +536,12 @@ public class ScriptInstance {
     {
         PyFunction func = (PyFunction)interp.get("selectStarterHeldItem");
         PyArray pyItempool = toPythonArray(itempool, PyInteger.class, i -> new PyInteger(i));
-        int result = convertedIndex(func.__call__(new PyInteger(oldItem), pyItempool).asInt(), Items.class, rom.getItemClass());
+        int result = func.__call__(new PyInteger(oldItem), pyItempool).asInt();
         if(!itempool.contains(result) && result != Items.none)
         {
             throw new RuntimeException("Starter held item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectStarterHeldItem\"!");
         }
-        return result;
+        return convertedIndex(result, Items.class, rom.getItemClass());
     }
 
     public List<Evolution> getScriptedEvolutions(List<Pokemon> pokepool, Pokemon poke, List<Evolution> oldEvolutions)
@@ -675,11 +679,35 @@ public class ScriptInstance {
                         throw new RuntimeException("Evolution item Items."+Helper.toStr(item, Helper.Index.ITEM).asString()+" selected in function \"selectEvolutions\" is not an official evolution item, while the selected EvolutionType.\""+Helper.toStr(evo.type).asString()+"\" does require this! You can get a list of evolution items from ROM.getEvolutionItems()");
                     }
                 }
+                evo.extraInfo = convertedIndex(item, Items.class, rom.getItemClass());
             }
         }
 
         //return result
         return toReturn;
+    }
+
+    public int getScriptedShopItem(ItemList itempool, Shop oldShop, int oldItem)
+    {
+        PyFunction func = (PyFunction)interp.get("selectShopItem");
+        List<Integer> javaPool = toItemPool(itempool);
+        PySequence pyPool = toPythonArray(javaPool, PyInteger.class, i -> new PyInteger(i));
+        int result = func.__call__(pyPool, Py.java2py(oldShop), new PyInteger(oldItem)).asInt();
+        if(!javaPool.contains(result))
+        {
+            throw new RuntimeException("Special shop item \""+Helper.toStr(result, Helper.Index.ITEM).asString()+" was not in the given ItemPool in function \"selectShopItem\"!");
+        }
+        return convertedIndex(result, Items.class, rom.getItemClass());
+    }
+
+    public int getScriptedShopItemPrice(int item, int balancedPrice)
+    {
+        PyFunction func = (PyFunction)interp.get("selectShopItemPrice");
+        item = convertedIndex(item, rom.getItemClass(), Items.class);
+        int result = ((PyInteger)func.__call__(new PyInteger(item), new PyInteger(balancedPrice * 10))).asInt() / 10;
+        if(result <= 0)
+            throw new RuntimeException("Shop item price for Items."+Helper.toStr(item, Helper.Index.ITEM).asString()+" selected in function \"selectShopItemPrice\" must be more than zero! The given value was "+result+"!");
+        return result;
     }
 
     private static int convertedIndex(int generalItem, Class startClass, Class endClass)
@@ -912,14 +940,14 @@ public class ScriptInstance {
         return pokepool.containsAll(pokes);
     }
 
-    private static List<Integer> toItemPool(ItemList itemList)
+    private List<Integer> toItemPool(ItemList itemList)
     {
         List<Integer> itempool = new ArrayList<>();
         for(int k = 0; k <= itemList.getHighestIndex(); k++)
         {
             if(itemList.isAllowed(k))
             {
-                itempool.add(k);
+                itempool.add(convertedIndex(k, rom.getItemClass(), Items.class));
             }
         }
         return itempool;

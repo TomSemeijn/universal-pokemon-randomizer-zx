@@ -40,6 +40,7 @@ import com.dabomstew.pkrandom.Script.ScriptInstance;
 import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
+import com.dabomstew.pkrandom.pokemon.Shop;
 import com.dabomstew.pkrandom.romhandlers.Gen1RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen2RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen3RomHandler;
@@ -308,7 +309,7 @@ public class Settings {
     private boolean banBadRandomFieldItems;
 
     public enum ShopItemsMod {
-        UNCHANGED, SHUFFLE, RANDOM
+        UNCHANGED, SHUFFLE, RANDOM, SCRIPTED
     }
 
     private ShopItemsMod shopItemsMod = ShopItemsMod.UNCHANGED;
@@ -341,6 +342,8 @@ public class Settings {
     private boolean scriptEXPCurves;
 
     private boolean shuffleFieldItems;
+
+    private boolean scriptedShopPrices;
 
     // to and from strings etc
     public void write(FileOutputStream out) throws IOException {
@@ -459,7 +462,8 @@ public class Settings {
                 staticPokemonMod == StaticPokemonMod.RANDOM_MATCHING,
                 staticPokemonMod == StaticPokemonMod.COMPLETELY_RANDOM,
                 staticPokemonMod == StaticPokemonMod.SIMILAR_STRENGTH,
-                staticPokemonMod == StaticPokemonMod.SCRIPTED
+                staticPokemonMod == StaticPokemonMod.SCRIPTED,
+                scriptedShopPrices
                 ));
 
         // 18 static pokemon 2
@@ -546,7 +550,7 @@ public class Settings {
         // 38 shop items
         out.write(makeByteSelected(shopItemsMod == ShopItemsMod.RANDOM, shopItemsMod == ShopItemsMod.SHUFFLE,
                 shopItemsMod == ShopItemsMod.UNCHANGED, banBadRandomShopItems, banRegularShopItems, banOPShopItems,
-                balanceShopPrices, guaranteeEvolutionItems));
+                shopItemsMod == ShopItemsMod.SCRIPTED, guaranteeEvolutionItems));
 
         // 39 wild level modifier
         out.write((wildLevelsModified ? 0x80 : 0) | (wildLevelModifier+50));
@@ -607,7 +611,8 @@ public class Settings {
                 consumableItemsOnlyForTrainerPokemon,
                 sensibleItemsOnlyForTrainerPokemon,
                 highestLevelOnlyGetsItemsForTrainerPokemon,
-                ensureTwoAbilities));
+                ensureTwoAbilities,
+                balanceShopPrices));
 
         // 50 pickup item randomization (and some other settings that had to move and didn't fit anywhere else)
         out.write(makeByteSelected(pickupItemsMod == PickupItemsMod.RANDOM,
@@ -881,12 +886,14 @@ public class Settings {
         settings.setShopItemsMod(restoreEnum(ShopItemsMod.class,data[38],
                 2,
                 1,
-                0));
+                0,
+                6));
         settings.setBanBadRandomShopItems(restoreState(data[38],3));
         settings.setBanRegularShopItems(restoreState(data[38],4));
         settings.setBanOPShopItems(restoreState(data[38],5));
-        settings.setBalanceShopPrices(restoreState(data[38],6));
+        settings.setBalanceShopPrices(restoreState(data[49],7));
         settings.setGuaranteeEvolutionItems(restoreState(data[38],7));
+        settings.setScriptedShopPrices(restoreState(data[17], 5));
 
         settings.setWildLevelsModified(restoreState(data[39],7));
         settings.setWildLevelModifier((data[39] & 0x7F) - 50);
@@ -2491,6 +2498,10 @@ public class Settings {
     {
         return shuffleFieldItems;
     }
+
+    public void setScriptedShopPrices(boolean scriptedShopPrices) { this.scriptedShopPrices = scriptedShopPrices; }
+
+    public boolean isScriptedShopPrices() { return this.scriptedShopPrices; }
 
     private static int makeByteSelected(boolean... bools) {
         if (bools.length > 8) {

@@ -3496,6 +3496,29 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.shBalanceShopItemPricesCheckBox.toolTipText"/>
                     </properties>
                   </component>
+                  <component id="f7f02" class="javax.swing.JCheckBox" binding="shGuaranteeXItemsCheckBox">
+                    <constraints>
+                      <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <selected value="false"/>
+                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.shGuaranteeXItemsCheckbox.text"/>
+                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.shGuaranteeXItemsCheckbox.tooltipText"/>
+                    </properties>
+                  </component>
+                  <component id="15d91" class="javax.swing.JRadioButton" binding="shScriptedRadioButton">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to select items in special shops"/>
+                    </properties>
+                  </component>
                   <component id="5bba5" class="javax.swing.JCheckBox" binding="shGuaranteeEvolutionItemsCheckBox">
                     <constraints>
                       <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -3507,16 +3530,15 @@
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.shGuaranteeEvolutionItemsCheckBox.toolTipText"/>
                     </properties>
                   </component>
-                  <component id="f7f02" class="javax.swing.JCheckBox" binding="shGuaranteeXItemsCheckBox">
+                  <component id="1346" class="javax.swing.JCheckBox" binding="shScriptedPricesCheckbox">
                     <constraints>
-                      <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
                       <enabled value="false"/>
-                      <selected value="false"/>
-                      <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.shGuaranteeXItemsCheckbox.text"/>
-                      <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.shGuaranteeXItemsCheckbox.tooltipText"/>
+                      <text value="Scripted Prices"/>
+                      <toolTipText value="Use scripting to set the prices of special shop items"/>
                     </properties>
                   </component>
                 </children>
@@ -4232,6 +4254,7 @@
       <member id="85c80"/>
       <member id="30ba3"/>
       <member id="4324"/>
+      <member id="15d91"/>
     </group>
     <group name="totemPokemonButtonGroup">
       <member id="9e1ec"/>

@@ -6512,6 +6512,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean balancePrices = settings.isBalanceShopPrices();
         boolean placeEvolutionItems = settings.isGuaranteeEvolutionItems();
         boolean placeXItems = settings.isGuaranteeXItems();
+        boolean scripted = settings.getShopItemsMod() == Settings.ShopItemsMod.SCRIPTED;
 
         if (this.getShopItems() == null) return;
         ItemList possibleItems = banBadItems ? this.getNonBadItems() : this.getAllowedItems();
@@ -6525,83 +6526,99 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         int shopItemCount = currentItems.values().stream().mapToInt(s -> s.items.size()).sum();
 
-        List<Integer> newItems = new ArrayList<>();
         Map<Integer, Shop> newItemsMap = new TreeMap<>();
-        int newItem;
-        List<Integer> guaranteedItems = new ArrayList<>();
-        if (placeEvolutionItems) {
-            guaranteedItems.addAll(getEvolutionItems());
-        }
-        if (placeXItems) {
-            guaranteedItems.addAll(getXItems());
-        }
-        if (placeEvolutionItems || placeXItems) {
-            newItems.addAll(guaranteedItems);
-            shopItemCount = shopItemCount - newItems.size();
 
-            for (int i = 0; i < shopItemCount; i++) {
-                while (newItems.contains(newItem = possibleItems.randomNonTM(this.random)));
-                newItems.add(newItem);
+        if(!scripted) { //non-scripted shop items
+            List<Integer> newItems = new ArrayList<>();
+            int newItem;
+            List<Integer> guaranteedItems = new ArrayList<>();
+            if (placeEvolutionItems) {
+                guaranteedItems.addAll(getEvolutionItems());
             }
+            if (placeXItems) {
+                guaranteedItems.addAll(getXItems());
+            }
+            if (placeEvolutionItems || placeXItems) {
+                newItems.addAll(guaranteedItems);
+                shopItemCount = shopItemCount - newItems.size();
 
-            // Guarantee main-game
-            List<Integer> mainGameShops = new ArrayList<>();
-            List<Integer> nonMainGameShops = new ArrayList<>();
-            for (int i: currentItems.keySet()) {
-                if (currentItems.get(i).isMainGame) {
-                    mainGameShops.add(i);
-                } else {
-                    nonMainGameShops.add(i);
+                for (int i = 0; i < shopItemCount; i++) {
+                    while (newItems.contains(newItem = possibleItems.randomNonTM(this.random))) ;
+                    newItems.add(newItem);
                 }
-            }
 
-            // Place items in non-main-game shops; skip over guaranteed items
-            Collections.shuffle(newItems, this.random);
-            for (int i: nonMainGameShops) {
-                int j = 0;
-                List<Integer> newShopItems = new ArrayList<>();
-                Shop oldShop = currentItems.get(i);
-                for (Integer ignored: oldShop.items) {
-                    Integer item = newItems.get(j);
-                    while (guaranteedItems.contains(item)) {
-                        j++;
-                        item = newItems.get(j);
+                // Guarantee main-game
+                List<Integer> mainGameShops = new ArrayList<>();
+                List<Integer> nonMainGameShops = new ArrayList<>();
+                for (int i : currentItems.keySet()) {
+                    if (currentItems.get(i).isMainGame) {
+                        mainGameShops.add(i);
+                    } else {
+                        nonMainGameShops.add(i);
                     }
-                    newShopItems.add(item);
-                    newItems.remove(item);
                 }
-                Shop shop = new Shop(oldShop);
-                shop.items = newShopItems;
-                newItemsMap.put(i, shop);
-            }
 
-            // Place items in main-game shops
-            Collections.shuffle(newItems, this.random);
-            for (int i: mainGameShops) {
+                // Place items in non-main-game shops; skip over guaranteed items
+                Collections.shuffle(newItems, this.random);
+                for (int i : nonMainGameShops) {
+                    int j = 0;
+                    List<Integer> newShopItems = new ArrayList<>();
+                    Shop oldShop = currentItems.get(i);
+                    for (Integer ignored : oldShop.items) {
+                        Integer item = newItems.get(j);
+                        while (guaranteedItems.contains(item)) {
+                            j++;
+                            item = newItems.get(j);
+                        }
+                        newShopItems.add(item);
+                        newItems.remove(item);
+                    }
+                    Shop shop = new Shop(oldShop);
+                    shop.items = newShopItems;
+                    newItemsMap.put(i, shop);
+                }
+
+                // Place items in main-game shops
+                Collections.shuffle(newItems, this.random);
+                for (int i : mainGameShops) {
+                    List<Integer> newShopItems = new ArrayList<>();
+                    Shop oldShop = currentItems.get(i);
+                    for (Integer ignored : oldShop.items) {
+                        Integer item = newItems.get(0);
+                        newShopItems.add(item);
+                        newItems.remove(0);
+                    }
+                    Shop shop = new Shop(oldShop);
+                    shop.items = newShopItems;
+                    newItemsMap.put(i, shop);
+                }
+            } else {
+                for (int i = 0; i < shopItemCount; i++) {
+                    while (newItems.contains(newItem = possibleItems.randomNonTM(this.random))) ;
+                    newItems.add(newItem);
+                }
+
+                Iterator<Integer> newItemsIter = newItems.iterator();
+
+                for (int i : currentItems.keySet()) {
+                    List<Integer> newShopItems = new ArrayList<>();
+                    Shop oldShop = currentItems.get(i);
+                    for (Integer ignored : oldShop.items) {
+                        newShopItems.add(newItemsIter.next());
+                    }
+                    Shop shop = new Shop(oldShop);
+                    shop.items = newShopItems;
+                    newItemsMap.put(i, shop);
+                }
+            }
+        }
+        else //scripted shop items
+        {
+            for (int i : currentItems.keySet()) {
                 List<Integer> newShopItems = new ArrayList<>();
                 Shop oldShop = currentItems.get(i);
-                for (Integer ignored: oldShop.items) {
-                    Integer item = newItems.get(0);
-                    newShopItems.add(item);
-                    newItems.remove(0);
-                }
-                Shop shop = new Shop(oldShop);
-                shop.items = newShopItems;
-                newItemsMap.put(i, shop);
-            }
-        } else {
-            for (int i = 0; i < shopItemCount; i++) {
-                while (newItems.contains(newItem = possibleItems.randomNonTM(this.random)));
-                newItems.add(newItem);
-            }
-
-            Iterator<Integer> newItemsIter = newItems.iterator();
-
-            for (int i: currentItems.keySet()) {
-                List<Integer> newShopItems = new ArrayList<>();
-                Shop oldShop = currentItems.get(i);
-                for (Integer ignored: oldShop.items) {
-                    newShopItems.add(newItemsIter.next());
+                for (Integer oldItem : oldShop.items) {
+                    newShopItems.add(settings.getScript().getScriptedShopItem(possibleItems, oldShop, oldItem));
                 }
                 Shop shop = new Shop(oldShop);
                 shop.items = newShopItems;
@@ -6611,7 +6628,7 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         this.setShopItems(newItemsMap);
         if (balancePrices) {
-            this.setShopPrices();
+            this.setShopPrices(getBalancedPrices());
         }
     }
 

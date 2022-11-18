@@ -3949,16 +3949,22 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    public void setShopPrices() {
+    public void setShopPrices(Map<Integer, Integer> prices) {
         try {
             GARCArchive itemPriceGarc = this.readGARC(romEntry.getFile("ItemData"),true);
             for (int i = 1; i < itemPriceGarc.files.size(); i++) {
-                writeWord(itemPriceGarc.files.get(i).get(0),0,Gen6Constants.balancedItemPrices.get(i));
+                writeWord(itemPriceGarc.files.get(i).get(0),0,prices.get(i));
             }
             writeGARC(romEntry.getFile("ItemData"),itemPriceGarc);
         } catch (IOException e) {
             throw new RandomizerIOException(e);
         }
+    }
+
+    @Override
+    public Map<Integer, Integer> getBalancedPrices()
+    {
+        return Gen6Constants.balancedItemPrices;
     }
 
     @Override
