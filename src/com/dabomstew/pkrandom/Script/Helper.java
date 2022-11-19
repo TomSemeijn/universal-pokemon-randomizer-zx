@@ -1,5 +1,6 @@
 package com.dabomstew.pkrandom.Script;
 
+import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.constants.Moves;
@@ -19,6 +20,7 @@ public class Helper {
     //turns a java string into a (sanitized) python string
     public static PyString toStr(String value)
     {
+        if(value == null) { return new PyString(""); }
         //clean string by filtering out all non-ascii characters
         String cleaned = "";
         for(char c : value.toCharArray())
@@ -386,12 +388,77 @@ public class Helper {
         {
             throw new RuntimeException("Tried to call ROM.getTutorMovesOf() while this ROM does not support move tutors! You can check this in your script with ROM.hasMoveTutors");
         }
-        return ScriptInstance.toPythonArray(rom.getTutorMovesOf(poke, includePrevos), PyObject.class, move -> Py.java2py(move));
+        return ScriptInstance.toPythonArray(rom.getTutorMovesOf(poke, includePrevos), PyObject.class, Py::java2py);
     }
 
     public static PySequence getEggMoves(RomHandler rom, Pokemon poke)
     {
-        return ScriptInstance.toPythonArray(rom.getEggMovesOf(poke), PyObject.class, move -> Py.java2py(move));
+        return ScriptInstance.toPythonArray(rom.getEggMovesOf(poke), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getWildEncounterSets(RomHandler rom, Settings settings)
+    {
+        return ScriptInstance.toPythonArray(rom.getEncounters(settings.isUseTimeBasedEncounters()), PyObject.class, enc -> Py.java2py(enc));
+    }
+
+    public static PySequence getInGameTrades(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getIngameTrades(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getMegaEvolutions(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getMegaEvolutions(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getMoveTutorMoves(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getMoveTutorMoves(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getStarters(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getStarters(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getStaticPokemon(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getStaticPokemon(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getTMMoves(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getTMMoves(), PyObject.class, PyInteger::new);
+    }
+
+    public static PySequence getTrainers(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getTrainers(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getTotems(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getTotemPokemon(), PyObject.class, Py::java2py);
+    }
+
+    public static PySequence getTrainerNames(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getTrainerNames(), PyObject.class, PyString::new);
+    }
+
+    public static PySequence getTrainerClassNames(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getTrainerClassNames(), PyObject.class, PyString::new);
+    }
+
+    public static PySequence getUselessAbilities(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getUselessAbilities(), PyObject.class, PyInteger::new);
+    }
+
+    public static PySequence getXItems(RomHandler rom)
+    {
+        return ScriptInstance.toPythonArray(rom.getXItems(), PyObject.class, PyInteger::new);
     }
 
     public static String DefinitionString()

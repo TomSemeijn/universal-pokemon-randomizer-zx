@@ -1,5 +1,6 @@
 package com.dabomstew.pkrandom.Script;
 
+import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.constants.Abilities;
 import com.dabomstew.pkrandom.constants.Items;
 import com.dabomstew.pkrandom.pokemon.*;
@@ -13,10 +14,12 @@ import java.util.*;
 
 public class ScriptInstance {
     private PythonInterpreter interp;
+    private Settings settings;
     private RomHandler rom;
-    public ScriptInstance(String source, RomHandler rom)
+    public ScriptInstance(String source, RomHandler rom, Settings settings)
     {
         this.rom = rom;
+        this.settings = settings;
 
         interp = new PythonInterpreter();
         interp.exec(Helper.DefinitionString());
@@ -820,12 +823,14 @@ public class ScriptInstance {
     private void addROMInfo()
     {
         interp.set("temp", Py.java2py(rom));
+        interp.set("temp2", Py.java2py(settings));
         String defs = "\n\n";
         defs += "from com.dabomstew.pkrandom.pokemon import Type\n\n";
         defs += "class ROM:";
         String startVar = "\n\t";
         defs += startVar + "generation = "+rom.generationOfPokemon();
         defs += startVar + "name = \""+rom.getROMName()+"\"";
+        defs += startVar + "extension = \""+rom.getDefaultExtension()+"\"";
         defs += startVar + "code = \""+rom.getROMCode()+"\"";
         defs += startVar + "maxNicknameLen = "+rom.maxTradeNicknameLength();
         defs += startVar + "maxOTLen = "+rom.maxTradeOTNameLength();
@@ -836,6 +841,7 @@ public class ScriptInstance {
         defs += startVar + "hasMoveTutors = "+(rom.hasMoveTutors()  ? "True" : "False");
         defs += startVar + "maxIV = "+(rom.hasDVs() ? 16 : 32);
         defs += startVar + "__romHandler = temp";
+        defs += startVar + "__settings = temp2";
 
         defs += startVar + "supportedTypes = [";
         for (Type typ : Type.values()) {
@@ -889,9 +895,24 @@ public class ScriptInstance {
         defs += startVar + "@staticmethod" + startVar + "def getTutorMovesOf(poke, includePrevos = False):"  + startVar + "\treturn Helper.getTutorMoves(ROM.__romHandler, poke, includePrevos)";
         defs += startVar + "@staticmethod" + startVar + "def getEggMovesOf(poke):"  + startVar + "\treturn Helper.getEggMoves(ROM.__romHandler, poke)";
 
+        defs += startVar + "@staticmethod" + startVar + "def getWildEncounterSets():" + startVar + "\treturn Helper.getWildEncounterSets(ROM.__romHandler, ROM.__settings)";
+        defs += startVar + "@staticmethod" + startVar + "def getInGameTrades():" + startVar + "\treturn Helper.getInGameTrades(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getMegaEvolutions():" + startVar + "\treturn Helper.getMegaEvolutions(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getMoveTutorMoves():" + startVar + "\treturn Helper.getMoveTutorMoves(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getStarters():" + startVar + "\treturn Helper.getStarters(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getStaticPokemon():" + startVar + "\treturn Helper.getStaticPokemon(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getTMMoves():" + startVar + "\treturn Helper.getTMMoves(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getTrainers():" + startVar + "\treturn Helper.getTrainers(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getTotems():" + startVar + "\treturn Helper.getTotems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getTrainerNames():" + startVar + "\treturn Helper.getTrainerNames(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getTrainerClassNames():" + startVar + "\treturn Helper.getTrainerClassNames(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getUselessAbilities():" + startVar + "\treturn Helper.getUselessAbilities(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getXItems():" + startVar + "\treturn Helper.getXItems(ROM.__romHandler)";
+
         defs += "\n\n";
         interp.exec(defs);
         interp.set("temp", null);
+        interp.set("temp2", null);
     }
 
     public static void initJythonDoc(JythonSyntaxDocument jdoc)
@@ -916,7 +937,21 @@ public class ScriptInstance {
         romCls.methods.add(dummy.new Function("getTMMovesOf", -1));
         romCls.methods.add(dummy.new Function("getTutorMovesOf", -1));
         romCls.methods.add(dummy.new Function("getEggMovesOf", -1));
+        romCls.methods.add(dummy.new Function("getWildEncounterSets", -1));
+        romCls.methods.add(dummy.new Function("getInGameTrades", -1));
+        romCls.methods.add(dummy.new Function("getMegaEvolutions", -1));
+        romCls.methods.add(dummy.new Function("getMoveTutorMoves", -1));
+        romCls.methods.add(dummy.new Function("getStarters", -1));
+        romCls.methods.add(dummy.new Function("getStaticPokemon", -1));
+        romCls.methods.add(dummy.new Function("getTMMoves", -1));
+        romCls.methods.add(dummy.new Function("getTrainers", -1));
+        romCls.methods.add(dummy.new Function("getTotems", -1));
+        romCls.methods.add(dummy.new Function("getTrainerNames", -1));
+        romCls.methods.add(dummy.new Function("getTrainerClassNames", -1));
+        romCls.methods.add(dummy.new Function("getUselessAbilities", -1));
+        romCls.methods.add(dummy.new Function("getXItems", -1));
         romCls.members.add(dummy.new Variable("name", -1));
+        romCls.members.add(dummy.new Variable("extension", -1));
         romCls.members.add(dummy.new Variable("generation", -1));
         romCls.members.add(dummy.new Variable("code", -1));
         romCls.members.add(dummy.new Variable("maxNicknameLen", -1));

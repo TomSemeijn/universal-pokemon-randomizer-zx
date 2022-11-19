@@ -1102,7 +1102,7 @@ public class Settings {
 
     public void initScript(RomHandler rom)
     {
-        script = new ScriptInstance(scriptSource, rom);
+        script = new ScriptInstance(scriptSource, rom, this);
     }
 
     public ScriptInstance getScript(){ return script; }
