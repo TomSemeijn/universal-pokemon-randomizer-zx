@@ -186,11 +186,52 @@ public class Helper {
 
     public static PySequence similarStrength(PySequence pyPokepool, Pokemon poke, int targetSize)
     {
+        return similarStrength(pyPokepool, poke, targetSize, (Integer.MAX_VALUE / 10) - 255, true);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, Pokemon poke, int targetSize, int averageLevel)
+    {
+        return similarStrength(pyPokepool, poke, targetSize, averageLevel, true);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, TrainerPokemon tpoke)
+    {
+        return similarStrength(pyPokepool, tpoke, 3);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, TrainerPokemon tpoke, int targetSize)
+    {
+        return similarStrength(pyPokepool, tpoke.pokemon, targetSize, tpoke.level, true);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, Encounter wpoke)
+    {
+        return similarStrength(pyPokepool, wpoke, 3);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, Encounter wpoke, int targetSize)
+    {
+        return similarStrength(pyPokepool, wpoke.pokemon, targetSize, (wpoke.level + wpoke.maxLevel) / 2, true);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, StaticEncounter spoke)
+    {
+        return similarStrength(pyPokepool, spoke, 3);
+    }
+
+    public static PySequence similarStrength(PySequence pyPokepool, StaticEncounter spoke, int targetSize)
+    {
+        return similarStrength(pyPokepool, spoke.pkmn, targetSize, (spoke.level + spoke.maxLevel) / 2, true);
+    }
+
+    private static PySequence similarStrength(PySequence pyPokepool, Pokemon poke, int targetSize, int bstBalanceLevel, boolean trueCall)
+    {
         List<Pokemon> pokepool = ScriptInstance.toJavaList(pyPokepool, pkmn -> Py.tojava(pkmn, Pokemon.class));
 
         // start with within 10% and add 5% either direction till we find
         // something
-        int currentBST = poke.bstForPowerLevels();
+        int balancedBST = bstBalanceLevel * 10 + 250;
+        int currentBST = Math.min(poke.bstForPowerLevels(), balancedBST);
         int minTarget = currentBST - currentBST / 10;
         int maxTarget = currentBST + currentBST / 10;
         List<Pokemon> canPick = new ArrayList<>();
@@ -358,7 +399,7 @@ public class Helper {
         String helperImport = "from com.dabomstew.pkrandom.Script import Helper";
         String toStrDef = "def toStr(val, index = None):\n\tif index is None:\n\t\treturn Helper.toStr(val)\n\treturn Helper.toStr(val, index)";
         String indexDef = "def index(name, index):\n\treturn Helper.index(name, index)";
-        String simStrengthDef = "def similarStrength(pokepool, poke, targetSize = None):\n\tif targetSize is None:\n\t\treturn Helper.similarStrength(pokepool, poke)\n\treturn Helper.similarStrength(pokepool, poke, targetSize)";
+        String simStrengthDef = "def similarStrength(pokepool, poke, targetSize = None, balancedBST = None):\n\tif(balancedBST is None):\n\t\tif targetSize is None:\n\t\t\treturn Helper.similarStrength(pokepool, poke)\n\t\treturn Helper.similarStrength(pokepool, poke, targetSize)\n\treturn Helper.similarStrength(pokepool, poke, targetSize, balancedBST)";
         String findDef = "def find(pokepool, num):\n\treturn Helper.find(pokepool, num)";
         String seqDef = "def seq(list):\n\treturn Helper.seq(list)";
         String hasTypeDef = "def hasType(poke, type):\n\treturn Helper.hasType(poke, type)";

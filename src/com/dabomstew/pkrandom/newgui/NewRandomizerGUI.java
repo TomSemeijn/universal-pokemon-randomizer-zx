@@ -27,7 +27,6 @@ package com.dabomstew.pkrandom.newgui;
 
 import com.dabomstew.pkrandom.*;
 import com.dabomstew.pkrandom.Script.*;
-import com.dabomstew.pkrandom.Script.JythonTokenMaker;
 import com.dabomstew.pkrandom.cli.CliRandomizer;
 import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
