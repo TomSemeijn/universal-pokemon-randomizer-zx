@@ -253,18 +253,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                             currentTokenType = Token.WHITESPACE;
                             break;
 
-                        case '(':
-                        case ')':
-                        case '{':
-                        case '}':
-                        case ',':
-                        case '[':
-                        case ']':
-                        case '.':
-                        case ':':
-                            currentTokenType = Token.OPERATOR;
-                            break;
-
                         case '"':
                         case '\'':
                             currentTokenType = Token.LITERAL_STRING_DOUBLE_QUOTE;
@@ -285,6 +273,11 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                                 currentTokenType = Token.IDENTIFIER;
                                 break;
                             }
+                            else if(isOperator(c))
+                            {
+                                currentTokenType = Token.OPERATOR;
+                                break;
+                            }
 
                             // Anything not currently handled - mark as an identifier
                             currentTokenType = Token.IDENTIFIER;
@@ -302,18 +295,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                         case '\t':
                             break;   // Still whitespace.
 
-                        case '(':
-                        case ')':
-                        case '{':
-                        case '}':
-                        case ',':
-                        case '[':
-                        case ']':
-                        case '.':
-                        case ':':
-                            currentTokenType = Token.OPERATOR;
-                            break;
-
                         case '"':
                         case '\'':
                             addToken(text, currentTokenStart,i-1, Token.WHITESPACE, newStartOffset+currentTokenStart);
@@ -330,6 +311,12 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                             break;
 
                         default:   // Add the whitespace token and start anew.
+
+                            if(isOperator(c))
+                            {
+                                currentTokenType = Token.OPERATOR;
+                                break;
+                            }
 
                             addToken(text, currentTokenStart,i-1, Token.WHITESPACE, newStartOffset+currentTokenStart);
                             currentTokenStart = i;
@@ -352,19 +339,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
                 case Token.OPERATOR:
                     switch (c) {
-
-                        case '(':
-                        case ')':
-                        case '{':
-                        case '}':
-                        case ',':
-                        case '[':
-                        case ']':
-                        case '.':
-                        case ':':
-                            addToken(text, currentTokenStart,i-1, Token.OPERATOR, newStartOffset+currentTokenStart);
-                            currentTokenStart = i;
-                            break; //still operators, but do add a token for each
 
                         case ' ':
                         case '\t':
@@ -401,6 +375,12 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                                 currentTokenType = Token.IDENTIFIER;
                                 break;
                             }
+                            else if(isOperator(c))
+                            {
+                                addToken(text, currentTokenStart,i-1, Token.OPERATOR, newStartOffset+currentTokenStart);
+                                currentTokenStart = i;
+                                break; //still operators, but do add a token for each
+                            }
 
                             // Anything not currently handled - mark as identifier
                             currentTokenType = Token.IDENTIFIER;
@@ -419,20 +399,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                             currentTokenType = Token.WHITESPACE;
                             break;
 
-                        case '(':
-                        case ')':
-                        case '{':
-                        case '}':
-                        case ',':
-                        case '[':
-                        case ']':
-                        case '.':
-                        case ':':
-                            addToken(text, currentTokenStart,i-1, Token.IDENTIFIER, newStartOffset+currentTokenStart);
-                            currentTokenStart = i;
-                            currentTokenType = Token.OPERATOR;
-                            break;
-
                         case '"':
                         case '\'':
                             addToken(text, currentTokenStart,i-1, Token.IDENTIFIER, newStartOffset+currentTokenStart);
@@ -445,6 +411,13 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                         default:
                             if (RSyntaxUtilities.isLetterOrDigit(c) || c=='/' || c=='_') {
                                 break;   // Still an identifier of some type.
+                            }
+                            else if(isOperator(c))
+                            {
+                                addToken(text, currentTokenStart,i-1, Token.IDENTIFIER, newStartOffset+currentTokenStart);
+                                currentTokenStart = i;
+                                currentTokenType = Token.OPERATOR;
+                                break;
                             }
                             // Otherwise, we're still an identifier (?).
 
@@ -463,20 +436,6 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                             currentTokenType = Token.WHITESPACE;
                             break;
 
-                        case '(':
-                        case ')':
-                        case '{':
-                        case '}':
-                        case ',':
-                        case '[':
-                        case ']':
-                        case '.':
-                        case ':':
-                            addToken(text, currentTokenStart,i-1, Token.LITERAL_NUMBER_DECIMAL_INT, newStartOffset+currentTokenStart);
-                            currentTokenStart = i;
-                            currentTokenType = Token.OPERATOR;
-                            break;
-
                         case '"':
                         case '\'':
                             addToken(text, currentTokenStart,i-1, Token.LITERAL_NUMBER_DECIMAL_INT, newStartOffset+currentTokenStart);
@@ -490,6 +449,13 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
                             if (RSyntaxUtilities.isDigit(c)) {
                                 break;   // Still a literal number.
+                            }
+                            else if(isOperator(c))
+                            {
+                                addToken(text, currentTokenStart,i-1, Token.LITERAL_NUMBER_DECIMAL_INT, newStartOffset+currentTokenStart);
+                                currentTokenStart = i;
+                                currentTokenType = Token.OPERATOR;
+                                break;
                             }
 
                             // Otherwise, remember this was a number and start over.
@@ -566,5 +532,23 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                         type != Token.LITERAL_CHAR &&
                         type != Token.WHITESPACE
                 ;
+    }
+
+    private static boolean isOperator(char c)
+    {
+        return  c == '(' ||
+                c == ')' ||
+                c == '{' ||
+                c == '}' ||
+                c == ',' ||
+                c == '[' ||
+                c == ']' ||
+                c == '.' ||
+                c == ':' ||
+                c == '+' ||
+                c == '-' ||
+                c == '/' ||
+                c == '*' ||
+                c == '%';
     }
 }
