@@ -269,7 +269,7 @@
       </methods>
     </class>
 
-    <class name="Index" category="Main" descr="Class containing constants that represent Index types for Abilities, Items, Moves, and Species.">
+    <class name="Index" category="Index" descr="Class containing constants that represent Index types for Abilities, Items, Moves, and Species.">
       <members>
         <mem name="ABILITY" type="integer" static="true" descr="For Abilities."/>
         <mem name="ITEM" type="integer" static="true" descr="For Items."/>
