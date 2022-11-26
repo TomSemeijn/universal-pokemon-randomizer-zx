@@ -353,6 +353,15 @@ public class Helper {
         return toSeq(rom, rom.getAllowedItems(), rom.getRegularShopItems());
     }
 
+    public static PySequence getAbilityPool(RomHandler rom)
+    {
+        int highest = rom.highestAbilityIndex();
+        List<Integer> pool = new ArrayList<>();
+        for(int k = 1; k <= highest; k++)
+            pool.add(k);
+        return ScriptInstance.toPythonArray(pool, PyInteger.class, PyInteger::new);
+    }
+
     public static PyBoolean supportsEvolutionType(RomHandler rom, EvolutionType evo)
     {
         return new PyBoolean(evo.toIndex(rom.generationOfPokemon()) != -1);

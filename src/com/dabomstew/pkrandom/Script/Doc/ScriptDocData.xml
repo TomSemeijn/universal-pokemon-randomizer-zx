@@ -150,6 +150,11 @@
           <return type="Sequence" descr="A sequence of integers representing the items. Use the Items class to get item indices by variable name or the toStr function to convert the indices to a string containing their name and you can convert those strings back to their Item indices again using the index function."/>
         </meth>
 
+        <meth name="getAbilityPool" static="true" descr="Gets a list of all available Abilities in the current ROM.">
+          <arguments/>
+          <return type="Sequence" descr="A sequence of integers representing the Abilities. Use the Abilities class to get Ability indices by variable name or the toStr function to convert the indices to a string containing their name and you can convert those strings back to their Ability indices again using the index function."/>
+        </meth>
+
         <meth name="supportsEvolution" static="true" descr="Checks if the ROM supports the given evolution type.">
           <arguments>
             <arg name="evolutionType" type="EvolutionType" descr="The type of evolution to check."/>

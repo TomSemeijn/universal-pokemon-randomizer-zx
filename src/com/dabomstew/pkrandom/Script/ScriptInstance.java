@@ -909,6 +909,7 @@ public class ScriptInstance {
         defs += startVar + "@staticmethod" + startVar + "def getTrainerClassNames():" + startVar + "\treturn Helper.getTrainerClassNames(ROM.__romHandler)";
         defs += startVar + "@staticmethod" + startVar + "def getUselessAbilities():" + startVar + "\treturn Helper.getUselessAbilities(ROM.__romHandler)";
         defs += startVar + "@staticmethod" + startVar + "def getXItems():" + startVar + "\treturn Helper.getXItems(ROM.__romHandler)";
+        defs += startVar + "@staticmethod" + startVar + "def getAbilityPool():" + startVar + "\treturn Helper.getAbilityPool(ROM.__romHandler)";
 
         defs += "\n\n";
         interp.exec(defs);
@@ -951,6 +952,7 @@ public class ScriptInstance {
         romCls.methods.add(dummy.new Function("getTrainerClassNames", -1));
         romCls.methods.add(dummy.new Function("getUselessAbilities", -1));
         romCls.methods.add(dummy.new Function("getXItems", -1));
+        romCls.methods.add(dummy.new Function("getAbilityPool", -1));
         romCls.members.add(dummy.new Variable("name", -1));
         romCls.members.add(dummy.new Variable("extension", -1));
         romCls.members.add(dummy.new Variable("generation", -1));
