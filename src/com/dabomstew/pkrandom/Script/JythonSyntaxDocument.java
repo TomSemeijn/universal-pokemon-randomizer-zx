@@ -229,6 +229,7 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                         Class<?> cls = Class.forName(importSource+"."+currentWord);
                         JythonScope.Class addedClass = currentScope.new Class(currentWord, lastNewline);
                         boolean checkStaticAbility = currentWord.equals("Abilities");
+                        boolean checkReturnMove = currentWord.equals("Moves");
                         for(Method meth : cls.getMethods())
                             if(Modifier.isStatic(meth.getModifiers()))
                                 addedClass.methods.add(currentScope.new Function(meth.getName(), lastNewline));
@@ -237,6 +238,8 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                                 String fieldName = fld.getName();
                                 if(checkStaticAbility && fieldName.equals("staticTheAbilityNotTheKeyword"))
                                     fieldName = "static";
+                                else if(checkReturnMove && fieldName.equals("returnTheMoveNotTheKeyword"))
+                                    fieldName = "return";
                                 addedClass.members.add(currentScope.new Variable(fieldName, -1));
                             }
                         }

@@ -25,6 +25,7 @@ public class ScriptInstance {
         interp.exec(Helper.DefinitionString());
         addROMInfo();
         source = source.replaceAll("Abilities.static",  "Abilities.staticTheAbilityNotTheKeyword"); //funny edge case
+        source = source.replaceAll("Moves.return",  "Moves.returnTheMoveNotTheKeyword"); //funny edge case
         interp.exec(source);
     }
 

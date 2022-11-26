@@ -73,6 +73,7 @@ public class Helper {
                 fields = Items.class.getFields();
                 break;
             case MOVE:
+                if(val == Moves.returnTheMoveNotTheKeyword) { return new PyString("return"); } //funny edge case
                 fields = Moves.class.getFields();
                 break;
             case POKEMON:
@@ -107,13 +108,14 @@ public class Helper {
         switch(valType)
         {
             case ABILITY:
-                if(name == "static"){ return Abilities.staticTheAbilityNotTheKeyword; } //funny edge case
+                if(name.equals("static")){ return Abilities.staticTheAbilityNotTheKeyword; } //funny edge case
                 fields = Abilities.class.getFields();
                 break;
             case ITEM:
                 fields = Items.class.getFields();
                 break;
             case MOVE:
+                if(name.equals("return")) { return Moves.returnTheMoveNotTheKeyword; } //funny edge case
                 fields = Moves.class.getFields();
                 break;
             case POKEMON:

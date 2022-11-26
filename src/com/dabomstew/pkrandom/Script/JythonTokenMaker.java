@@ -121,27 +121,30 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                 int searchEnd = searchStart + part.length() - 1;
 
                 int value = wordsToHighlight.get(segment, searchStart, searchEnd);
-                if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
-                    tokenType = value;
-                } else if (start <= end) {
-                    if (full != null && full.length() > 0 && start < full.length() && end < full.length()) {
-                        if (endLn > startLn) //skip if empty line
-                        {
-                            //import formatting
-                            int importIndex = line.indexOf("import");
-                            int fromIndex = line.indexOf("from");
-                            if (fromIndex > -1 && lineOffset > fromIndex) //if this is an import line
+                boolean preChangeCheck = lineOffset >= line.length();
+                if(!preChangeCheck) {
+                    if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
+                        tokenType = value;
+                    } else if (start <= end) {
+                        if (full != null && full.length() > 0 && start < full.length() && end < full.length()) {
+                            if (endLn > startLn) //skip if empty line
                             {
-                                if (importIndex == -1 || importIndex > lineOffset) //between from and import - it's the module location
-                                    tokenType = Token.ANNOTATION;
-                                else if (importIndex > -1 && importIndex < lineOffset) //after import - it's the class name
-                                    tokenType = Token.DATA_TYPE;
-                            }
-                            //scoped formatting
-                            else {
-                                JythonScope globalScope = this.doc.getGlobalScope();
-                                if (globalScope != null)
-                                    tokenType = getScopedTokenType(globalScope.getLowestScopeOf(start), part, line, lineOffset, start);
+                                //import formatting
+                                int importIndex = line.indexOf("import");
+                                int fromIndex = line.indexOf("from");
+                                if (fromIndex > -1 && lineOffset > fromIndex) //if this is an import line
+                                {
+                                    if (importIndex == -1 || importIndex > lineOffset) //between from and import - it's the module location
+                                        tokenType = Token.ANNOTATION;
+                                    else if (importIndex > -1 && importIndex < lineOffset) //after import - it's the class name
+                                        tokenType = Token.DATA_TYPE;
+                                }
+                                //scoped formatting
+                                else {
+                                    JythonScope globalScope = this.doc.getGlobalScope();
+                                    if (globalScope != null)
+                                        tokenType = getScopedTokenType(globalScope.getLowestScopeOf(start), part, line, lineOffset, start);
+                                }
                             }
                         }
                     }
