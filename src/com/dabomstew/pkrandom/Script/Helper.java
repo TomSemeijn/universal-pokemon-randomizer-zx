@@ -289,7 +289,7 @@ public class Helper {
         return ScriptInstance.toPythonArray(filteredPokes, PyObject.class, poke -> Py.java2py(poke));
     }
 
-    private static PySequence toSeq(ItemList list)
+    private static PySequence toSeq(RomHandler rom, ItemList list)
     {
         final int highest = list.getHighestIndex();
         PyArray seq = new PyArray(PyInteger.class, null);
@@ -297,60 +297,60 @@ public class Helper {
         {
             if(list.isAllowed(k))
             {
-                seq.append(new PyInteger(k));
+                seq.append(new PyInteger(ScriptInstance.convertedIndex(k, rom.getItemClass(), Items.class)));
             }
         }
         return seq;
     }
 
-    private static PySequence toSeq(ItemList list, List<Integer> req)
+    private static PySequence toSeq(RomHandler rom, ItemList list, List<Integer> req)
     {
         List<Integer> result = new ArrayList<>();
         for(Integer item : req)
         {
-            if(list.isAllowed(item)){result.add(item);}
+            if(list.isAllowed(item)){result.add(ScriptInstance.convertedIndex(item, rom.getItemClass(), Items.class));}
         }
-        return ScriptInstance.toPythonArray(result, PyInteger.class, i -> new PyInteger(i));
+        return ScriptInstance.toPythonArray(result, PyInteger.class, PyInteger::new);
     }
 
     public static PySequence getItempool(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems());
+        return toSeq(rom, rom.getAllowedItems());
     }
 
     public static PySequence getConsumableItems(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems(), rom.getAllConsumableHeldItems());
+        return toSeq(rom, rom.getAllowedItems(), rom.getAllConsumableHeldItems());
     }
 
     public static PySequence getHeldItems(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems(), rom.getAllHeldItems());
+        return toSeq(rom, rom.getAllowedItems(), rom.getAllHeldItems());
     }
 
     public static PySequence getEvolutionItems(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems(), rom.getEvolutionItems());
+        return toSeq(rom, rom.getAllowedItems(), rom.getEvolutionItems());
     }
 
     public static PySequence getGoodItems(RomHandler rom)
     {
-        return toSeq(rom.getNonBadItems());
+        return toSeq(rom, rom.getNonBadItems());
     }
 
     public static PySequence getOPShopItems(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems(), rom.getOPShopItems());
+        return toSeq(rom, rom.getAllowedItems(), rom.getOPShopItems());
     }
 
     public static PySequence getRegularFieldItems(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems(), rom.getRegularFieldItems());
+        return toSeq(rom, rom.getAllowedItems(), rom.getRegularFieldItems());
     }
 
     public static PySequence getRegularShopItems(RomHandler rom)
     {
-        return toSeq(rom.getAllowedItems(), rom.getRegularShopItems());
+        return toSeq(rom, rom.getAllowedItems(), rom.getRegularShopItems());
     }
 
     public static PyBoolean supportsEvolutionType(RomHandler rom, EvolutionType evo)

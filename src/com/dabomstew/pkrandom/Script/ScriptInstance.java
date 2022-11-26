@@ -715,7 +715,7 @@ public class ScriptInstance {
         return result;
     }
 
-    private static int convertedIndex(int generalItem, Class startClass, Class endClass)
+    public static int convertedIndex(int generalItem, Class startClass, Class endClass)
     {
         if(endClass == startClass) { //return general item if the itemclass used by the romhandler is the general one
             return generalItem;
