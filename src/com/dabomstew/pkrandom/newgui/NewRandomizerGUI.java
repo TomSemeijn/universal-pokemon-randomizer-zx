@@ -27,6 +27,7 @@ package com.dabomstew.pkrandom.newgui;
 
 import com.dabomstew.pkrandom.*;
 import com.dabomstew.pkrandom.Script.*;
+import com.dabomstew.pkrandom.Script.Doc.DocGenerator;
 import com.dabomstew.pkrandom.cli.CliRandomizer;
 import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.EncryptedROMException;
@@ -50,6 +51,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -338,6 +340,7 @@ public class NewRandomizerGUI {
     private JRadioButton peScriptedRadioButton;
     private JRadioButton shScriptedRadioButton;
     private JCheckBox shScriptedPricesCheckbox;
+    private JButton OpenDocsButton;
 
     private static JFrame frame;
 
@@ -383,6 +386,9 @@ public class NewRandomizerGUI {
 
     private JFrame consoleWindow;
     private JTextArea consoleText;
+
+    private boolean generatedDocs = false;
+    private String docsFile = null;
 
     public NewRandomizerGUI() {
         ToolTipManager.sharedInstance().setInitialDelay(400);
@@ -444,7 +450,13 @@ public class NewRandomizerGUI {
             SwingUtilities.invokeLater(() -> {
                 websiteLinkLabel.setText(String.format(bundle.getString("GUI.websiteLinkLabel.text"), finalLatestVersionString));
             });
+
         }).run();
+
+        //generate documentation asynchronously
+        new Thread(() -> {
+            generateDocs();
+        }).start();
 
         frame.setTitle(String.format(bundle.getString("GUI.windowTitle"),Version.VERSION_STRING));
 
@@ -484,6 +496,7 @@ public class NewRandomizerGUI {
 
         openROMButton.addActionListener(e -> loadROM());
         ConsoleButton.addActionListener(e -> openConsoleWindow());
+        OpenDocsButton.addActionListener(e -> openDocs());
         pbsUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsShuffleRadioButton.addActionListener(e -> enableOrDisableSubControls());
         pbsRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -4450,6 +4463,31 @@ public class NewRandomizerGUI {
     {
         consoleWindow.setVisible(true);
         consoleWindow.requestFocus();
+    }
+
+    private void generateDocs()
+    {
+        docsFile = DocGenerator.generateDocumentationFiles(
+                "/com/dabomstew/pkrandom/Script/Doc/ScriptDocData.xml",
+                "/com/dabomstew/pkrandom/Script/Doc/style.css",
+                "generated"
+        );
+        generatedDocs = true;
+        this.OpenDocsButton.setEnabled(true);
+    }
+
+    private boolean canOpenDocs()
+    {
+        return generatedDocs;
+    }
+
+    private void openDocs()
+    {
+        File htmlFile = new File(docsFile);
+        try{
+            Desktop.getDesktop().browse(htmlFile.toURI());
+        }
+        catch(IOException e){}
     }
 
     private boolean anyScripted()

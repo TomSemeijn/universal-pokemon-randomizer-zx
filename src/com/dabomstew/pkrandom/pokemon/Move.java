@@ -90,6 +90,9 @@ public class Move {
         return (statChangeMoveType == StatChangeMoveType.DAMAGE_TARGET && statChanges[0].stages < 0) ||
                 statChangeMoveType == StatChangeMoveType.DAMAGE_USER && statChanges[0].stages > 0;
     }
+    public boolean isGoodDamaging() {
+        return isGoodDamaging(100);
+    }
 
     public boolean isGoodDamaging(int perfectAccuracy) {
         return (power * hitCount) >= 2 * GlobalConstants.MIN_DAMAGING_MOVE_POWER

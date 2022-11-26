@@ -1,0 +1,218 @@
+body
+{
+  background-color: #0D0D0D;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  padding:32px;
+}
+
+a
+{
+  color: #0993E1;;
+}
+
+h2
+{
+  clear:both;
+  float:none;
+}
+
+.mainFuncLink
+{
+  padding: 8px;
+  float:left;
+}
+
+.classCategory
+{
+  float:left;
+  margin-right:32px;
+}
+
+.funcContent
+{
+
+}
+
+.classContent
+{
+
+}
+
+.argumentList
+{
+
+}
+
+.argument
+{
+
+}
+
+.argumentDescr, .returnDescr, .memberDescr
+{
+  position:relative;
+  left:32px;
+  padding-right:32px;
+}
+
+.returnContent
+{
+
+}
+
+.return
+{
+
+}
+
+.memberList
+{
+
+}
+
+.member
+{
+  margin-bottom: 48px;
+  width:100%;
+  float:none;
+}
+
+@media only screen and (min-width: 800px) {
+  .member
+  {
+    /*width:50%;
+    float:left;*/
+  }
+}
+
+.methodList
+{
+
+}
+
+.method
+{
+  width: 100%;
+  float: none;
+  margin-right:0;
+  padding:8px;
+}
+
+@media only screen and (min-width: 800px) {
+  .method
+  {
+    width: 50%;
+    /*float: left;
+    margin-right:32px;*/
+  }
+}
+
+.classSummaryTable, .overloadTable
+{
+  min-width: 50%;
+  text-align: left;
+  border:2px solid white;
+}
+
+.classSummaryTable tr:nth-child(even), .overloadTable tr:nth-child(even)
+{
+  background-color: #1D1D1D;
+}
+
+.classSummaryTable th, .overloadTable th
+{
+  border-bottom: 2px solid white;
+}
+
+.classSummaryTable td, .overloadTable td
+{
+  padding:4px;
+}
+
+.typeIdentifier
+{
+  min-width:50%;
+}
+
+.nameIdentifier
+{
+  min-width:50%;
+}
+
+#backToTop
+{
+  width:50px;
+  height:50px;
+  position:fixed;
+  bottom:32px;
+  right:16px;
+  font-size:45px;
+  text-align: center;
+  padding-top:12px;
+}
+
+.navParent > .navList, .navChild > .navSubList
+{
+  display:none;
+  position:absolute;
+  width:100%;
+  left:0;
+  z-index:9999;
+}
+
+.navParent:hover > .navList, .navChild:hover > .navSubList
+{
+  display:block;
+}
+
+.navSubList
+{
+  left:100%!important;
+  top:0;
+}
+
+.navChild > p
+{
+  margin:0;
+}
+
+.navChild
+{
+  margin:0;
+  padding:8px;
+}
+
+.clickable
+{
+  background-color: white;
+  cursor:pointer;
+  background-color: green;
+}
+
+.clickable:hover
+{
+  background-color: white;
+  background-color: darkGreen;
+}
+
+#headerTable
+{
+  height:100%;
+  position:relative;
+}
+
+#headerTable a
+{
+  color:white;
+  text-decoration: none;
+}
+
+.headerButton
+{
+  height:100%;
+  padding-left:64px;
+  padding-right:64px;
+  position: relative;
+}
