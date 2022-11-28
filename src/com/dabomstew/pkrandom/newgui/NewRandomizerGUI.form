@@ -2173,7 +2173,7 @@
                   </hspacer>
                   <vspacer id="77258">
                     <constraints>
-                      <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                   </vspacer>
@@ -2191,7 +2191,7 @@
                   </vspacer>
                   <grid id="760ca" binding="totpAllyPanel" layout-manager="GridBagLayout">
                     <constraints>
-                      <grid row="1" column="2" row-span="4" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="2" row-span="5" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties/>
@@ -2234,7 +2234,7 @@
                   </grid>
                   <grid id="1af81" binding="totpAuraPanel" layout-manager="GridBagLayout">
                     <constraints>
-                      <grid row="1" column="3" row-span="4" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="3" row-span="5" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties/>
@@ -2277,7 +2277,7 @@
                   </grid>
                   <component id="ab28f" class="javax.swing.JSlider" binding="totpPercentageLevelModifierSlider">
                     <constraints>
-                      <grid row="4" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="5" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                       <gridbag weightx="0.0" weighty="0.0"/>
                     </constraints>
                     <properties>
@@ -2345,6 +2345,17 @@
                       <enabled value="false"/>
                       <text resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.totpRandomSimilarStrengthRadioButton.text"/>
                       <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.totpRandomSimilarStrengthRadioButton.toolTipText"/>
+                    </properties>
+                  </component>
+                  <component id="1dbb8" class="javax.swing.JRadioButton" binding="totpScriptedRadioButton">
+                    <constraints>
+                      <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                      <gridbag weightx="0.0" weighty="0.0"/>
+                    </constraints>
+                    <properties>
+                      <enabled value="false"/>
+                      <text value="Scripted"/>
+                      <toolTipText value="Use scripting to select totem pokemon."/>
                     </properties>
                   </component>
                 </children>
@@ -4270,6 +4281,7 @@
       <member id="9e1ec"/>
       <member id="ddde3"/>
       <member id="148f2"/>
+      <member id="1dbb8"/>
     </group>
     <group name="allyPokemonButtonGroup">
       <member id="315a6"/>

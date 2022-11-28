@@ -44,7 +44,7 @@
     <func name="similarStrength" descr="Gets a list of Pokemon in the given pool that have a similar strength as the given Pokemon. This does the same as other 'similar strength' options.">
       <arguments>
         <arg name="pokepool" type="sequence" descr="A sequence of pokemon objects representing all pokemon this function can choose from"/>
-        <arg name="pokemon" type="TrainerPokemon, Encounter, or StaticEncounter." descr="The pokemon whose strength should be similar to the resulting pokemon, the level of the pokemon will be taken into account to provide more accurate results."/>
+        <arg name="pokemon" type="TrainerPokemon, Encounter, StaticEncounter, or TotemPokemon." descr="The pokemon whose strength should be similar to the resulting pokemon, the level of the pokemon will be taken into account to provide more accurate results."/>
         <arg name="targetSize" type="integer" default="3" descr="The min number of pokemon to return (if possible). The higher this is, the more difference there will be in strength. The lower it is, the less variation you'll have in the result."/>
       </arguments>
       <return type="sequence" descr="A sequence of Pokemon objects representing all Pokemon from the given pool with a strength similar to that of the given Pokemon."/>
@@ -453,15 +453,6 @@
         <mem name="NORMAL" static="true" type="integer" descr="The usual chance for a critical hit."/>
         <mem name="INCREASED" static="true" type="integer" descr="A higher chance for a critical hit."/>
         <mem name="GUARANTEED" static="true" type="integer" descr="This Move will always be a critical hit."/>
-      </members>
-    </class>
-
-    <class name="SOSType" category="Enums" descr="An enum that represents the different types of SOS Encounter (from generation 7).">
-      <members>
-        <mem name="GENERIC" type="integer" static="true" descr="A generic SOS Encounter."/>
-        <mem name="RAIN" type="integer" static="true" descr="An SOS Encounter that only happens in the rain."/>
-        <mem name="HAIL" type="integer" static="true" descr="An SOS Encounter that only happens during hail."/>
-        <mem name="SAND" type="integer" static="true" descr="An SOS Encounter that only happens in a sandstorm."/>
       </members>
     </class>
 
@@ -4358,6 +4349,28 @@
         <mem name="uselessMoves" type="Java list" descr="A Java list of integers representing all useless Moves like splash and teleport. It also includes reflectType because the AI doesn't know how to use it. You can get Move indices by variable name using the Moves class. You can also convert them to strings containing their name using the toStr function and you can convert those strings back to the Move index using the index function.  This Java list can be converted to a python sequence using the seq function."/>
         <mem name="requiresOtherMove" type="Java list" descr="A Java list of integers representing all Moves that require other Moves to take effect like nightmare (requires sleep) and swallow (requires stockpile). You can get Move indices by variable name using the Moves class. You can also convert them to strings containing their name using the toStr function and you can convert those strings back to the Move index using the index function.  This Java list can be converted to a python sequence using the seq function."/>
       </members>
+    </class>
+
+    <class name="SOSType" category="Enums" descr="An enum that represents the different types of SOS Encounter (from generation 7).">
+      <members>
+        <mem name="GENERIC" type="integer" static="true" descr="A generic SOS Encounter."/>
+        <mem name="RAIN" type="integer" static="true" descr="An SOS Encounter that only happens in the rain."/>
+        <mem name="HAIL" type="integer" static="true" descr="An SOS Encounter that only happens during hail."/>
+        <mem name="SAND" type="integer" static="true" descr="An SOS Encounter that only happens in a sandstorm."/>
+      </members>
+    </class>
+
+    <class name="TotemPokemon" category="Main" descr="A class that represents an excounter with a Totem Pokemon." base="StaticEncounter">
+      <members>
+        <mem name="aura" type="Aura" descr="The Aura boost applied to this Totem."/>
+        <mem name="unused" type="bool" descr="True if this TotemPokemon is unused."/>
+      </members>
+      <methods>
+        <meth name="getAllies" descr="Gets all allies this TotemPokemon can summon.">
+          <arguments/>
+          <return type="Java list" descr="A Java list of StaticEncounter objects representing the allies. You can use the seq function to convert this list to a python sequence."/>
+        </meth>
+      </methods>
     </class>
 
   </classes>

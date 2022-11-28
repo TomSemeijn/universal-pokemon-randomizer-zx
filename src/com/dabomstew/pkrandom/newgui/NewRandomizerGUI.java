@@ -51,7 +51,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -341,6 +340,7 @@ public class NewRandomizerGUI {
     private JRadioButton shScriptedRadioButton;
     private JCheckBox shScriptedPricesCheckbox;
     private JButton OpenDocsButton;
+    private JRadioButton totpScriptedRadioButton;
 
     private static JFrame frame;
 
@@ -657,6 +657,8 @@ public class NewRandomizerGUI {
         totpUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         totpRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         totpRandomSimilarStrengthRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        totpScriptedRadioButton.addActionListener(e -> enableOrDisableSubControls());
+        totpScriptedRadioButton.addActionListener(e -> addTotemPokemonScriptFunc());
         totpAllyUnchangedRadioButton.addActionListener(e -> enableOrDisableSubControls());
         totpAllyRandomRadioButton.addActionListener(e -> enableOrDisableSubControls());
         totpAllyRandomSimilarStrengthRadioButton.addActionListener(e -> enableOrDisableSubControls());
@@ -1778,6 +1780,7 @@ public class NewRandomizerGUI {
         totpUnchangedRadioButton.setSelected(settings.getTotemPokemonMod() == Settings.TotemPokemonMod.UNCHANGED);
         totpRandomRadioButton.setSelected(settings.getTotemPokemonMod() == Settings.TotemPokemonMod.RANDOM);
         totpRandomSimilarStrengthRadioButton.setSelected(settings.getTotemPokemonMod() == Settings.TotemPokemonMod.SIMILAR_STRENGTH);
+        totpScriptedRadioButton.setSelected(settings.getTotemPokemonMod() == Settings.TotemPokemonMod.SCRIPTED);
         totpAllyUnchangedRadioButton.setSelected(settings.getAllyPokemonMod() == Settings.AllyPokemonMod.UNCHANGED);
         totpAllyRandomRadioButton.setSelected(settings.getAllyPokemonMod() == Settings.AllyPokemonMod.RANDOM);
         totpAllyRandomSimilarStrengthRadioButton.setSelected(settings.getAllyPokemonMod() == Settings.AllyPokemonMod.SIMILAR_STRENGTH);
@@ -2039,7 +2042,7 @@ public class NewRandomizerGUI {
         settings.setSensibleItemsOnlyForTrainers(tpSensibleItemsCheckBox.isVisible() && tpSensibleItemsCheckBox.isSelected());
         settings.setHighestLevelGetsItemsForTrainers(tpHighestLevelGetsItemCheckBox.isVisible() && tpHighestLevelGetsItemCheckBox.isSelected());
 
-        settings.setTotemPokemonMod(totpUnchangedRadioButton.isSelected(), totpRandomRadioButton.isSelected(), totpRandomSimilarStrengthRadioButton.isSelected());
+        settings.setTotemPokemonMod(totpUnchangedRadioButton.isSelected(), totpRandomRadioButton.isSelected(), totpRandomSimilarStrengthRadioButton.isSelected(), totpScriptedRadioButton.isSelected());
         settings.setAllyPokemonMod(totpAllyUnchangedRadioButton.isSelected(), totpAllyRandomRadioButton.isSelected(), totpAllyRandomSimilarStrengthRadioButton.isSelected());
         settings.setAuraMod(totpAuraUnchangedRadioButton.isSelected(), totpAuraRandomRadioButton.isSelected(), totpAuraRandomSameStrengthRadioButton.isSelected());
         settings.setRandomizeTotemHeldItems(totpRandomizeHeldItemsCheckBox.isSelected());
@@ -2696,6 +2699,9 @@ public class NewRandomizerGUI {
         totpRandomSimilarStrengthRadioButton.setVisible(true);
         totpRandomSimilarStrengthRadioButton.setEnabled(false);
         totpRandomSimilarStrengthRadioButton.setSelected(false);
+        totpScriptedRadioButton.setVisible(true);
+        totpScriptedRadioButton.setEnabled(false);
+        totpScriptedRadioButton.setSelected(false);
         totpAllyUnchangedRadioButton.setVisible(true);
         totpAllyUnchangedRadioButton.setEnabled(false);
         totpAllyUnchangedRadioButton.setSelected(true);
@@ -3240,6 +3246,7 @@ public class NewRandomizerGUI {
                 totpUnchangedRadioButton.setEnabled(true);
                 totpRandomRadioButton.setEnabled(true);
                 totpRandomSimilarStrengthRadioButton.setEnabled(true);
+                totpScriptedRadioButton.setEnabled(true);
 
                 totpAllyPanel.setVisible(pokemonGeneration == 7);
                 totpAllyUnchangedRadioButton.setEnabled(true);
@@ -5179,6 +5186,31 @@ public class NewRandomizerGUI {
         if(shScriptedPricesCheckbox.isSelected())
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
+            scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
+
+            sScriptInput.setText(scriptText);
+        }
+    }
+
+    private void addTotemPokemonScriptFunc()
+    {
+        String scriptText = sScriptInput.getText();
+        String[] funcComments = {
+                "#selects Totem Pokemon settings",
+                "#pokepool - an array of Pokemon objects representing all available pokemon",
+                "#oldTotem - a TotemPokemon object representing the original Totem",
+                "#",
+                "#return: a TotemPokemon object representing the modified encounter",
+                "#NOTE: this function is run after other Totem settings (like randomized held items and level modifiers) have already been applied"
+        };
+        String funcDeclaration = "def selectTotemPokemon(pokepool, oldTotem):";
+        String funcBody = "\n\tgrassOnly = [poke for poke in pokepool if hasType(poke, Type.GRASS)]\n\toldTotem.pkmn = grassOnly[RandomSource.nextInt(len(grassOnly))]\n\treturn oldTotem";
+
+        if(totpScriptedRadioButton.isSelected())
+        {
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "TotemPokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
+            scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
             sScriptInput.setText(scriptText);

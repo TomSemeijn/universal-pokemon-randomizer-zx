@@ -23,6 +23,8 @@ package com.dabomstew.pkrandom.pokemon;
 /*--  along with this program. If not, see <http://www.gnu.org/licenses/>.  --*/
 /*----------------------------------------------------------------------------*/
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -41,6 +43,8 @@ public class TotemPokemon extends StaticEncounter {
     public TotemPokemon(Pokemon pkmn) {
         this.pkmn = pkmn;
     }
+
+    public List<StaticEncounter> getAllies() { return new ArrayList<>(this.allies.values()); }
 
     @Override
     public String toString() {

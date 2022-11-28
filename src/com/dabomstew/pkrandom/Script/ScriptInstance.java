@@ -715,6 +715,24 @@ public class ScriptInstance {
         return result;
     }
 
+    public TotemPokemon getScriptedTotemPokemon(List<Pokemon> pokepool, TotemPokemon old)
+    {
+        PyFunction func = (PyFunction)interp.get("selectTotemPokemon");
+        TotemPokemon result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(old)), TotemPokemon.class);
+        if(!pokepool.contains(result.pkmn))
+            throw new RuntimeException("Totem Pokemon \""+Helper.toStr(result.pkmn.name).asString()+"\" selected in function \"selectTotemPokemon\" was not in the given pokepool!");
+        if(result.level <= 0 || result.level > 100)
+            throw new RuntimeException("Totem Pokemon "+result.pkmn.name+" selected in function \"selectTotemPokemon\" has a level outside of the [1-100] range! The given level was "+result.level);
+        if(result.maxLevel < 0 || result.maxLevel > 100)
+            throw new RuntimeException("Totem Pokemon " + result.pkmn.name + " selected in function \"selectTotemPokemon\" has a maxLevel outside of the [0-100] range! The given level was " + result.maxLevel);
+        List<Integer> itempool = toItemPool(rom.getAllowedItems());
+        if(!itempool.contains(result.heldItem) && result.heldItem != Items.none)
+            throw new RuntimeException("Held item Items."+Helper.toStr(result.heldItem, Helper.Index.ITEM).asString()+" selected in function \"selectTotemPokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
+        if(result.heldItem != Items.none)
+            result.heldItem = convertedIndex(result.heldItem, Items.class, rom.getItemClass());
+        return result;
+    }
+
     public static int convertedIndex(int generalItem, Class startClass, Class endClass)
     {
         if(endClass == startClass) { //return general item if the itemclass used by the romhandler is the general one
@@ -851,11 +869,14 @@ public class ScriptInstance {
         defs = defs.substring(0, defs.length() - 1) + "]";
 
         defs += startVar + "HMs = [";
-        for(Integer hm : rom.getHMMoves())
+
+        if(rom.getHMCount() > 0)
         {
-            defs += hm + ",";
+            for(Integer hm : rom.getHMMoves())
+                defs += hm + ",";
+            defs = defs.substring(0, defs.length() - 1);
         }
-        defs = defs.substring(0, defs.length() - 1) + "]";
+        defs += "]";
 
         defs +=   startVar + "@staticmethod"
                 + startVar + "def getMovepool(levelup = None, excludeHMs = None):"

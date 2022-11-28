@@ -7753,6 +7753,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean randomizeTotem =
                 settings.getTotemPokemonMod() == Settings.TotemPokemonMod.RANDOM ||
                         settings.getTotemPokemonMod() == Settings.TotemPokemonMod.SIMILAR_STRENGTH;
+        boolean scriptedTotem = settings.getTotemPokemonMod() == Settings.TotemPokemonMod.SCRIPTED;
         boolean randomizeAllies =
                 settings.getAllyPokemonMod() == Settings.AllyPokemonMod.RANDOM ||
                         settings.getAllyPokemonMod() == Settings.AllyPokemonMod.SIMILAR_STRENGTH;
@@ -7819,7 +7820,8 @@ public abstract class AbstractRomHandler implements RomHandler {
                     pokemonLeft.addAll(!allowAltFormes ? mainPokemonList : listInclFormesExclCosmetics);
                     pokemonLeft.removeAll(banned);
                 }
-            } else {
+            }
+            else {
                 newTotem.pkmn = old.pkmn;
                 newTotem.level = old.level;
                 if (levelModifier != 0) {
@@ -7886,6 +7888,21 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (old.heldItem != 0) {
                     List<Integer> consumableList = getAllConsumableHeldItems();
                     newTotem.heldItem = consumableList.get(this.random.nextInt(consumableList.size()));
+                }
+            }
+
+            if(scriptedTotem)
+            {
+                //get new totem pokemon from script
+                newTotem = settings.getScript().getScriptedTotemPokemon(pokemonLeft, newTotem);
+                setFormeForStaticEncounter(newTotem, newTotem.pkmn);
+                newTotem.resetMoves = true;
+
+                //update pokepool if necessary
+                pokemonLeft.remove(newTotem.pkmn);
+                if (pokemonLeft.size() == 0) {
+                    pokemonLeft.addAll(!allowAltFormes ? mainPokemonList : listInclFormesExclCosmetics);
+                    pokemonLeft.removeAll(banned);
                 }
             }
 

@@ -51,7 +51,7 @@ public class Settings {
 
     public static final int VERSION = Version.VERSION;
 
-    public static final int LENGTH_OF_SETTINGS_DATA = 53;
+    public static final int LENGTH_OF_SETTINGS_DATA = 54;
 
     private CustomNamesSet customNames;
 
@@ -235,11 +235,11 @@ public class Settings {
     private boolean correctStaticMusic;
 
     public enum TotemPokemonMod {
-        UNCHANGED, RANDOM, SIMILAR_STRENGTH
+        UNCHANGED, RANDOM, SIMILAR_STRENGTH, SCRIPTED
     }
 
     public enum AllyPokemonMod {
-        UNCHANGED, RANDOM, SIMILAR_STRENGTH
+        UNCHANGED, RANDOM, SIMILAR_STRENGTH, SCRIPTED
     }
 
     public enum AuraMod {
@@ -588,8 +588,8 @@ public class Settings {
                 allyPokemonMod == AllyPokemonMod.UNCHANGED,
                 allyPokemonMod == AllyPokemonMod.RANDOM,
                 allyPokemonMod == AllyPokemonMod.SIMILAR_STRENGTH,
-                randomizeTotemHeldItems,
-                allowTotemAltFormes));
+                totemPokemonMod == TotemPokemonMod.SCRIPTED,
+                allyPokemonMod == AllyPokemonMod.SCRIPTED));
 
         // 44 Totem level modifier
         out.write((totemLevelsModified ? 0x80 : 0) | (totemLevelModifier+50));
@@ -626,6 +626,11 @@ public class Settings {
         out.write(makeByteSelected(
                 scriptMoveData, scriptLearntMoves, scriptEggMoves, scriptAfterLearntMoves,
                 standardizeEXPCurves, raceMode, allowWonderGuard, scriptEXPCurves
+        ));
+
+        //53 more extra scripting options
+        out.write(makeByteSelected(
+                randomizeTotemHeldItems, allowTotemAltFormes
         ));
 
         try {
@@ -916,10 +921,10 @@ public class Settings {
         settings.setEvolutionMovesForAll(restoreState(data[42],6));
         settings.setGuaranteeXItems(restoreState(data[42],7));
 
-        settings.setTotemPokemonMod(restoreEnum(TotemPokemonMod.class,data[43],0,1,2));
-        settings.setAllyPokemonMod(restoreEnum(AllyPokemonMod.class,data[43],3,4,5));
-        settings.setRandomizeTotemHeldItems(restoreState(data[43],6));
-        settings.setAllowTotemAltFormes(restoreState(data[43],7));
+        settings.setTotemPokemonMod(restoreEnum(TotemPokemonMod.class,data[43],0,1,2,6));
+        settings.setAllyPokemonMod(restoreEnum(AllyPokemonMod.class,data[43],3,4,5,7));
+        settings.setRandomizeTotemHeldItems(restoreState(data[53],0));
+        settings.setAllowTotemAltFormes(restoreState(data[53],1));
         settings.setTotemLevelsModified(restoreState(data[44],7));
         settings.setTotemLevelModifier((data[44] & 0x7F) - 50);
 

@@ -97,6 +97,7 @@ public class DocGenerator {
         public String category= "";
         public List<Method> methods = new ArrayList<>();
         public List<Member> members = new ArrayList<>();
+        public Class baseClass = null;
 
         @Override
         public String toString()
@@ -183,25 +184,59 @@ public class DocGenerator {
     {
         String result = "<div class=\"classContent\" id=\"Class_"+cls.name+"\">";
         result += "<h1>Class: "+cls.name+"</h1>";
-        boolean addSummaryTable = cls.methods.size() > 0;
+        List<Member> members = new ArrayList<>(cls.members);
+        List<Method> methods = new ArrayList<>(cls.methods);
+        Class parent = cls.baseClass;
+        while (parent != null)
+        {
+            members.addAll(parent.members);
+            methods.addAll(parent.methods);
+            parent = parent.baseClass;
+        }
+        result += getSummaryTableOf(members, methods);
+        if(cls.descr.length() > 0)
+            result += "<p>"+getLinked(cls.descr, doc, subFolderLevel)+"</p>";
+        if(members.size() > 0) {
+            result += "<div class=\"memberList\"><h2>Members</h2>";
+            for (Member mem : members) {
+                result += "<div class=\"member\" id=\"Member_"+mem.name+"\"><p>\t" + (mem.isStatic ? "<i>static</i> " : "") + "<b>" + mem.name + "</b> : " + getLinked(mem.type, doc, subFolderLevel)+"</p>";
+                if(mem.descr.length() > 0)
+                    result += "<div class=\"memberDescr\"><p>" + getLinked(mem.descr, doc, subFolderLevel)+"</p></div>";
+                result += "</div>";
+            }
+            result += "</div>";
+        }
+        if(methods.size() > 0) {
+            result += "<div class=\"methodList\"><h2>Methods</h2>";
+            for (Method meth : methods)
+                result += "<div class=\"method\"><hr>" + getFunctionHTML(meth.func, doc, subFolderLevel, meth.isStatic ? "<i>Static</i> method" : "Method")+"</div>";
+            result += "</div>";
+        }
+        return result + "</div>";
+    }
+
+    private static String getSummaryTableOf(List<Member> members, List<Method> methods)
+    {
+        String result = "";
+        boolean addSummaryTable = methods.size() > 0;
         if(addSummaryTable) {
             result += "<table class=\"classSummaryTable\">";
             result += "<tr><th>Members</th><th>Methods</th></tr>";
             List<List<String>> rows = new ArrayList<>();
-            for (int k = 0; k < cls.members.size(); k++) {
+            for (int k = 0; k < members.size(); k++) {
                 rows.add(new ArrayList<>());
-                Member mem = cls.members.get(k);
+                Member mem = members.get(k);
                 String memberName = mem.name;
                 rows.get(k).add("<span class=\"typeIdentifier\">" + (mem.isStatic ? "<i>static</i> " : "") + mem.type + " : </span><span class=\"nameIdentifier\">" + memberName + "</span>");
                 rows.get(k).add("#Member_" + memberName);
             }
-            for (int k = 0; k < cls.methods.size(); k++) {
+            for (int k = 0; k < methods.size(); k++) {
                 if (k >= rows.size()) {
                     rows.add(new ArrayList<>());
                     rows.get(k).add(""); //add empty elements for member cells
                     rows.get(k).add("");
                 }
-                Method meth = cls.methods.get(k);
+                Method meth = methods.get(k);
                 String methodName = meth.func.name;
                 rows.get(k).add("<span class=\"typeIdentifier\">" +(meth.isStatic ? "<i>static</i> " : "") + (meth.func.returnValue == null ? "void" : meth.func.returnValue.type) + " : </span><span class=\"nameIdentifier\">" + getFullName(meth.func) + "</span>");
                 rows.get(k).add("#Function_" + methodName);
@@ -219,25 +254,7 @@ public class DocGenerator {
             }
             result += "</table>";
         }
-        if(cls.descr.length() > 0)
-            result += "<p>"+getLinked(cls.descr, doc, subFolderLevel)+"</p>";
-        if(cls.members.size() > 0) {
-            result += "<div class=\"memberList\"><h2>Members</h2>";
-            for (Member mem : cls.members) {
-                result += "<div class=\"member\" id=\"Member_"+mem.name+"\"><p>\t" + (mem.isStatic ? "<i>static</i> " : "") + "<b>" + mem.name + "</b> : " + getLinked(mem.type, doc, subFolderLevel)+"</p>";
-                if(mem.descr.length() > 0)
-                    result += "<div class=\"memberDescr\"><p>" + getLinked(mem.descr, doc, subFolderLevel)+"</p></div>";
-                result += "</div>";
-            }
-            result += "</div>";
-        }
-        if(cls.methods.size() > 0) {
-            result += "<div class=\"methodList\"><h2>Methods</h2>";
-            for (Method meth : cls.methods)
-                result += "<div class=\"method\"><hr>" + getFunctionHTML(meth.func, doc, subFolderLevel, meth.isStatic ? "<i>Static</i> method" : "Method")+"</div>";
-            result += "</div>";
-        }
-        return result + "</div>";
+        return result;
     }
 
     private static String getHeaderHTML(int subFolderLevel, ScriptDocument doc)
@@ -483,6 +500,9 @@ public class DocGenerator {
                     scriptDoc.classes.add(cls);
             }
 
+            //add base classes after parsing them so that their definition order won't matter
+            addBaseClasses(classList, scriptDoc);
+
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
@@ -604,6 +624,36 @@ public class DocGenerator {
             }
         }
         return resultClass;
+    }
+
+    private static void addBaseClasses(NodeList classList,ScriptDocument scriptDoc)
+    {
+        for(int k = 0; k < classList.getLength(); k++)
+        {
+            Node classNode = classList.item(k);
+            NamedNodeMap attr = classNode.getAttributes();
+            if(attr == null) { continue; }
+            String className = attr.getNamedItem("name").getNodeValue();
+            Node baseNode = attr.getNamedItem("base");
+            if(baseNode != null)
+            {
+                String baseName = baseNode.getNodeValue();
+                Class baseClass = null;
+                for(Class cls : scriptDoc.classes) {
+                    if (cls.name.equals(baseName)) {
+                        baseClass = cls;
+                        break;
+                    }
+                }
+                if(baseClass == null) { throw new RuntimeException("Invalid ScriptDocData.xml! Base class \""+baseNode+"\" was not found!"); }
+                for(Class cls : scriptDoc.classes){
+                    if(cls.name.equals(className)) {
+                        cls.baseClass = baseClass;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private static void copyStyleFile(String sourceFile, String targetFolder)
