@@ -342,6 +342,7 @@ public class NewRandomizerGUI {
     private JButton OpenDocsButton;
     private JRadioButton totpScriptedRadioButton;
     private JRadioButton totpAllyScriptedRadioButton;
+    private JPanel generalOptionsPanel;
 
     private static JFrame frame;
 
@@ -1220,6 +1221,44 @@ public class NewRandomizerGUI {
         }
     }
 
+    List<Component> prevDisabledComponents;
+    private void disableComponents(Component comp) {
+        comp.setEnabled(false);
+        if(comp instanceof Container) {
+            Container container = (Container)comp;
+            Component[] components = container.getComponents();
+            for (Component component : components) {
+                if (component.isEnabled()) {
+                    component.setEnabled(false);
+                    prevDisabledComponents.add(component);
+                }
+                if (component instanceof Container) {
+                    disableComponents(component);
+                }
+            }
+        }
+    }
+
+    private void disableSettingChanges()
+    {
+        prevDisabledComponents = new ArrayList<>();
+        for(Component comp : this.tabbedPane1.getComponents())
+            disableComponents(comp);
+        disableComponents(generalOptionsPanel);
+        disableComponents(saveSettingsButton);
+        disableComponents(loadSettingsButton);
+        disableComponents(openROMButton);
+        disableComponents(randomizeSaveButton);
+        disableComponents(premadeSeedButton);
+        disableComponents(settingsButton);
+    }
+
+    private void reEnableSettingChanges()
+    {
+        for(Component comp : prevDisabledComponents)
+            comp.setEnabled(true);
+    }
+
     private void performRandomization(final String filename, final long seed, CustomNamesSet customNames, boolean saveAsDirectory) {
         final Settings settings = createSettingsFromState(customNames);
         final boolean raceMode = settings.isRaceMode();
@@ -1236,7 +1275,8 @@ public class NewRandomizerGUI {
 
         try {
             final AtomicInteger finishedCV = new AtomicInteger(0);
-            opDialog = new OperationDialog(bundle.getString("GUI.savingText"), frame, true);
+            opDialog = new OperationDialog(bundle.getString("GUI.savingText"), frame, false);
+            disableSettingChanges();
             Thread t = new Thread(() -> {
                 SwingUtilities.invokeLater(() -> opDialog.setVisible(true));
                 boolean succeededSave = false;
@@ -1328,6 +1368,10 @@ public class NewRandomizerGUI {
                         {
                             romHandler = null;
                             initialState();
+                        }
+                        else
+                        {
+                            reEnableSettingChanges();
                         }
                     });
                 }

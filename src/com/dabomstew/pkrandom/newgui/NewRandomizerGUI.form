@@ -9,7 +9,7 @@
       <font/>
     </border>
     <children>
-      <grid id="73235" layout-manager="GridBagLayout">
+      <grid id="73235" binding="generalOptionsPanel" layout-manager="GridBagLayout">
         <constraints>
           <grid row="1" column="2" row-span="3" col-span="1" vsize-policy="3" hsize-policy="3" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
