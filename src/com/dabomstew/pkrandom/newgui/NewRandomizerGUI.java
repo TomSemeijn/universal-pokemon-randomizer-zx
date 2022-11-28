@@ -5209,7 +5209,8 @@ public class NewRandomizerGUI {
                 "#oldTotem - a TotemPokemon object representing the original Totem",
                 "#",
                 "#return: a TotemPokemon object representing the modified encounter",
-                "#NOTE: this function is run after other Totem settings (like randomized held items and level modifiers) have already been applied"
+                "#NOTE: this function is run after other Totem settings (like randomized held items and level modifiers) have already been applied",
+                "#NOTE: you can also change the Aura of the TotemPokemon here"
         };
         String funcDeclaration = "def selectTotemPokemon(pokepool, oldTotem):";
         String funcBody = "\n\tgrassOnly = [poke for poke in pokepool if hasType(poke, Type.GRASS)]\n\toldTotem.pkmn = grassOnly[RandomSource.nextInt(len(grassOnly))]\n\treturn oldTotem";
