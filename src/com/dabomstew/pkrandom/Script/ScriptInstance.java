@@ -733,6 +733,32 @@ public class ScriptInstance {
         return result;
     }
 
+    public StaticEncounter getScriptedAlly(List<Pokemon> pokepool, StaticEncounter oldAlly, TotemPokemon totem)
+    {
+        PyFunction func = (PyFunction)interp.get("selectAllyPokemon");
+        StaticEncounter result = Py.tojava(func.__call__(pyPokePool(pokepool), Py.java2py(oldAlly), Py.java2py(totem)), StaticEncounter.class);
+        if(!inPool(pokepool, result.pkmn))
+        {
+            throw new RuntimeException("Pokemon "+result.pkmn.name+" was not in the given pokepool in function \"selectAllyPokemon\"!");
+        }
+        if(result.level <= 0 || result.level > 100)
+        {
+            throw new RuntimeException("Static encounter of pokemon "+result.pkmn.name+" selected in function \"selectAllyPokemon\" has a level outside of the [1-100] range! The given level was "+result.level);
+        }
+        if(result.maxLevel < 0 || result.maxLevel > 100)
+        {
+            throw new RuntimeException("Static encounter of pokemon " + result.pkmn.name + " selected in function \"selectAllyPokemon\" has a maxLevel outside of the [0-100] range! The given level was " + result.maxLevel);
+        }
+        List<Integer> itempool = toItemPool(rom.getAllowedItems());
+        if(!itempool.contains(result.heldItem) && result.heldItem != Items.none)
+        {
+            throw new RuntimeException("Held item Items."+Helper.toStr(result.heldItem, Helper.Index.ITEM).asString()+" selected in function \"selectAllyPokemon\" is not in the itempool! You can get the itempool from ROM.getItempool()");
+        }
+        if(result.heldItem != Items.none)
+            result.heldItem = convertedIndex(result.heldItem, Items.class, rom.getItemClass());
+        return result;
+    }
+
     public static int convertedIndex(int generalItem, Class startClass, Class endClass)
     {
         if(endClass == startClass) { //return general item if the itemclass used by the romhandler is the general one

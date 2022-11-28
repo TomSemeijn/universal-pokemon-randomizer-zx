@@ -2230,6 +2230,17 @@
                           <toolTipText resource-bundle="com/dabomstew/pkrandom/newgui/Bundle" key="GUI.totpAllyRandomSimilarStrengthRadioButton.toolTipText"/>
                         </properties>
                       </component>
+                      <component id="635b5" class="javax.swing.JRadioButton" binding="totpAllyScriptedRadioButton">
+                        <constraints>
+                          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <gridbag weightx="0.0" weighty="0.0"/>
+                        </constraints>
+                        <properties>
+                          <enabled value="false"/>
+                          <text value="Scripted"/>
+                          <toolTipText value="Use scripting to select Ally Pokemon"/>
+                        </properties>
+                      </component>
                     </children>
                   </grid>
                   <grid id="1af81" binding="totpAuraPanel" layout-manager="GridBagLayout">
@@ -4287,6 +4298,7 @@
       <member id="315a6"/>
       <member id="68af"/>
       <member id="3b30"/>
+      <member id="635b5"/>
     </group>
     <group name="auraButtonGroup">
       <member id="f6c3b"/>

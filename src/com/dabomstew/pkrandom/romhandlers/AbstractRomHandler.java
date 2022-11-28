@@ -7757,6 +7757,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean randomizeAllies =
                 settings.getAllyPokemonMod() == Settings.AllyPokemonMod.RANDOM ||
                         settings.getAllyPokemonMod() == Settings.AllyPokemonMod.SIMILAR_STRENGTH;
+        boolean scriptedAllies = settings.getAllyPokemonMod() == Settings.AllyPokemonMod.SCRIPTED;
         boolean randomizeAuras =
                 settings.getAuraMod() == Settings.AuraMod.RANDOM ||
                         settings.getAuraMod() == Settings.AuraMod.SAME_STRENGTH;
@@ -7903,6 +7904,30 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (pokemonLeft.size() == 0) {
                     pokemonLeft.addAll(!allowAltFormes ? mainPokemonList : listInclFormesExclCosmetics);
                     pokemonLeft.removeAll(banned);
+                }
+            }
+
+            if(scriptedAllies)
+            {
+                for (Integer allyIndex: newTotem.allies.keySet()) {
+
+                    StaticEncounter oldAlly = newTotem.allies.get(allyIndex);
+
+                    Pokemon oldAllyPK = oldAlly.pkmn;
+                    if (oldAlly.forme > 0) {
+                        oldAllyPK = getAltFormeOfPokemon(oldAllyPK, oldAlly.forme);
+                    }
+                    StaticEncounter newAlly = settings.getScript().getScriptedAlly(pokemonLeft, oldAlly, newTotem);
+
+                    pokemonLeft.remove(newAlly.pkmn);
+                    setFormeForStaticEncounter(newAlly, newAlly.pkmn);
+                    newAlly.resetMoves = true;
+
+                    newTotem.allies.put(allyIndex, newAlly);
+                    if (pokemonLeft.size() == 0) {
+                        pokemonLeft.addAll(!allowAltFormes ? mainPokemonList : listInclFormesExclCosmetics);
+                        pokemonLeft.removeAll(banned);
+                    }
                 }
             }
 

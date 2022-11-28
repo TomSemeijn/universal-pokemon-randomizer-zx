@@ -49,6 +49,7 @@ public class Helper {
 
     public static boolean hasType(Pokemon poke, Type theType)
     {
+        if(theType == null){ return false; }
         return poke.primaryType == theType || poke.secondaryType == theType;
     }
 
