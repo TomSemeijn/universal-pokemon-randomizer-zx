@@ -72,7 +72,7 @@
   </functions>
   <classes>
 
-    <class name="ROM" category="Main" descr="A class with several static methods and members to provide information about the ROM that is being randomized.">
+    <class name="ROM" category="Main" package="com.dabomstew.pkrandom.Script" descr="A class with several static methods and members to provide information about the ROM that is being randomized.">
       <members>
         <mem name="name" type="String" static="true" descr="The name of the ROM."/>
         <mem name="extension" type="String" static="true" descr="The name of the ROM (e.g. '.nds', '.gba', etc.)."/>
@@ -269,7 +269,7 @@
       </methods>
     </class>
 
-    <class name="Index" category="Index" descr="Class containing constants that represent Index types for Abilities, Items, Moves, and Species.">
+    <class name="Index" category="Index" package="com.dabomstew.pkrandom.Script" descr="Class containing constants that represent Index types for Abilities, Items, Moves, and Species.">
       <members>
         <mem name="ABILITY" type="integer" static="true" descr="For Abilities."/>
         <mem name="ITEM" type="integer" static="true" descr="For Items."/>
@@ -278,7 +278,7 @@
       </members>
     </class>
 
-    <class name="ExpCurve" category="Enums" descr="An enum that represents the different types of EXP curves in the game.">
+    <class name="ExpCurve" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum that represents the different types of EXP curves in the game.">
       <members>
         <mem name="SLOW" type="integer" static="true" descr="Exp is gained slowly."/>
         <mem name="MEDIUM_SLOW" type="integer" static="true" descr="Exp is gained slightly faster than slow."/>
@@ -289,7 +289,7 @@
       </members>
     </class>
 
-    <class name="Type" category="Enums" descr="An enum that represent every different pokemon/move Type in the game.">
+    <class name="Type" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum that represent every different pokemon/move Type in the game.">
       <members>
         <mem name="NORMAL" static="true" type="integer" descr=""/>
         <mem name="FIGHTING" static="true" type="integer" descr=""/>
@@ -312,7 +312,7 @@
       </members>
     </class>
 
-    <class name="Pokemon" category="Main" descr="A class that represents a Pokemon.">
+    <class name="Pokemon" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents a Pokemon.">
       <members>
         <mem name="name" type="String" descr="The name of the Pokemon. In some cases, this variable will not be printable because it contains illegal characters (like male/female signs). To prevent an exception, pass it through the toStr function."/>
         <mem name="number" type="integer" descr="The Species number of the Pokemon. Corresponds to the values in the Species class."/>
@@ -369,7 +369,7 @@
       </methods>
     </class>
 
-    <class name="TrainerPokemon" category="Main" descr="A class that represents a Pokemon owned by a Trainer.">
+    <class name="TrainerPokemon" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents a Pokemon owned by a Trainer.">
       <members>
         <mem name="pokemon" type="Pokemon" descr="The actual Pokemon."/>
         <mem name="level" type="integer" descr="The level of the TrainerPokemon"/>
@@ -396,7 +396,7 @@
       </methods>
     </class>
 
-    <class name="Move" category="Main" descr="A class that represents a Move in the game and includes more information that just a Move index (e.g. Type, Move.StatChange, power, pp, MoveCategory, etc.).">
+    <class name="Move" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents a Move in the game and includes more information that just a Move index (e.g. Type, Move.StatChange, power, pp, MoveCategory, etc.).">
       <members>
         <mem name="name" type="string" descr="The name of the Move."/>
         <mem name="number" type="integer" descr="The index of the Move. This corresponds to the indices found in the Moves class and can also be converted to a string of the Move name with the toStr function and you can convert those strings back to their Move indices again using the index function."/>
@@ -439,7 +439,7 @@
       </methods>
     </class>
 
-    <class name="MoveCategory" category="Enums" descr="An enum that represents the different types of Moves (physical/special/status).">
+    <class name="MoveCategory" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum that represents the different types of Moves (physical/special/status).">
       <members>
         <mem name="PHYSICAL" type="integer" static="true" descr="The Move is physical and (usually) uses the Attack stat."/>
         <mem name="SPECIAL" type="integer" static="true" descr="The Move is special and (usually) uses the Special Attack stat."/>
@@ -447,7 +447,7 @@
       </members>
     </class>
 
-    <class name="CriticalChance" category="Enums" descr="An enum that represents the different types of critical hit chances for any given Move.">
+    <class name="CriticalChance" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum that represents the different types of critical hit chances for any given Move.">
       <members>
         <mem name="NONE" static="true" type="integer" descr="No chance for a critical hit. (Phased out in generation 5)"/>
         <mem name="NORMAL" static="true" type="integer" descr="The usual chance for a critical hit."/>
@@ -456,7 +456,7 @@
       </members>
     </class>
 
-    <class name="Encounter" category="Main" descr="A class that represents a wild Pokemon Encounter.">
+    <class name="Encounter" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents a wild Pokemon Encounter.">
       <members>
         <mem name="pokemon" type="Pokemon" descr="The actual Pokemon that will appear."/>
         <mem name="level" type="integer" descr="The base level the Pokemon can be."/>
@@ -467,7 +467,7 @@
       </members>
     </class>
 
-    <class name="EncounterSet" category="Main" descr="A class that represents an area where you can Encounter wild Pokemon.">
+    <class name="EncounterSet" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents an area where you can Encounter wild Pokemon.">
       <members>
         <mem name="rate" type="integer" descr=""/>
         <mem name="encounters" type="Java list" descr="A Java list of Encounter objects representing every Encounter in this area. Can be converted to a python sequence using the seq function."/>
@@ -476,7 +476,7 @@
       </members>
     </class>
 
-    <class name="Evolution" category="Main" descr="A class that represents an Evolution, where one Pokemon evolves into another.">
+    <class name="Evolution" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents an Evolution, where one Pokemon evolves into another.">
       <members>
         <mem name="from" type="Pokemon" descr="The original Pokemon."/>
         <mem name="to" type="Pokemon" descr="The resulting Pokemon."/>
@@ -485,7 +485,7 @@
       </members>
     </class>
 
-    <class name="EvolutionType" category="Enums" descr="An enum that represents all possible types of Evolution. Use the ROM.supportsEvolution function to check if any given EvolutionType is supported by your current ROM.">
+    <class name="EvolutionType" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum that represents all possible types of Evolution. Use the ROM.supportsEvolution function to check if any given EvolutionType is supported by your current ROM.">
       <members>
         <mem static="true" type="integer" name="LEVEL" descr="Evolve by levelup. Evolution.extraInfo is the minimum level."/>
         <mem static="true" type="integer" name="STONE" descr="Evolve by using an evolution stone. Evolution.extraInfo is the necessary stone."/>
@@ -549,7 +549,7 @@
       </methods>
     </class>
 
-    <class name="InGameTrade" category="Main" descr="A class that represents an in-game trade.">
+    <class name="InGameTrade" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents an in-game trade.">
       <members>
         <mem name="requestedPokemon" type="Pokemon" descr="The Pokemon the game will ask from the player."/>
         <mem name="givenPokemon" type="Pokemon" descr="The Pokemon that will be given to the player if they do the trade."/>
@@ -561,7 +561,7 @@
       </members>
     </class>
 
-    <class name="MegaEvolution" category="Main" descr="A class that represents a mega-evolution.">
+    <class name="MegaEvolution" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents a mega-evolution.">
       <members>
         <mem name="from" type="Pokemon" descr="The original Pokemon."/>
         <mem name="to" type="Pokemon" descr="The Pokemon that is mega-evolved into."/>
@@ -570,14 +570,14 @@
       </members>
     </class>
 
-    <class name="MoveLearnt" category="Main" descr="A clas representing a learnt Move, including the level at which it is learned.">
+    <class name="MoveLearnt" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A clas representing a learnt Move, including the level at which it is learned.">
       <members>
         <mem name="move" type="integer" descr="Move index of the LearntMove. You can access Move indices by variable name using the Moves class. You can also convert them to strings using the toStr function and you can convert those strings back to their Move indices again using the index function."/>
         <mem name="level" type="integer" descr="The level at which the Move is learnt."/>
       </members>
     </class>
 
-    <class name="StatChangeMoveType" category="Enums" descr="An enum representing the different ways a stat changing Move can affect the Pokemon in battle.">
+    <class name="StatChangeMoveType" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum representing the different ways a stat changing Move can affect the Pokemon in battle.">
       <members>
         <mem static="true" type="integer" name="NONE_OR_UNKNOWN" descr="There is no stat change."/>
         <mem static="true" type="integer" name="NO_DAMAGE_TARGET" descr="The Move doesn't do damage and the stat change is applied to the target."/>
@@ -589,7 +589,7 @@
       </members>
     </class>
 
-    <class name="StatChangeType" category="Enums" descr="An enum representing the different stats that can be changed in battle.">
+    <class name="StatChangeType" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum representing the different stats that can be changed in battle.">
       <members>
         <mem static="true" type="integer" name="NONE" descr="There is no stat change!"/>
         <mem static="true" type="integer" name="ATTACK" descr="The Attack stat is changed."/>
@@ -604,7 +604,7 @@
       </members>
     </class>
 
-    <class name="Move.StatChange" category="Main" descr="Nested class representing a StatChange caused by a Move.">
+    <class name="Move.StatChange" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="Nested class representing a StatChange caused by a Move.">
       <members>
         <mem name="type" type="StatChangeType" descr="The stat that is changed."/>
         <mem name="stages" type="integer" descr="The number of stages that stat is changed. Example: +1 stage for raisng attack, +2 stages for raising attack sharply, -1 stage for falling attack, -2 stages for falling attack harshly"/>
@@ -612,7 +612,7 @@
       </members>
     </class>
 
-    <class name="StaticEncounter" category="Main" descr="A class representing a StaticEncounter with a Pokemon. This includes overworld Pokemon like legendaries and snorlax, but also eggs, fossils, and gift Pokemon.">
+    <class name="StaticEncounter" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class representing a StaticEncounter with a Pokemon. This includes overworld Pokemon like legendaries and snorlax, but also eggs, fossils, and gift Pokemon.">
       <members>
         <mem name="pkmn" type="Pokemon" descr="The actual Pokemon that is encountered."/>
         <mem name="forme" type="integer" descr="The forme number of the encountered Pokemon."/>
@@ -632,7 +632,7 @@
       </methods>
     </class>
 
-    <class name="StatusMoveType" category="Enums" descr="An enum representing the different types of status Moves (with/without damage).">
+    <class name="StatusMoveType" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum representing the different types of status Moves (with/without damage).">
       <members>
         <mem name="NONE_OR_UNKNOWN" static="true" type="integer" descr="This isn't a status Move!"/>
         <mem name="NO_DAMAGE" static="true" type="integer" descr="This status Move doesn't do damage."/>
@@ -640,7 +640,7 @@
       </members>
     </class>
 
-    <class name="StatusType" category="Enums" descr="An enum representing the different types of status conditions.">
+    <class name="StatusType" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum representing the different types of status conditions.">
       <members>
         <mem static="true" type="integer" name="NONE" descr="There is no status condition!"/>
         <mem static="true" type="integer" name="PARALYZE" descr=""/>
@@ -653,7 +653,7 @@
       </members>
     </class>
 
-    <class name="Trainer" category="Main" descr="A class representing a Trainer that has TrainerPokemon and other settings.">
+    <class name="Trainer" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class representing a Trainer that has TrainerPokemon and other settings.">
       <members>
         <mem name="index" type="integer" descr="A unique identifier for this Trainer."/>
         <mem name="pokemon" type="Java List" descr="A Java list of TrainerPokemon objects representing the TrainerPokemon owned by this Trainer. You can convert this to a python sequence using the seq function."/>
@@ -692,7 +692,7 @@
       </methods>
     </class>
 
-    <class name="MultiBattleStatus" category="Enums" descr="An enum representing the different types of multibattle Trainer (never multibattle/maybe multibattle/always multibattle).">
+    <class name="MultiBattleStatus" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum representing the different types of multibattle Trainer (never multibattle/maybe multibattle/always multibattle).">
       <members>
         <mem name="NEVER" static="true" type="integer" descr="This Trainer will never have a multibattle."/>
         <mem name="POTENTIAL" static="true" type="integer" descr="This Trainer can potentially have multibattles."/>
@@ -700,7 +700,7 @@
       </members>
     </class>
 
-    <class name="Abilities" category="Index" descr="A class containing static constants for all the Ability indices that exist in any ROM.">
+    <class name="Abilities" category="Index" package="com.dabomstew.pkrandom.constants" descr="A class containing static constants for all the Ability indices that exist in any ROM.">
       <members>
         <mem static="true" type="integer" name="stench" descr=""/>
 				<mem static="true" type="integer" name="drizzle" descr=""/>
@@ -972,7 +972,7 @@
       </members>
     </class>
 
-    <class name="Items" category="Index" descr="A class containing static constants for all the Item indices that exist in any ROM.">
+    <class name="Items" category="Index" package="com.dabomstew.pkrandom.constants" descr="A class containing static constants for all the Item indices that exist in any ROM.">
       <members>
         <mem static="true" type="integer" name="none" descr=""/>
 				<mem static="true" type="integer" name="masterBall" descr=""/>
@@ -2597,7 +2597,7 @@
       </members>
     </class>
 
-    <class name="Moves" category="Index" descr="A class containing static constants for all the Move indices that exist in any ROM.">
+    <class name="Moves" category="Index" package="com.dabomstew.pkrandom.constants" descr="A class containing static constants for all the Move indices that exist in any ROM.">
       <members>
         <mem static="true" type="integer" name="pound" descr=""/>
 				<mem static="true" type="integer" name="karateChop" descr=""/>
@@ -3428,7 +3428,7 @@
       </members>
     </class>
 
-    <class name="Species" category="Index" descr="A class containing static constants for all the Pokemon Species indices in any ROM.">
+    <class name="Species" category="Index" package="com.dabomstew.pkrandom.constants" descr="A class containing static constants for all the Pokemon Species indices in any ROM.">
       <members>
         <mem static="true" type="integer" name="bulbasaur" descr=""/>
 				<mem static="true" type="integer" name="ivysaur" descr=""/>
@@ -4331,7 +4331,7 @@
       </members>
     </class>
 
-    <class name="GlobalConstants" category="Index" descr="A class containing static constants that are relevant to any ROM.">
+    <class name="GlobalConstants" category="Index" package="com.dabomstew.pkrandom.constants" descr="A class containing static constants that are relevant to any ROM.">
       <members>
         <mem name="normalMultihitMoves" type="Java list" descr="A Java list of integers representing all multihit Moves like bullet seed and rock blast. You can get Move indices by variable name using the Moves class. You can also convert them to strings containing their name using the toStr function and you can convert those strings back to the Move index using the index function. This Java list can be converted to a python sequence using the seq function."/>
         <mem name="doubleHitMoves" type="Java list" descr="A Java list of integers representing all doublehit Moves like double kick. You can get Move indices by variable name using the Moves class. You can also convert them to strings containing their name using the toStr function and you can convert those strings back to the Move index using the index function. This Java list can be converted to a python sequence using the seq function."/>
@@ -4351,7 +4351,7 @@
       </members>
     </class>
 
-    <class name="SOSType" category="Enums" descr="An enum that represents the different types of SOS Encounter (from generation 7).">
+    <class name="SOSType" category="Enums" package="com.dabomstew.pkrandom.pokemon" descr="An enum that represents the different types of SOS Encounter (from generation 7).">
       <members>
         <mem name="GENERIC" type="integer" static="true" descr="A generic SOS Encounter."/>
         <mem name="RAIN" type="integer" static="true" descr="An SOS Encounter that only happens in the rain."/>
@@ -4360,7 +4360,7 @@
       </members>
     </class>
 
-    <class name="TotemPokemon" category="Main" descr="A class that represents an excounter with a Totem Pokemon." base="StaticEncounter">
+    <class name="TotemPokemon" category="Main" package="com.dabomstew.pkrandom.pokemon" descr="A class that represents an excounter with a Totem Pokemon." base="StaticEncounter">
       <members>
         <mem name="aura" type="Aura" descr="The Aura boost applied to this Totem."/>
         <mem name="unused" type="bool" descr="True if this TotemPokemon is unused."/>

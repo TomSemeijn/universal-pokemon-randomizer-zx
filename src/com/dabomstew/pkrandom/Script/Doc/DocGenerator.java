@@ -95,6 +95,7 @@ public class DocGenerator {
         public String name= "";
         public String descr= "";
         public String category= "";
+        public String packageName= "";
         public List<Method> methods = new ArrayList<>();
         public List<Member> members = new ArrayList<>();
         public Class baseClass = null;
@@ -184,6 +185,7 @@ public class DocGenerator {
     {
         String result = "<div class=\"classContent\" id=\"Class_"+cls.name+"\">";
         result += "<h1>Class: "+cls.name+"</h1>";
+        result += "<p class=\"jythonImport\"><span class=\"jythonKeyword\">from</span> <span class=\"jythonPackage\">"+cls.packageName+"</span> <span class=\"jythonKeyword\">import</span> <span class=\"jythonDataType\">"+cls.name+"</span></p>";
         List<Member> members = new ArrayList<>(cls.members);
         List<Method> methods = new ArrayList<>(cls.methods);
         Class parent = cls.baseClass;
@@ -569,6 +571,7 @@ public class DocGenerator {
         resultClass.name = attr.getNamedItem("name").getNodeValue();
         resultClass.descr = attr.getNamedItem("descr").getNodeValue();
         resultClass.category = attr.getNamedItem("category").getNodeValue();
+        resultClass.packageName = attr.getNamedItem("package").getNodeValue();
         NodeList children = cls.getChildNodes();
         Node membersList = null;
         Node methodsList = null;

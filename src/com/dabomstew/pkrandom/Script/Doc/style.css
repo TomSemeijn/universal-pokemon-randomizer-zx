@@ -216,3 +216,28 @@ h2
   padding-right:64px;
   position: relative;
 }
+
+.jythonKeyword
+{
+  font-weight: bold;
+  color: rgb(86, 156, 214);
+}
+
+.jythonPackage
+{
+  font-style: italic;
+  color: rgb(154, 154, 154);
+}
+
+.jythonDataType
+{
+  font-weight: bold;
+  color: rgb(78, 201, 176);
+}
+
+.jythonImport
+{
+  border:1px solid white;
+  padding:8px;
+  width:max-content;
+}
