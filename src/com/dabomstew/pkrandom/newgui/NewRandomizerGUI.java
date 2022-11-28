@@ -1223,7 +1223,11 @@ public class NewRandomizerGUI {
 
     List<Component> prevDisabledComponents;
     private void disableComponents(Component comp) {
-        comp.setEnabled(false);
+        if(comp.isEnabled())
+        {
+            comp.setEnabled(false);
+            prevDisabledComponents.add(comp);
+        }
         if(comp instanceof Container) {
             Container container = (Container)comp;
             Component[] components = container.getComponents();
