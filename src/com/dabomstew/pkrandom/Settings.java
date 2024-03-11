@@ -823,7 +823,7 @@ public class Settings {
         settings.setTutorsGoodDamagingPercent(data[23] & 0x7F);
 
         // new 150
-        settings.setInGameTradesMod(restoreEnum(InGameTradesMod.class, data[24], 6, // UNCHANGED
+        settings.setInGameTradesMod(restoreEnum(InGameTradesMod.class, data[24], 7, // UNCHANGED
                 1, // RANDOMIZE_GIVEN
                 0, // RANDOMIZE_GIVEN_AND_REQUESTED
                 2  // SCRIPTED
