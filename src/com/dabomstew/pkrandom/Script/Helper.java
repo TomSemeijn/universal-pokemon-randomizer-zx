@@ -17,6 +17,21 @@ import java.util.Objects;
 
 public class Helper {
 
+    private static List<PyString> logged = new ArrayList<>();
+    public static void logOnce(PyString toLog)
+    {
+        if(!logged.contains(toLog))
+        {
+            System.out.println(toLog.asString());
+            logged.add(toLog);
+        }
+    }
+
+    public static void resetHelper()
+    {
+        logged.clear();
+    }
+
     //turns a java string into a (sanitized) python string
     public static PyString toStr(String value)
     {
@@ -482,9 +497,10 @@ public class Helper {
         String findDef = "def find(pokepool, num):\n\treturn Helper.find(pokepool, num)";
         String seqDef = "def seq(list):\n\treturn Helper.seq(list)";
         String hasTypeDef = "def hasType(poke, type):\n\treturn Helper.hasType(poke, type)";
+        String logOnceDef = "def logOnce(toLog):\n\treturn Helper.logOnce(toLog)";
         String indexTypeDef = "class Index:\n\tABILITY = Helper.Index.ABILITY\n\tITEM = Helper.Index.ITEM\n\tMOVE = Helper.Index.MOVE\n\tPOKEMON = Helper.Index.POKEMON";
         String newLn = "\n\n";
-        return newLn + helperImport + newLn + toStrDef + newLn + indexDef + newLn + simStrengthDef + newLn + findDef + newLn + seqDef + newLn + hasTypeDef + newLn + indexTypeDef + newLn;
+        return newLn + helperImport + newLn + logOnceDef + newLn + toStrDef + newLn + indexDef + newLn + simStrengthDef + newLn + findDef + newLn + seqDef + newLn + hasTypeDef + newLn + indexTypeDef + newLn;
     }
 
     public static void initJythonDoc(JythonSyntaxDocument jdoc)
@@ -497,6 +513,7 @@ public class Helper {
         jdoc.addExtraGlobalFunc(dummy.new Function("find", -1));
         jdoc.addExtraGlobalFunc(dummy.new Function("seq", -1));
         jdoc.addExtraGlobalFunc(dummy.new Function("hasType", -1));
+        jdoc.addExtraGlobalFunc(dummy.new Function("logOnce", -1));
 
         JythonScope.Class indexCls = dummy.new Class("Index", -1);
         indexCls.members.add(dummy.new Variable("ABILITY", 1));
