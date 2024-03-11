@@ -4380,4 +4380,13 @@
     </class>
 
   </classes>
+  <entryPoints>
+    <func name="selectStarter" descr="Enabled when selecting &quot;Scripted&quot; under &quot;Starter Pokemon&quot;. Gets called to select every starter pokemon individually.&lt;br&gt;Note: you can call ROM.getStarters() to get the original starters.">
+      <arguments>
+        <arg name="pokepool" type="sequence" descr="A sequence of pokemon objects representing all pokemon this function can choose from"/>
+        <arg name="starterIndex" type="integer" descr="The index-number of the starter (usually 0-2, but can be higher in games where you pick starters multiple times like the gen 1 starters in X&amp;Y)."/>
+      </arguments>
+      <return type="Pokemon" descr="A Pokemon object, that exists in the given pokepool, that this starter should be replaced by."/>
+    </func>
+  </entryPoints>
 </data>

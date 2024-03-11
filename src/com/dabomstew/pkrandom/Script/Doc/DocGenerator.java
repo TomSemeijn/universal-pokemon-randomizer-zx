@@ -120,6 +120,7 @@ public class DocGenerator {
     {
         public List<Function> funcs = new ArrayList<>();
         public List<Class> classes = new ArrayList<>();
+        public List<Function> entryPoints = new ArrayList<>();
 
         @Override
         public String toString()
@@ -151,6 +152,9 @@ public class DocGenerator {
         //create main page
         createMainPage(dstFolder, doc);
 
+        //create entrypoint page
+        createEntryPointPage(dstFolder, doc);
+
         //copy over the style file
         copyStyleFile(styleFile, dstFolder);
 
@@ -164,7 +168,7 @@ public class DocGenerator {
     {
         String result = "<div class=\"funcContent\" id=\"Function_"+func.name+"\"><div id=\"Function_"+func.name+func.args.size()+"\">";
         String fullName = getFullName(func);
-        result += "<h3>"+identifier+": "+fullName+"</h3>";
+        result += "<h3>"+(identifier.isEmpty() ? "" : identifier+": ")+fullName+"</h3>";
         result += "<p>"+getLinked(func.descr, doc, subFolderLevel)+"</p>";
         if(func.args.size() > 0) {
             result += "<div class=\"argumentList\"><h4>Arguments</h4>";
@@ -299,6 +303,9 @@ public class DocGenerator {
         }
         result += "</div></td>";
 
+        //entrypoints
+        result += "<td class=\"clickable headerButton\" onclick=\"window.location.href='"+ relativeStart + "entrypoints.html'\">Entrypoints</td>";
+
         result += "</tr></table>";
         result += "</div>";
         result += "<div id=\"backToTop\" class=\"clickable\" onclick=\"window.scrollTo(0, 0)\">^</div>";
@@ -326,6 +333,27 @@ public class DocGenerator {
     }
 
     private static String getMainPageFileName(String dstFolder) { return dstFolder + "/index.html"; }
+
+    private static void createEntryPointPage(String dstFolder, ScriptDocument doc)
+    {
+        String pageBody = getHeaderHTML(0, doc);
+        pageBody += "<h1>Entrypoints</h1>";
+
+        pageBody += "<table class=\"entrypointTable\"><tr><th>Entrypoint</th></tr>";
+        for(Function func : doc.entryPoints)
+        {
+            pageBody += "<tr><td><a href=\"#"+func.name+func.args.size()+"\">"+func.name+"</a></td></tr>";
+        }
+        pageBody += "</table>";
+
+        for(Function func : doc.entryPoints)
+        {
+            pageBody += getFunctionHTML(func, doc, 0, "");
+        }
+
+        String result = getOpenHTML("Entry Points", 0) + "<body>" + pageBody + "</body>";
+        writeFile(dstFolder + "/entrypoints.html", result);
+    }
 
     private static void createFunctionPage(String dstFolder, Function func, ScriptDocument doc)
     {
@@ -443,16 +471,22 @@ public class DocGenerator {
             for (Function func : doc.funcs) {
                 if(dotsOnly && !func.name.contains(".")) { continue; }
                 String link = "";
-                for (int k = 0; k < subFolderLevel; k++)
-                    link += "../";
+                if(subFolderLevel == 0)
+                    link += "./";
+                else
+                    for (int k = 0; k < subFolderLevel; k++)
+                        link += "../";
                 link += getRootFunctionURL(func).substring(link.length() > 0 ? 1 : 0);
                 source = replaceWholeWord(source, func.name, "<a href=\"" + link + "\">" + func.name + "</a>");
             }
             for (Class cls : doc.classes) {
                 if(dotsOnly && !cls.name.contains(".")) { continue; }
                 String link = "";
-                for (int k = 0; k < subFolderLevel; k++)
-                    link += "../";
+                if(subFolderLevel == 0)
+                    link += "./";
+                else
+                    for (int k = 0; k < subFolderLevel; k++)
+                        link += "../";
                 link += getRootClassURL(cls).substring(link.length() > 0 ? 1 : 0);
                 source = replaceWholeWord(source, cls.name, "<a href=\"" + link + "\">" + cls.name + "</a>");
             }
@@ -487,6 +521,7 @@ public class DocGenerator {
             Element root = doc.getDocumentElement();
             NodeList functionList = root.getElementsByTagName("functions").item(0).getChildNodes();
             NodeList classList = root.getElementsByTagName("classes").item(0).getChildNodes();
+            NodeList entryPointList = root.getElementsByTagName("entryPoints").item(0).getChildNodes();
 
             for(int k = 0; k < functionList.getLength(); k++)
             {
@@ -500,6 +535,15 @@ public class DocGenerator {
                 Class cls = getParsedClass(classList.item(k));
                 if(cls != null)
                     scriptDoc.classes.add(cls);
+            }
+
+            for(int k = 0; k < entryPointList.getLength(); k++)
+            {
+                Function func = getParsedFunction(entryPointList.item(k));
+                if(func != null)
+                {
+                    scriptDoc.entryPoints.add(func);
+                }
             }
 
             //add base classes after parsing them so that their definition order won't matter

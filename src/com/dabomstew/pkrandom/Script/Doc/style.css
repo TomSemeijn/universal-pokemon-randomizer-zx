@@ -109,24 +109,24 @@ h2
   }
 }
 
-.classSummaryTable, .overloadTable
+.classSummaryTable, .overloadTable, .entrypointTable
 {
   min-width: 50%;
   text-align: left;
   border:2px solid white;
 }
 
-.classSummaryTable tr:nth-child(even), .overloadTable tr:nth-child(even)
+.classSummaryTable tr:nth-child(even), .overloadTable tr:nth-child(even), .entrypointTable tr:nth-child(even)
 {
   background-color: #1D1D1D;
 }
 
-.classSummaryTable th, .overloadTable th
+.classSummaryTable th, .overloadTable th, .entrypointTable th
 {
   border-bottom: 2px solid white;
 }
 
-.classSummaryTable td, .overloadTable td
+.classSummaryTable td, .overloadTable td, .entrypointTable td
 {
   padding:4px;
 }
