@@ -21,6 +21,8 @@ public class ScriptInstance {
         this.rom = rom;
         this.settings = settings;
 
+        Helper.resetHelper();
+
         interp = new PythonInterpreter();
         interp.exec(Helper.DefinitionString());
         addROMInfo();
@@ -104,13 +106,13 @@ public class ScriptInstance {
         }
         for(int iv : result.ivs)
         {
-            if(iv < 0 || iv > maxIV)
+            if(iv < -1 || iv > maxIV)
             {
                 String IVString = "[";
                 for(Integer thisIV : result.ivs)
                     IVString += thisIV + ", ";
                 IVString = IVString.substring(0, IVString.length() - 2) + "]";
-                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [0-"+maxIV+"] range! The given values are "+IVString+". You can get the maximum IV value in your script with ROM.maxIV");
+                throw new RuntimeException("IVs given Pokemon "+result.givenPokemon.name+" selected in function \"selectInGameTradePokemon\" has values outside of the [-1 : "+maxIV+"] range! The given values are "+IVString+". You can get the maximum IV value in your script with ROM.maxIV");
             }
         }
         if(result.otName.length() > rom.maxTradeOTNameLength())
@@ -581,6 +583,7 @@ public class ScriptInstance {
             {
                 oldEvos.put(new PyString("species"), new PyInteger(convertedIndex(evo.extraInfo, rom.getItemClass(), Items.class)));
             }
+            pyOldEvos.append(oldEvos);
         }
 
         //call function
@@ -644,7 +647,12 @@ public class ScriptInstance {
                 boolean found = false;
                 for(Pokemon fpoke : fullPool)
                 {
-                    if(fpoke.number == extraInfo){ found = true; break; }
+                    if(fpoke != null) {
+                        if (fpoke.number == extraInfo) {
+                            found = true;
+                            break;
+                        }
+                    }
                 }
                 if(!found)
                 {
