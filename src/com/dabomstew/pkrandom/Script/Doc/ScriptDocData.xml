@@ -3,6 +3,12 @@
   <functions>
 
     <!--- helper functions -->
+    <func name="logOnce" descr="Will log the given message only once. Every future call with the same string is ignored. Useful for logging what step of randomization is being executed.">
+      <arguments>
+        <arg name="toLog" type="string" descr="The message to log."/>
+      </arguments>
+    </func>
+
     <func name="toStr" descr="Converts enum values of ExpCurve, EvolutionType, MoveCategory, Stat, StatChangeMoveType, StatChangeType, StatusMoveType, StatusType, and Type to strings. Another use is in converting strings from Java with characters that cannot be printed into the console (like the male/female signs) to strings that can be printed.">
       <arguments>
         <arg name="value" type="enum value, or string" descr="The value to convert to string."/>
