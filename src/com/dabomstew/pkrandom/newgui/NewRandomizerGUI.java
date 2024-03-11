@@ -40,15 +40,19 @@ import com.dabomstew.pkrandom.romhandlers.*;
 import org.fife.ui.autocomplete.*;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.Gutter;
+import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.RUndoManager;
 import org.python.google.common.primitives.Ints;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -387,6 +391,7 @@ public class NewRandomizerGUI {
                         TRAINER_TYPE_THEMED = 4, TRAINER_TYPE_THEMED_ELITE4_GYMS = 5, TRAINER_SCRIPTED = 6;
 
     private JFrame consoleWindow;
+    private TextAreaOutputStream consoleOutputStream;
     private JTextArea consoleText;
 
     private boolean generatedDocs = false;
@@ -472,7 +477,11 @@ public class NewRandomizerGUI {
             JPanel inputPanel = new JPanel();
             inputPanel.setLayout(new FlowLayout());
             JButton button = new JButton("Clear");
-            button.addActionListener(e -> {consoleText.setText("");System.out.flush();});
+            button.addActionListener(e -> {
+                consoleText.setText("");
+                System.out.flush();
+                consoleOutputStream.clear();
+            });
 
             consoleText = new JTextArea(20, 100);
             consoleText.setWrapStyleWord(false);
@@ -490,7 +499,8 @@ public class NewRandomizerGUI {
             consoleWindow.setLocationByPlatform(true);
             consoleWindow.setResizable(true);
 
-            MultiOutputStream multiOut= new MultiOutputStream(System.out, new TextAreaOutputStream(consoleText));
+            consoleOutputStream = new TextAreaOutputStream(consoleText);
+            MultiOutputStream multiOut= new MultiOutputStream(System.out, consoleOutputStream);
             PrintStream con=new PrintStream(multiOut);
             System.setOut(con);
             System.setErr(con);
@@ -802,7 +812,6 @@ public class NewRandomizerGUI {
         scheme.getStyle(Token.PREPROCESSOR).font = boldFont;
 
         sScriptInput.revalidate();
-
         sScriptInput.getDocument().addDocumentListener(new JythonDocumentListener(sScriptInput));
 
         /*
@@ -850,7 +859,7 @@ public class NewRandomizerGUI {
         //add the RandomSource import
         String scriptText = sScriptInput.getText();
         scriptText = addImport(scriptText, "com.dabomstew.pkrandom", "RandomSource");
-        sScriptInput.setText(scriptText);
+        setScriptText(scriptText);
     }
 
     private CompletionProviderBase createCompletionProvider()
@@ -1759,10 +1768,14 @@ public class NewRandomizerGUI {
         spBanBadItemsCheckBox.setSelected(settings.isBanBadRandomStarterHeldItems());
         spAllowAltFormesCheckBox.setSelected(settings.isAllowStarterAltFormes());
 
-        int[] customStarters = settings.getCustomStarters();
-        spComboBox1.setSelectedIndex(customStarters[0] - 1);
-        spComboBox2.setSelectedIndex(customStarters[1] - 1);
-        spComboBox3.setSelectedIndex(customStarters[2] - 1);
+        //only load custom starters if they were set in the settings - prevents failure when loading settings from a newer ROM
+        if(settings.getStartersMod() == Settings.StartersMod.CUSTOM)
+        {
+            int[] customStarters = settings.getCustomStarters();
+            spComboBox1.setSelectedIndex(customStarters[0] - 1);
+            spComboBox2.setSelectedIndex(customStarters[1] - 1);
+            spComboBox3.setSelectedIndex(customStarters[2] - 1);
+        }
 
         peUnchangedRadioButton.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.UNCHANGED);
         peRandomRadioButton.setSelected(settings.getEvolutionsMod() == Settings.EvolutionsMod.RANDOM);
@@ -1961,7 +1974,7 @@ public class NewRandomizerGUI {
         puScriptedRadioButton.setSelected(settings.getPickupItemsMod() == Settings.PickupItemsMod.SCRIPTED);
         puBanBadItemsCheckBox.setSelected(settings.isBanBadRandomPickupItems());
 
-        sScriptInput.setText(settings.getScriptSource());
+        setScriptText(settings.getScriptSource());
 
         int mtsSelected = settings.getCurrentMiscTweaks();
         int mtCount = MiscTweak.allTweaks.size();
@@ -4585,6 +4598,24 @@ public class NewRandomizerGUI {
         boolean script = anyScripted();
         return !script;
     }
+    
+    private void setScriptText(String scriptText)
+    {
+        sScriptInput.setText(scriptText);
+
+        // Big bad private member access to reset the undomanager of the script input when adding example functions.
+        // This prevents undoing from clearing the input entirely, because setText will first clear the text and then insert the new version.
+        // Collapsing these edits may be possible, but it also makes sense to just do this instead honestly because you also need to disable the option when a function would be undone and that's not standardized so neither should this.
+        try {
+            Field privateField = RTextArea.class.getDeclaredField("undoManager");
+            privateField.setAccessible(true);
+            RUndoManager undoManager = (RUndoManager)privateField.get((RTextArea)sScriptInput);
+            undoManager.discardAllEdits();
+        }
+        catch(NoSuchFieldException | IllegalAccessException ignored){
+            // Never happens, the member name is hardcoded and the member is set to accessible, so nothing happens here
+        }
+    }
 
     private void addStarterScriptFunc()
     {
@@ -4603,8 +4634,7 @@ public class NewRandomizerGUI {
         {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
-
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4631,7 +4661,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4654,8 +4684,8 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "IngameTrade");
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
-
-            sScriptInput.setText(scriptText);
+            
+            setScriptText(scriptText);
         }
     }
 
@@ -4679,7 +4709,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4709,7 +4739,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4737,7 +4767,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4759,7 +4789,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4789,7 +4819,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4815,7 +4845,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4841,7 +4871,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4867,7 +4897,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4893,7 +4923,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4916,7 +4946,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4939,7 +4969,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4964,7 +4994,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Abilities");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -4987,7 +5017,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "ExpCurve");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5014,7 +5044,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5038,7 +5068,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5061,7 +5091,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5087,7 +5117,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5112,7 +5142,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5137,7 +5167,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Pokemon");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5163,7 +5193,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Moves");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5196,7 +5226,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Species");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5221,7 +5251,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Shop");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5244,7 +5274,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.constants", "Items");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5270,7 +5300,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 
@@ -5297,7 +5327,7 @@ public class NewRandomizerGUI {
             scriptText = addImport(scriptText, "com.dabomstew.pkrandom.pokemon", "Type");
             scriptText = addExampleFunc(scriptText, funcDeclaration, funcComments, funcBody);
 
-            sScriptInput.setText(scriptText);
+            setScriptText(scriptText);
         }
     }
 

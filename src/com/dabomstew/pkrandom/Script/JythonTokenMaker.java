@@ -63,16 +63,15 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
             String full = this.doc.getAllText();
             String segPart = new String(segment.array, start, (end + 1) - start);
-
             boolean valid = true;
             if ((start >= full.length() || end >= full.length()) || !full.substring(start, end + 1).equals(segPart)) {
                 valid = false;
                 int segStartLine = start;
                 int segEndLine = end;
-                while (segStartLine > 0 && segment.array[segStartLine - 1] != '\n') {
+                while (segStartLine > 0 && segment.array[segStartLine - 1] != '\n' && segment.array[segStartLine - 1] != 0) {
                     segStartLine--;
                 }
-                while (segEndLine < segment.array.length && segment.array[segEndLine] != '\n') {
+                while (segEndLine < segment.array.length && segment.array[segEndLine] != '\n' && segment.array[segEndLine] != 0) {
                     segEndLine++;
                 }
                 String segLine = new String(segment.array, segStartLine, segEndLine - segStartLine);
@@ -88,9 +87,20 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                 }
                 String fullLine = full.substring(fullStart, fullEnd);
 
+                // When adding a newline, the previous line detection will wrongfully point to the line before the desired one
+                while(fullEnd < full.length() && !fullLine.equals(segLine))
+                {
+                    fullStart = fullEnd + 1;
+                    fullEnd = fullStart;
+                    while (fullEnd < full.length() && full.charAt(fullEnd) != '\n') {
+                        fullEnd++;
+                    }
+                    fullLine = full.substring(fullStart, fullEnd);
+                }
+
                 if (fullLine.equals(segLine)) {
-                    start += fullStart;
-                    end += fullStart;
+                    start = fullStart + (start - segStartLine);
+                    end = start + (originalEnd - originalStart);
                     if (startOffset < fullStart)
                         startOffset += fullStart;
                     valid = true;
@@ -120,7 +130,7 @@ public class JythonTokenMaker extends AbstractTokenMaker {
                 int searchStart = (start > segment.array.length) ? line.indexOf(part) : start;
                 int searchEnd = searchStart + part.length() - 1;
 
-                int value = wordsToHighlight.get(segment, searchStart, searchEnd);
+                int value = wordsToHighlight.get(segment, originalStart, originalEnd);
                 boolean preChangeCheck = lineOffset >= line.length();
                 if(!preChangeCheck) {
                     if (value != -1 && line.length() > 0 && !(lineOffset > 0 && line.charAt(lineOffset - 1) == '.')) {
@@ -390,7 +400,7 @@ public class JythonTokenMaker extends AbstractTokenMaker {
 
                     } // End of switch (c).
 
-                default: // Should never happen
+                //default: // Should never happen
                 case Token.IDENTIFIER:
 
                     switch (c) {

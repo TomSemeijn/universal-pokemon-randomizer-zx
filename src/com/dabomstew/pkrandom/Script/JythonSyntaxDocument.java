@@ -1,13 +1,15 @@
 package com.dabomstew.pkrandom.Script;
 
 import org.fife.ui.rsyntaxtextarea.*;
+import org.fife.ui.rtextarea.RTextArea;
+import org.fife.ui.rtextarea.RUndoManager;
 import org.fife.util.DynamicIntArray;
 
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.Segment;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.*;
+import javax.swing.undo.UndoableEdit;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +23,26 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
     private String myCachedText = "";
     private boolean cachedTextDirty = true;
 
-
     public JythonSyntaxDocument(String syntaxStyle) {
         super(syntaxStyle);
     }
 
     public JythonSyntaxDocument(TokenMakerFactory tmf, String syntaxStyle) {
         super(tmf, syntaxStyle);
+    }
+
+    @Override
+    public void remove(int offs, int len) throws BadLocationException {
+        super.remove(offs, len);
+        this.lastEditOffset = offs;
+        onTextUpdate();
+    }
+
+    @Override
+    public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+        super.insertString(offs, str, a);
+        this.lastEditOffset = offs;
+        onTextUpdate();
     }
 
     @Override
@@ -42,25 +57,32 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
         initTokenMaker();
     }
 
-    private void initTokenMaker()
-    {
+    private void initTokenMaker() {
         try {
             //big bad accessing a private member from a base class because I need all text in the document to be
             //available from the tokenmaker and I can't edit the source code of the RSyntaxTextArea library to make it protected
             Field privateField = RSyntaxDocument.class.getDeclaredField("tokenMaker");
             privateField.setAccessible(true);
-            JythonTokenMaker tokenMaker = (JythonTokenMaker)privateField.get((RSyntaxDocument)this);
-            if(tokenMaker != null)
+            JythonTokenMaker tokenMaker = (JythonTokenMaker) privateField.get((RSyntaxDocument) this);
+            if (tokenMaker != null)
                 tokenMaker.doc = this;
+        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException e) {
         }
-        catch(NoSuchFieldException e){}
-        catch(IllegalAccessException e){}
     }
 
     @Override
     protected void fireInsertUpdate(DocumentEvent e) {
         lastEditOffset = e.getOffset();
+        onTextUpdate();
         super.fireInsertUpdate(e);
+    }
+
+    @Override
+    protected void fireRemoveUpdate(DocumentEvent e) {
+        lastEditOffset = e.getOffset();
+        onTextUpdate();
+        super.fireRemoveUpdate(e);
     }
 
     public int getLastEditOffset(){ return this.lastEditOffset; }
@@ -128,6 +150,12 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
             //move up in scope when reaching lower tab levels
             if(startLine)
             {
+                // Skip empty lines so they don't affect scope
+                if(c == '\n')
+                {
+                    continue;
+                }
+
                 //increment tab level
                 if(c == '\t')
                 {
@@ -199,6 +227,13 @@ public class JythonSyntaxDocument extends RSyntaxDocument {
                             String[] splitArgs = argList.split(",");
                             for (int argIndex = 0; argIndex < splitArgs.length; argIndex++) {
                                 splitArgs[argIndex] = splitArgs[argIndex].trim();
+
+                                // Deal with default arguments by only tracking the argument name
+                                if(splitArgs[argIndex].contains("="))
+                                {
+                                    splitArgs[argIndex] = splitArgs[argIndex].split("=")[0].trim();
+                                }
+
                                 if (splitArgs[argIndex].length() > 0) {
                                     func.arguments.add(splitArgs[argIndex]);
                                 }
